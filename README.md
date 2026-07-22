@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FoodRaksha
 
-## Getting Started
+FSSAI licensing platform — CRM first, marketing site and partner portal later,
+all in one Next.js codebase.
 
-First, run the development server:
+Read [CLAUDE.md](./CLAUDE.md) before changing anything. The design system is in
+[docs/DESIGN-SYSTEM.md](./docs/DESIGN-SYSTEM.md), the schema of record in
+[docs/DATA-MODEL.md](./docs/DATA-MODEL.md).
+
+## Setup
+
+Requires Node 20+ and PostgreSQL 14+.
 
 ```bash
+npm install
+cp .env.example .env          # then fill in DATABASE_URL and AUTH_SECRET
+createdb foodraksha_dev       # or point DATABASE_URL at an existing database
+npm run db:migrate            # applies prisma/migrations
+npm run db:seed               # prints the passwords it generates
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`AUTH_SECRET` needs 32+ characters: `openssl rand -base64 48`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Signing in
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The seed prints one admin and two customer logins. Mobile number is the
+username; a 10-digit number, `+91…` or `0…` are all accepted.
 
-## Learn More
+| Portal   | Route                     | Who                  |
+| -------- | ------------------------- | -------------------- |
+| Customer | `/login` → `/dashboard`   | Food business owners |
+| Staff    | `/staff/login` → `/staff` | FoodRaksha employees |
 
-To learn more about Next.js, take a look at the following resources:
+Each portal rejects the other's users — a customer sent to `/staff` lands back
+on `/dashboard`, and the reverse.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+To seed with passwords you choose:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+SEED_ADMIN_PASSWORD=... SEED_CUSTOMER_1_PASSWORD=... npm run db:seed
+```
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Command              | What it does                                          |
+| -------------------- | ----------------------------------------------------- |
+| `npm run dev`        | Development server                                    |
+| `npm run build`      | Production build — must pass before any stage is done |
+| `npm run typecheck`  | `tsc --noEmit`                                        |
+| `npm run lint`       | ESLint                                                |
+| `npm run format`     | Prettier                                              |
+| `npm run db:migrate` | Create and apply a migration                          |
+| `npm run db:seed`    | Seed categories, form sections, demo customers        |
+| `npm run db:reset`   | Drop, re-migrate and re-seed                          |
+| `npm run db:studio`  | Prisma Studio                                         |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Design reference
+
+`/design-system` renders every UI primitive in every state. Compare it with
+`docs/prototype.html`, the client-approved prototype.
