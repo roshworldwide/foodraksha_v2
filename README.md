@@ -63,6 +63,27 @@ when the marketing site ships. Credential delivery uses the adapters in
 `src/lib/notifications` — without `RESEND_API_KEY` / `MSG91_AUTH_KEY` set,
 delivery is reported as skipped and signup still succeeds.
 
+## The questionnaire
+
+`/application/[section]` is a schema-driven wizard: it renders whatever
+`FormSection.fields` says, so a new question is a database change and nothing
+more. Answers live in `Application.data` keyed by the canonical field keys in
+[docs/DATA-MODEL.md](./docs/DATA-MODEL.md).
+
+- Sections shown = core sections + the `extraSections` on the customer's
+  business category. A restaurant never sees Equipment & Capacity.
+- A field key asked in two sections is asked **once**; later sections show the
+  answer read-only with a link back to where it was entered.
+- Autosave posts the whole section to `POST /api/customer/application/section`,
+  which merges with `data || patch` in Postgres — concurrent saves cannot lose
+  each other's keys. Completion is recomputed server-side on every save.
+- `/application/review` reads everything back in plain language and submits.
+
+Field types: `text`, `multiline`, `number`, `date`, `select`, `multiselect`,
+`radio`, `checkbox`, `group` (repeatable rows), plus `tel`/`email` and
+`file`/`signature` placeholders until uploads land. Add `"width": "half"` to
+two consecutive fields to put them side by side.
+
 ## Scripts
 
 | Command              | What it does                                          |

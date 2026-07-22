@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import {
+  ButtonLink,
   Card,
   List,
   ListGroup,
@@ -16,8 +17,13 @@ export const metadata: Metadata = {
   title: "Your applications — FoodRaksha",
 };
 
-export default async function CustomerDashboardPage() {
+export default async function CustomerDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ submitted?: string }>;
+}) {
   const session = await requireCustomer();
+  const { submitted } = await searchParams;
 
   const [customer, coreSectionCount] = await Promise.all([
     prisma.customer.findUnique({
@@ -41,6 +47,15 @@ export default async function CustomerDashboardPage() {
         Signed in as {session.user.mobile}.
       </p>
 
+      {submitted === "1" && (
+        <Card className="mb-6">
+          <h2 className="text-title-3">Application submitted</h2>
+          <p className="mt-1.5 text-body text-label-2">
+            Our team has it. We will be in touch if anything needs clarifying.
+          </p>
+        </Card>
+      )}
+
       {customer && customer.applications.length > 0 ? (
         <ListGroup>
           <ListGroupHeader>Applications</ListGroupHeader>
@@ -58,6 +73,16 @@ export default async function CustomerDashboardPage() {
                   key={application.id}
                   title={application.applicationNo}
                   subtitle={`${application.category.name} · ${LICENCE_TYPE[application.licenceType]} · ${done} of ${coreSectionCount} sections`}
+                  href={
+                    application.status === "DRAFT" ||
+                    application.status === "QUERY_RAISED"
+                      ? "/application"
+                      : undefined
+                  }
+                  chevron={
+                    application.status === "DRAFT" ||
+                    application.status === "QUERY_RAISED"
+                  }
                   trailing={
                     <span className="flex items-center gap-3">
                       <Progress
@@ -81,6 +106,11 @@ export default async function CustomerDashboardPage() {
             Your FoodRaksha agent will start one for you. You will get an SMS
             the moment it is ready to fill in.
           </p>
+          <div className="mt-5">
+            <ButtonLink href="/get-started" variant="secondary">
+              Start one now
+            </ButtonLink>
+          </div>
         </Card>
       )}
     </main>
