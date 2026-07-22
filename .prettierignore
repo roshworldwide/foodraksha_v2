@@ -1,0 +1,8 @@
+.next
+node_modules
+package-lock.json
+
+# Source-of-truth documents — keep byte-identical to the build pack.
+CLAUDE.md
+AGENTS.md
+docs/
