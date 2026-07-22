@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FoodRaksha CRM — Design Prototype</title>
+<style>
+/* ============================================================
+   FOODRAKSHA DESIGN SYSTEM
+   Apple iOS visual language · Titanium palette · SF Pro
+   ============================================================ */
+:root{
+  /* — Titanium palette — */
+  --nat-titanium:      #C3BCB1;
+  --nat-titanium-mid:  #A8A197;
+  --nat-titanium-deep: #6E6960;
+  --white-titanium:    #F0EEE9;
+  --white-titanium-lt: #F7F6F3;
+
+  --bg:            #EFEDE8;
+  --surface:       #FFFFFF;
+  --surface-sunk:  #E8E5DF;
+
+  /* — Type — */
+  --label:      #1D1D1F;
+  --label-2:    rgba(60,60,67,.60);
+  --label-3:    rgba(60,60,67,.32);
+  --separator:  rgba(60,60,67,.16);
+
+  /* — Action — */
+  --graphite:   #1D1D1F;
+
+  /* — Status only (functional exception) — */
+  --ok:      #34785A;
+  --wait:    #9A7B3F;
+  --stop:    #A2453C;
+  --ok-bg:   #E4EFE9;
+  --wait-bg: #F5EEDF;
+  --stop-bg: #F6E5E3;
+
+  --r-card: 18px;
+  --r-list: 12px;
+  --r-pill: 980px;
+
+  --sh-1: 0 1px 2px rgba(0,0,0,.04), 0 1px 1px rgba(0,0,0,.03);
+  --sh-2: 0 4px 16px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --sh-3: 0 12px 40px rgba(0,0,0,.14), 0 2px 8px rgba(0,0,0,.06);
+
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+          "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+*{box-sizing:border-box; margin:0; padding:0}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--label);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  padding-bottom:60px;
+}
+
+/* — iOS type scale — */
+.t-large   {font-size:34px; font-weight:700; letter-spacing:-.026em; line-height:1.16}
+.t-title1  {font-size:28px; font-weight:700; letter-spacing:-.022em; line-height:1.2}
+.t-title2  {font-size:22px; font-weight:700; letter-spacing:-.018em; line-height:1.25}
+.t-title3  {font-size:20px; font-weight:600; letter-spacing:-.014em; line-height:1.3}
+.t-head    {font-size:17px; font-weight:600; letter-spacing:-.012em}
+.t-body    {font-size:17px; font-weight:400; letter-spacing:-.011em; line-height:1.45}
+.t-callout {font-size:16px; font-weight:400; letter-spacing:-.010em}
+.t-sub     {font-size:15px; font-weight:400; letter-spacing:-.008em}
+.t-foot    {font-size:13px; font-weight:400; letter-spacing:-.004em}
+.t-cap     {font-size:12px; font-weight:500; letter-spacing:0}
+.dim{color:var(--label-2)} .dim3{color:var(--label-3)}
+
+/* ============ PROTOTYPE CHROME ============ */
+.proto-bar{
+  position:sticky; top:0; z-index:100;
+  background:rgba(240,238,233,.82);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:.5px solid var(--separator);
+  padding:14px 24px;
+  display:flex; align-items:center; gap:20px; flex-wrap:wrap;
+}
+.proto-brand{font-size:15px; font-weight:600; letter-spacing:-.01em; white-space:nowrap}
+.proto-brand span{color:var(--label-2); font-weight:400}
+.seg{
+  display:inline-flex; background:var(--surface-sunk);
+  border-radius:var(--r-pill); padding:2px; gap:2px; flex-wrap:wrap;
+}
+.seg button{
+  font-family:var(--font); font-size:13px; font-weight:500; letter-spacing:-.004em;
+  border:0; background:transparent; color:var(--label-2);
+  padding:7px 15px; border-radius:var(--r-pill); cursor:pointer;
+  transition:all .25s cubic-bezier(.32,.72,0,1); white-space:nowrap;
+}
+.seg button.on{background:var(--surface); color:var(--label); box-shadow:var(--sh-1); font-weight:600}
+
+.stage{max-width:1180px; margin:0 auto; padding:36px 24px}
+.screen{display:none; animation:fade .4s cubic-bezier(.32,.72,0,1)}
+.screen.on{display:block}
+@keyframes fade{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+
+.caption{margin-bottom:26px; max-width:660px}
+.caption h2{font-size:24px; font-weight:700; letter-spacing:-.02em; margin-bottom:6px}
+.caption p{font-size:15px; color:var(--label-2); line-height:1.5}
+
+/* ============ PHONE FRAME ============ */
+.phones{display:flex; gap:34px; flex-wrap:wrap; align-items:flex-start}
+.phone{
+  width:393px; flex:0 0 393px; background:var(--white-titanium-lt);
+  border-radius:46px; padding:11px;
+  border:1px solid rgba(0,0,0,.10);
+  box-shadow:var(--sh-3);
+  background-image:linear-gradient(160deg,#DCD7CF,#B9B2A7 40%,#CFC9C0);
+}
+.phone-in{
+  background:var(--white-titanium); border-radius:36px; overflow:hidden;
+  height:770px; display:flex; flex-direction:column; position:relative;
+}
+.statusbar{
+  height:50px; flex:0 0 50px; display:flex; align-items:center;
+  justify-content:space-between; padding:0 28px 0 32px;
+  font-size:14px; font-weight:600; letter-spacing:-.01em;
+}
+.sb-r{display:flex; gap:5px; align-items:center; font-size:11px}
+.homebar{
+  position:absolute; bottom:7px; left:50%; transform:translateX(-50%);
+  width:138px; height:5px; border-radius:3px; background:rgba(0,0,0,.22);
+}
+.vp{flex:1; overflow-y:auto; padding:0 20px 42px}
+.vp::-webkit-scrollbar{width:0}
+.phone-label{
+  text-align:center; margin-top:14px; font-size:13px;
+  font-weight:600; color:var(--label-2); letter-spacing:-.004em;
+}
+
+/* ============ COMPONENTS ============ */
+.btn{
+  font-family:var(--font); font-size:17px; font-weight:600; letter-spacing:-.012em;
+  border:0; border-radius:var(--r-pill); padding:0 26px;
+  min-height:50px; cursor:pointer; display:inline-flex;
+  align-items:center; justify-content:center; gap:8px;
+  transition:transform .2s cubic-bezier(.32,.72,0,1), opacity .2s, background .2s;
+}
+.btn:active{transform:scale(.965)}
+.btn-primary{background:var(--graphite); color:#fff}
+.btn-primary:hover{opacity:.86}
+.btn-secondary{background:var(--nat-titanium); color:var(--label)}
+.btn-secondary:hover{background:var(--nat-titanium-mid)}
+.btn-quiet{background:rgba(60,60,67,.07); color:var(--label)}
+.btn-quiet:hover{background:rgba(60,60,67,.12)}
+.btn-full{display:flex; width:100%}
+.btn-sm{min-height:36px; font-size:14px; padding:0 16px}
+.btn-xs{min-height:30px; font-size:13px; padding:0 13px; font-weight:600}
+
+/* Inset grouped list */
+.group{margin-bottom:26px}
+.group-hd{
+  font-size:13px; font-weight:600; color:var(--label-2);
+  text-transform:uppercase; letter-spacing:.05em;
+  padding:0 16px 8px;
+}
+.list{background:var(--surface); border-radius:var(--r-list); overflow:hidden; box-shadow:var(--sh-1)}
+.row{
+  display:flex; align-items:center; gap:13px;
+  padding:13px 16px; min-height:52px;
+  border-bottom:.5px solid var(--separator);
+}
+.row:last-child{border-bottom:0}
+.row-tap{cursor:pointer; transition:background .15s}
+.row-tap:hover{background:rgba(60,60,67,.035)}
+.row-main{flex:1; min-width:0}
+.row-title{font-size:17px; letter-spacing:-.011em; font-weight:400}
+.row-sub{font-size:13px; color:var(--label-2); margin-top:2px; letter-spacing:-.004em}
+.chev{color:var(--label-3); font-size:19px; flex:0 0 auto}
+
+.icon{
+  width:30px; height:30px; border-radius:8px; flex:0 0 30px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; background:var(--nat-titanium); color:#fff; font-weight:600;
+}
+.icon-done{background:var(--ok)} .icon-now{background:var(--graphite)}
+.icon-idle{background:var(--nat-titanium)}
+
+/* Fields */
+.field{margin-bottom:18px}
+.field label{
+  display:block; font-size:13px; font-weight:600; color:var(--label-2);
+  margin-bottom:7px; padding-left:2px; letter-spacing:-.004em;
+}
+.input{
+  width:100%; font-family:var(--font); font-size:17px; letter-spacing:-.011em;
+  padding:14px 16px; border:.5px solid var(--separator);
+  border-radius:12px; background:var(--surface); color:var(--label);
+  outline:none; transition:border-color .2s, box-shadow .2s;
+}
+.input::placeholder{color:var(--label-3)}
+.input:focus{border-color:var(--nat-titanium-deep); box-shadow:0 0 0 3.5px rgba(110,105,96,.13)}
+select.input{appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%236E6960' stroke-width='1.8' fill='none' stroke-linecap='round'/></svg>"); background-repeat:no-repeat; background-position:right 16px center}
+
+/* Progress */
+.prog{height:7px; background:var(--surface-sunk); border-radius:var(--r-pill); overflow:hidden}
+.prog i{display:block; height:100%; background:var(--graphite); border-radius:var(--r-pill); transition:width .5s cubic-bezier(.32,.72,0,1)}
+.prog-thin{height:4px}
+
+/* Pills / badges */
+.pill{
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:12px; font-weight:600; letter-spacing:-.002em;
+  padding:5px 11px; border-radius:var(--r-pill); white-space:nowrap;
+}
+.p-ok{background:var(--ok-bg); color:var(--ok)}
+.p-wait{background:var(--wait-bg); color:var(--wait)}
+.p-stop{background:var(--stop-bg); color:var(--stop)}
+.p-idle{background:rgba(60,60,67,.08); color:var(--label-2)}
+.dot{width:6px; height:6px; border-radius:50%; background:currentColor; flex:0 0 6px}
+
+/* Card */
+.card{background:var(--surface); border-radius:var(--r-card); padding:20px; box-shadow:var(--sh-1)}
+.card-dark{background:var(--graphite); color:#fff}
+.card-dark .dim{color:rgba(255,255,255,.62)}
+
+/* Timeline */
+.tl{position:relative; padding-left:26px}
+.tl:before{content:""; position:absolute; left:7px; top:8px; bottom:8px; width:2px; background:var(--surface-sunk); border-radius:2px}
+.tl-i{position:relative; padding-bottom:19px}
+.tl-i:last-child{padding-bottom:0}
+.tl-i:before{
+  content:""; position:absolute; left:-24px; top:5px;
+  width:12px; height:12px; border-radius:50%;
+  background:var(--surface); border:2.5px solid var(--nat-titanium);
+}
+.tl-i.done:before{background:var(--ok); border-color:var(--ok)}
+.tl-i.now:before{background:var(--graphite); border-color:var(--graphite); box-shadow:0 0 0 4px rgba(29,29,31,.13)}
+
+/* Nav bar */
+.navbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:6px 0 16px; position:sticky; top:0; z-index:5;
+  background:linear-gradient(var(--white-titanium) 72%, transparent);
+}
+.nav-act{font-size:17px; color:var(--label); font-weight:400; cursor:pointer; letter-spacing:-.011em}
+.nav-act.strong{font-weight:600}
+
+/* Toggle */
+.tog{width:51px; height:31px; border-radius:var(--r-pill); background:var(--surface-sunk); position:relative; cursor:pointer; transition:background .3s; flex:0 0 51px}
+.tog.on{background:var(--ok)}
+.tog i{position:absolute; top:2px; left:2px; width:27px; height:27px; border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,.16); transition:transform .3s cubic-bezier(.32,.72,0,1)}
+.tog.on i{transform:translateX(20px)}
+
+/* ============ STAFF DESK ============ */
+.desk{background:var(--surface); border-radius:var(--r-card); overflow:hidden; box-shadow:var(--sh-2); position:relative}
+.desk-top{padding:20px 24px; border-bottom:.5px solid var(--separator); display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+.search{
+  flex:1; min-width:210px; font-family:var(--font); font-size:15px;
+  padding:10px 16px; border-radius:var(--r-pill);
+  border:.5px solid var(--separator); background:var(--white-titanium-lt); outline:none;
+}
+.search:focus{border-color:var(--nat-titanium-deep)}
+.filters{display:flex; gap:7px; padding:14px 24px; border-bottom:.5px solid var(--separator); overflow-x:auto; flex-wrap:wrap}
+.chip{
+  font-family:var(--font); font-size:13px; font-weight:500; letter-spacing:-.004em;
+  padding:7px 14px; border-radius:var(--r-pill);
+  border:.5px solid var(--separator); background:var(--surface);
+  color:var(--label-2); cursor:pointer; white-space:nowrap; transition:all .2s;
+}
+.chip:hover{background:var(--white-titanium)}
+.chip.on{background:var(--graphite); color:#fff; border-color:var(--graphite); font-weight:600}
+.chip b{font-weight:700; margin-left:3px}
+
+table{width:100%; border-collapse:collapse}
+th{
+  text-align:left; font-size:11px; font-weight:600; color:var(--label-2);
+  text-transform:uppercase; letter-spacing:.055em;
+  padding:11px 24px; border-bottom:.5px solid var(--separator); background:var(--white-titanium-lt);
+  white-space:nowrap;
+}
+td{padding:12px 24px; border-bottom:.5px solid var(--separator); font-size:14px; letter-spacing:-.006em}
+tbody tr{cursor:pointer; transition:background .13s}
+tbody tr:hover{background:var(--white-titanium-lt)}
+tbody tr.sel{background:var(--white-titanium)}
+.who{font-weight:600; font-size:14px}
+.who-sub{font-size:12px; color:var(--label-2); margin-top:2px}
+.mini{display:flex; align-items:center; gap:8px; min-width:112px}
+.mini .prog{flex:1; height:5px}
+.mini span{font-size:11px; color:var(--label-2); font-weight:600; width:34px; text-align:right; letter-spacing:0}
+
+/* Slide-over */
+.scrim{position:fixed; inset:0; background:rgba(0,0,0,.26); backdrop-filter:blur(3px); opacity:0; pointer-events:none; transition:opacity .35s; z-index:200}
+.scrim.on{opacity:1; pointer-events:auto}
+.over{
+  position:fixed; top:0; right:0; bottom:0; width:min(560px,94vw);
+  background:var(--white-titanium); z-index:201;
+  transform:translateX(100%); transition:transform .45s cubic-bezier(.32,.72,0,1);
+  display:flex; flex-direction:column; box-shadow:-14px 0 46px rgba(0,0,0,.16);
+}
+.over.on{transform:none}
+.over-top{padding:20px 24px 16px; border-bottom:.5px solid var(--separator); background:var(--surface)}
+.over-body{flex:1; overflow-y:auto; padding:22px 24px 40px}
+.over-foot{padding:16px 24px; border-top:.5px solid var(--separator); background:var(--surface); display:flex; gap:10px}
+.grabber{width:36px; height:5px; border-radius:3px; background:var(--label-3); margin:0 auto 14px}
+
+.kv{display:flex; justify-content:space-between; gap:16px; padding:11px 0; border-bottom:.5px solid var(--separator); font-size:14px}
+.kv:last-child{border-bottom:0}
+.kv b{font-weight:600; text-align:right}
+
+/* Design-system page */
+.grid{display:grid; gap:18px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.sw{border-radius:14px; overflow:hidden; box-shadow:var(--sh-1); background:var(--surface)}
+.sw-c{height:96px}
+.sw-t{padding:12px 14px}
+.sw-t b{display:block; font-size:14px; font-weight:600; letter-spacing:-.008em}
+.sw-t span{font-size:12px; color:var(--label-2); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:0}
+.spec{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; color:var(--label-2); letter-spacing:0}
+.demo-row{display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px}
+hr{border:0; border-top:.5px solid var(--separator); margin:30px 0}
+.note{background:var(--white-titanium-lt); border-left:3px solid var(--nat-titanium-deep); padding:14px 18px; border-radius:0 12px 12px 0; font-size:14px; line-height:1.55; color:var(--label-2)}
+.note b{color:var(--label)}
+</style>
+</head>
+<body>
+
+<div class="proto-bar">
+  <div class="proto-brand">FoodRaksha CRM <span>· Design Prototype</span></div>
+  <div class="seg" id="tabs">
+    <button class="on" data-s="ds">Design System</button>
+    <button data-s="landing">Landing</button>
+    <button data-s="creds">Credentials</button>
+    <button data-s="dash">Dashboard</button>
+    <button data-s="wiz">Questionnaire</button>
+    <button data-s="staff">Staff Desk</button>
+  </div>
+</div>
+
+<div class="stage">
+
+<!-- ================= DESIGN SYSTEM ================= -->
+<section class="screen on" id="s-ds">
+  <div class="caption">
+    <h2>Design System</h2>
+    <p>Apple iOS visual language. Titanium palette, SF Pro type scale, 980px capsule buttons, inset grouped lists, 44pt minimum tap targets.</p>
+  </div>
+
+  <div class="group-hd">Titanium palette</div>
+  <div class="grid g3" style="margin-bottom:30px">
+    <div class="sw"><div class="sw-c" style="background:#C3BCB1"></div><div class="sw-t"><b>Natural Titanium</b><span>#C3BCB1</span></div></div>
+    <div class="sw"><div class="sw-c" style="background:#6E6960"></div><div class="sw-t"><b>Titanium Deep</b><span>#6E6960</span></div></div>
+    <div class="sw"><div class="sw-c" style="background:#F0EEE9"></div><div class="sw-t"><b>White Titanium</b><span>#F0EEE9</span></div></div>
+    <div class="sw"><div class="sw-c" style="background:#1D1D1F"></div><div class="sw-t"><b>Graphite — actions</b><span>#1D1D1F</span></div></div>
+  </div>
+
+  <div class="note" style="margin-bottom:30px">
+    <b>Colour discipline.</b> The interface is titanium and graphite only. Colour appears in exactly one place — application status — because a pipeline is unusable if every state looks the same. Those three tones are desaturated to sit inside the palette rather than fight it.
+  </div>
+
+  <div class="group-hd">Status tones</div>
+  <div class="demo-row" style="margin-bottom:30px">
+    <span class="pill p-ok"><i class="dot"></i>Licence Issued</span>
+    <span class="pill p-wait"><i class="dot"></i>Query Raised</span>
+    <span class="pill p-stop"><i class="dot"></i>Action Needed</span>
+    <span class="pill p-idle"><i class="dot"></i>Not Logged In</span>
+  </div>
+
+  <hr>
+
+  <div class="group-hd">Type scale — SF Pro</div>
+  <div class="card" style="margin-bottom:30px">
+    <div class="t-large">Large Title <span class="spec">34 · Bold · −.026em</span></div>
+    <div class="t-title2" style="margin-top:14px">Title 2 <span class="spec">22 · Bold</span></div>
+    <div class="t-head" style="margin-top:14px">Headline <span class="spec">17 · Semibold</span></div>
+    <div class="t-body" style="margin-top:10px">Body — the default reading size for all form content. <span class="spec">17 · Regular</span></div>
+    <div class="t-foot dim" style="margin-top:10px">Footnote — helper text and metadata. <span class="spec">13 · Regular</span></div>
+  </div>
+
+  <div class="group-hd">Buttons — 980px capsule</div>
+  <div class="card" style="margin-bottom:30px">
+    <div class="demo-row">
+      <button class="btn btn-primary">Continue</button>
+      <button class="btn btn-secondary">Save Draft</button>
+      <button class="btn btn-quiet">Cancel</button>
+    </div>
+    <div class="demo-row" style="margin-bottom:0">
+      <button class="btn btn-primary btn-sm">Small</button>
+      <button class="btn btn-secondary btn-sm">Small</button>
+      <button class="btn btn-quiet btn-xs">Extra small</button>
+    </div>
+    <div class="spec" style="margin-top:14px">border-radius: 980px · min-height: 50px · active: scale(.965)</div>
+  </div>
+
+  <div class="grid g2">
+    <div>
+      <div class="group-hd">Inset grouped list</div>
+      <div class="list">
+        <div class="row row-tap"><div class="icon icon-done">✓</div><div class="row-main"><div class="row-title">Business Details</div><div class="row-sub">Completed</div></div><div class="chev">›</div></div>
+        <div class="row row-tap"><div class="icon icon-now">3</div><div class="row-main"><div class="row-title">Premises &amp; Address</div><div class="row-sub">In progress</div></div><div class="chev">›</div></div>
+        <div class="row row-tap"><div class="icon icon-idle">4</div><div class="row-main"><div class="row-title">Food Categories</div><div class="row-sub">Not started</div></div><div class="chev">›</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="group-hd">Controls</div>
+      <div class="list">
+        <div class="row"><div class="row-main"><div class="row-title">SMS notifications</div></div><div class="tog on"><i></i></div></div>
+        <div class="row"><div class="row-main"><div class="row-title">Email updates</div></div><div class="tog"><i></i></div></div>
+      </div>
+      <div style="margin-top:18px">
+        <div class="field" style="margin-bottom:0">
+          <label>Business Name</label>
+          <input class="input" placeholder="As per GST certificate">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LANDING ================= -->
+<section class="screen" id="s-landing">
+  <div class="caption">
+    <h2>Landing — Enquiry</h2>
+    <p>Five fields, nothing more. Every additional question here costs conversions. Submitting creates the account instantly.</p>
+  </div>
+  <div class="phones">
+    <div>
+      <div class="phone"><div class="phone-in">
+        <div class="statusbar"><span>9:41</span><span class="sb-r">●●● ⌁ ▮</span></div>
+        <div class="vp">
+          <div style="padding:14px 0 26px">
+            <div style="width:44px;height:44px;border-radius:12px;background:var(--graphite);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:19px;margin-bottom:20px">FR</div>
+            <div class="t-large">Get your FSSAI licence</div>
+            <div class="t-body dim" style="margin-top:9px">Tell us a little about your business. Takes under a minute.</div>
+          </div>
+
+          <div class="field"><label>Full Name</label><input class="input" placeholder="Rajesh Kumar"></div>
+          <div class="field"><label>Mobile Number</label><input class="input" placeholder="+91 98765 43210"></div>
+          <div class="field"><label>Email Address</label><input class="input" placeholder="you@business.com"></div>
+          <div class="field"><label>Business Type</label>
+            <select class="input"><option>Select business type</option><option>Restaurant / Cafe</option><option>Manufacturer</option><option>Trader / Distributor</option><option>Retailer</option><option>Transporter</option><option>Cloud Kitchen</option></select>
+          </div>
+          <div class="field"><label>City</label><input class="input" placeholder="Mumbai"></div>
+
+          <button class="btn btn-primary btn-full" style="margin-top:8px">Create My Account</button>
+          <div class="t-foot dim" style="text-align:center; margin-top:14px; line-height:1.5">
+            Your login details appear on the next screen<br>and are sent to your phone and email.
+          </div>
+        </div>
+        <div class="homebar"></div>
+      </div></div>
+      <div class="phone-label">Enquiry form</div>
+    </div>
+
+    <div style="flex:1; min-width:290px; max-width:400px">
+      <div class="card" style="margin-bottom:18px">
+        <div class="t-head" style="margin-bottom:12px">Why only five fields</div>
+        <div class="t-sub dim" style="line-height:1.6">Every field added to a landing form measurably reduces submissions. Everything else we need is collected <i>after</i> the account exists — at which point the customer is already invested and far more likely to finish.</div>
+      </div>
+      <div class="card">
+        <div class="t-head" style="margin-bottom:12px">Built in from day one</div>
+        <div class="kv"><span class="dim">Rate limiting</span><b>Yes</b></div>
+        <div class="kv"><span class="dim">Duplicate mobile check</span><b>Yes</b></div>
+        <div class="kv"><span class="dim">UTM source capture</span><b>Yes</b></div>
+        <div class="kv"><span class="dim">DPDP consent</span><b>Yes</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CREDENTIALS ================= -->
+<section class="screen" id="s-creds">
+  <div class="caption">
+    <h2>Credentials</h2>
+    <p>Shown immediately on screen as specified — and sent by SMS and email at the same moment, so losing this tab never means losing the account.</p>
+  </div>
+  <div class="phones">
+    <div>
+      <div class="phone"><div class="phone-in">
+        <div class="statusbar"><span>9:41</span><span class="sb-r">●●● ⌁ ▮</span></div>
+        <div class="vp">
+          <div style="text-align:center; padding:34px 0 26px">
+            <div style="width:66px;height:66px;border-radius:50%;background:var(--ok);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;color:#fff;font-size:30px">✓</div>
+            <div class="t-title1">You're all set</div>
+            <div class="t-body dim" style="margin-top:9px">Your account is ready. Save these details.</div>
+          </div>
+
+          <div class="card card-dark" style="margin-bottom:16px">
+            <div class="t-cap dim" style="text-transform:uppercase; letter-spacing:.06em; margin-bottom:7px">Username</div>
+            <div style="font-family:ui-monospace,Menlo,monospace; font-size:19px; font-weight:600; margin-bottom:20px">9876543210</div>
+            <div class="t-cap dim" style="text-transform:uppercase; letter-spacing:.06em; margin-bottom:7px">Password</div>
+            <div style="font-family:ui-monospace,Menlo,monospace; font-size:19px; font-weight:600; letter-spacing:.06em">Kx7m-P2qA</div>
+          </div>
+
+          <button class="btn btn-secondary btn-full" style="margin-bottom:11px">Copy Details</button>
+          <button class="btn btn-primary btn-full">Log In Now</button>
+
+          <div class="list" style="margin-top:24px">
+            <div class="row"><div class="icon icon-done">✓</div><div class="row-main"><div class="row-title" style="font-size:15px">Sent by SMS</div><div class="row-sub">+91 98765 43210</div></div></div>
+            <div class="row"><div class="icon icon-done">✓</div><div class="row-main"><div class="row-title" style="font-size:15px">Sent by email</div><div class="row-sub">rajesh@business.com</div></div></div>
+          </div>
+        </div>
+        <div class="homebar"></div>
+      </div></div>
+      <div class="phone-label">Credentials issued</div>
+    </div>
+
+    <div style="flex:1; min-width:290px; max-width:400px">
+      <div class="note">
+        <b>The single biggest drop-off point.</b> Customers who lose their password at this exact moment almost never come back — they don't remember which of a dozen consultancy sites they signed up on. Screen, SMS and email together make that failure practically impossible.
+      </div>
+      <div class="card" style="margin-top:18px">
+        <div class="t-head" style="margin-bottom:12px">Deliberate choices</div>
+        <div class="t-sub dim" style="line-height:1.65">
+          <b style="color:var(--label)">No forced password change.</b> Adding friction here, before any value has been delivered, loses people.<br><br>
+          <b style="color:var(--label)">Mobile number as username.</b> One less thing to remember, and it is already verified.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DASHBOARD ================= -->
+<section class="screen" id="s-dash">
+  <div class="caption">
+    <h2>Customer Dashboard</h2>
+    <p>One screen answering three questions: how far along am I, what do I do next, and what is happening with my file.</p>
+  </div>
+  <div class="phones">
+    <div>
+      <div class="phone"><div class="phone-in">
+        <div class="statusbar"><span>9:41</span><span class="sb-r">●●● ⌁ ▮</span></div>
+        <div class="vp">
+          <div class="navbar"><div class="t-large">Hello, Rajesh</div><div class="nav-act">⚙︎</div></div>
+
+          <div class="card card-dark" style="margin-bottom:22px">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px">
+              <div class="t-head">Application Progress</div>
+              <div class="t-title3">60%</div>
+            </div>
+            <div class="prog" style="background:rgba(255,255,255,.2)"><i style="width:60%; background:#fff"></i></div>
+            <div class="t-foot dim" style="margin-top:11px">6 of 10 sections complete</div>
+            <button class="btn btn-full" style="background:#fff; color:var(--graphite); margin-top:17px">Continue Where You Left Off</button>
+          </div>
+
+          <div class="group">
+            <div class="group-hd">Needs your attention</div>
+            <div class="list">
+              <div class="row row-tap">
+                <div class="icon" style="background:var(--wait)">!</div>
+                <div class="row-main"><div class="row-title">Water test report</div><div class="row-sub">Uploaded file was unreadable — please re-upload</div></div>
+                <div class="chev">›</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="group-hd">Application status</div>
+            <div class="card">
+              <div class="tl">
+                <div class="tl-i done"><div class="t-head" style="font-size:15px">Account created</div><div class="t-foot dim">18 July 2026</div></div>
+                <div class="tl-i done"><div class="t-head" style="font-size:15px">Details submitted</div><div class="t-foot dim">20 July 2026</div></div>
+                <div class="tl-i now"><div class="t-head" style="font-size:15px">Under review</div><div class="t-foot dim">Our team is checking your file</div></div>
+                <div class="tl-i"><div class="t-head" style="font-size:15px; color:var(--label-3)">Filed with FSSAI</div></div>
+                <div class="tl-i"><div class="t-head" style="font-size:15px; color:var(--label-3)">Licence issued</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="group" style="margin-bottom:0">
+            <div class="group-hd">Your documents</div>
+            <div class="list">
+              <div class="row row-tap"><div class="icon icon-idle">↓</div><div class="row-main"><div class="row-title">Application forms</div><div class="row-sub">17 PDFs · ready</div></div><div class="chev">›</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="homebar"></div>
+      </div></div>
+      <div class="phone-label">Dashboard</div>
+    </div>
+
+    <div style="flex:1; min-width:290px; max-width:400px">
+      <div class="card" style="margin-bottom:18px">
+        <div class="t-head" style="margin-bottom:12px">The status timeline earns its keep</div>
+        <div class="t-sub dim" style="line-height:1.65">Most inbound calls to a compliance firm are "what's happening with my file?". Showing the answer, unprompted, removes that call entirely — which is staff time back on billable work.</div>
+      </div>
+      <div class="card">
+        <div class="t-head" style="margin-bottom:12px">One primary action</div>
+        <div class="t-sub dim" style="line-height:1.65">The dark card is deliberately the only high-contrast element on the screen. Wherever the customer is in the process, there is never ambiguity about what to tap next.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WIZARD ================= -->
+<section class="screen" id="s-wiz">
+  <div class="caption">
+    <h2>Questionnaire</h2>
+    <p>One section per screen, autosaved on every keystroke. The customer answers roughly 10 sections — the system fans that data out across all 17 PDFs.</p>
+  </div>
+  <div class="phones">
+    <div>
+      <div class="phone"><div class="phone-in">
+        <div class="statusbar"><span>9:41</span><span class="sb-r">●●● ⌁ ▮</span></div>
+        <div class="vp">
+          <div class="navbar"><div class="nav-act">‹ Back</div><div class="t-foot dim">Saved</div></div>
+          <div style="margin-bottom:22px">
+            <div class="prog prog-thin" style="margin-bottom:12px"><i style="width:30%"></i></div>
+            <div class="t-foot dim">Section 3 of 10</div>
+            <div class="t-title1" style="margin-top:5px">Premises &amp; Address</div>
+          </div>
+
+          <div class="field"><label>Address Line 1</label><input class="input" placeholder="Shop / building number"></div>
+          <div class="field"><label>Address Line 2</label><input class="input" placeholder="Street, area"></div>
+          <div class="field"><label>City</label><input class="input" value="Mumbai"></div>
+          <div class="field"><label>State</label><select class="input"><option>Maharashtra</option></select></div>
+          <div class="field"><label>PIN Code</label><input class="input" placeholder="400001"></div>
+          <div class="field"><label>Ownership of Premises</label><select class="input"><option>Owned</option><option>Rented</option><option>Leased</option></select></div>
+
+          <div class="note" style="margin:22px 0">You'll upload proof of premises in Section 10. Nothing needed right now.</div>
+
+          <button class="btn btn-primary btn-full">Continue</button>
+          <button class="btn btn-quiet btn-full" style="margin-top:11px">Save &amp; Exit</button>
+        </div>
+        <div class="homebar"></div>
+      </div></div>
+      <div class="phone-label">Wizard step</div>
+    </div>
+
+    <div>
+      <div class="phone"><div class="phone-in">
+        <div class="statusbar"><span>9:41</span><span class="sb-r">●●● ⌁ ▮</span></div>
+        <div class="vp">
+          <div class="navbar"><div class="nav-act">‹ Back</div><div class="t-foot dim">Saved</div></div>
+          <div style="margin-bottom:22px">
+            <div class="prog prog-thin" style="margin-bottom:12px"><i style="width:100%"></i></div>
+            <div class="t-foot dim">Section 10 of 10</div>
+            <div class="t-title1" style="margin-top:5px">Photo &amp; Signature</div>
+          </div>
+
+          <div class="group-hd">Passport photograph</div>
+          <div class="card" style="text-align:center; padding:26px; margin-bottom:24px">
+            <div style="width:84px;height:104px;border-radius:10px;background:var(--surface-sunk);margin:0 auto 15px;display:flex;align-items:center;justify-content:center;color:var(--label-3);font-size:26px">◱</div>
+            <button class="btn btn-secondary btn-sm">Upload Photo</button>
+          </div>
+
+          <div class="group-hd">Signature</div>
+          <div class="card" style="padding:18px; margin-bottom:14px">
+            <div style="height:104px;border-radius:10px;border:1.5px dashed var(--nat-titanium);display:flex;align-items:center;justify-content:center;color:var(--label-3);font-size:14px;margin-bottom:14px">Sign here with your finger</div>
+            <div style="display:flex; gap:9px">
+              <button class="btn btn-quiet btn-sm" style="flex:1">Clear</button>
+              <button class="btn btn-secondary btn-sm" style="flex:1">Upload Instead</button>
+            </div>
+          </div>
+          <div class="t-foot dim" style="line-height:1.5; margin-bottom:22px">Draw it, or upload a scan. Captured once and placed on every form that needs it.</div>
+
+          <button class="btn btn-primary btn-full">Review &amp; Submit</button>
+        </div>
+        <div class="homebar"></div>
+      </div></div>
+      <div class="phone-label">Photo &amp; signature</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STAFF ================= -->
+<section class="screen" id="s-staff">
+  <div class="caption">
+    <h2>Staff Desk</h2>
+    <p>Dense table, many customers visible at once. Clicking a row opens a slide-over — you never lose your place in the list. Try clicking any row.</p>
+  </div>
+
+  <div class="desk">
+    <div class="desk-top">
+      <input class="search" placeholder="Search name, mobile, business or application number">
+      <button class="btn btn-quiet btn-sm">Export</button>
+      <button class="btn btn-primary btn-sm">+ New Customer</button>
+    </div>
+    <div class="filters">
+      <button class="chip on">All <b>248</b></button>
+      <button class="chip">Not logged in <b>31</b></button>
+      <button class="chip">In progress <b>84</b></button>
+      <button class="chip">Awaiting review <b>26</b></button>
+      <button class="chip">Query raised <b>12</b></button>
+      <button class="chip">Filed <b>58</b></button>
+      <button class="chip">Issued <b>37</b></button>
+    </div>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Customer</th><th>Business Type</th><th>Licence</th><th>Progress</th><th>Status</th><th>Updated</th></tr></thead>
+      <tbody id="rows">
+        <tr data-n="Rajesh Kumar" data-b="Kumar Sweets &amp; Namkeen" data-t="Manufacturer" data-l="State" data-p="60" data-s="Under review" data-c="p-wait" data-m="+91 98765 43210" data-e="rajesh@kumarsweets.in" data-city="Mumbai, Maharashtra" data-app="FR-2026-0248">
+          <td><div class="who">Rajesh Kumar</div><div class="who-sub">Kumar Sweets &amp; Namkeen</div></td>
+          <td class="dim">Manufacturer</td><td class="dim">State</td>
+          <td><div class="mini"><div class="prog"><i style="width:60%"></i></div><span>60%</span></div></td>
+          <td><span class="pill p-wait"><i class="dot"></i>Under review</span></td><td class="dim">2h ago</td>
+        </tr>
+        <tr data-n="Priya Sharma" data-b="Spice Route Cafe" data-t="Restaurant" data-l="State" data-p="100" data-s="Licence issued" data-c="p-ok" data-m="+91 91234 56780" data-e="priya@spiceroute.co" data-city="Pune, Maharashtra" data-app="FR-2026-0244">
+          <td><div class="who">Priya Sharma</div><div class="who-sub">Spice Route Cafe</div></td>
+          <td class="dim">Restaurant</td><td class="dim">State</td>
+          <td><div class="mini"><div class="prog"><i style="width:100%"></i></div><span>100%</span></div></td>
+          <td><span class="pill p-ok"><i class="dot"></i>Licence issued</span></td><td class="dim">5h ago</td>
+        </tr>
+        <tr data-n="Mohammed Ali" data-b="Ali Cold Storage" data-t="Storage" data-l="Central" data-p="35" data-s="Query raised" data-c="p-stop" data-m="+91 99887 76655" data-e="ali@alicold.in" data-city="Hyderabad, Telangana" data-app="FR-2026-0251">
+          <td><div class="who">Mohammed Ali</div><div class="who-sub">Ali Cold Storage</div></td>
+          <td class="dim">Storage</td><td class="dim">Central</td>
+          <td><div class="mini"><div class="prog"><i style="width:35%"></i></div><span>35%</span></div></td>
+          <td><span class="pill p-stop"><i class="dot"></i>Query raised</span></td><td class="dim">1d ago</td>
+        </tr>
+        <tr data-n="Anita Desai" data-b="Fresh Bites Cloud Kitchen" data-t="Cloud Kitchen" data-l="Basic" data-p="0" data-s="Not logged in" data-c="p-idle" data-m="+91 90000 11122" data-e="anita@freshbites.in" data-city="Bengaluru, Karnataka" data-app="FR-2026-0253">
+          <td><div class="who">Anita Desai</div><div class="who-sub">Fresh Bites Cloud Kitchen</div></td>
+          <td class="dim">Cloud Kitchen</td><td class="dim">Basic</td>
+          <td><div class="mini"><div class="prog"><i style="width:0%"></i></div><span>0%</span></div></td>
+          <td><span class="pill p-idle"><i class="dot"></i>Not logged in</span></td><td class="dim">2d ago</td>
+        </tr>
+        <tr data-n="Vikram Singh" data-b="Singh Transport Co." data-t="Transporter" data-l="Central" data-p="85" data-s="Awaiting review" data-c="p-wait" data-m="+91 98111 22334" data-e="vikram@singhtransport.in" data-city="Delhi" data-app="FR-2026-0239">
+          <td><div class="who">Vikram Singh</div><div class="who-sub">Singh Transport Co.</div></td>
+          <td class="dim">Transporter</td><td class="dim">Central</td>
+          <td><div class="mini"><div class="prog"><i style="width:85%"></i></div><span>85%</span></div></td>
+          <td><span class="pill p-wait"><i class="dot"></i>Awaiting review</span></td><td class="dim">3d ago</td>
+        </tr>
+        <tr data-n="Lakshmi Iyer" data-b="Iyer Organic Foods" data-t="Trader" data-l="State" data-p="100" data-s="Filed with FSSAI" data-c="p-ok" data-m="+91 94444 55566" data-e="lakshmi@iyerorganic.in" data-city="Chennai, Tamil Nadu" data-app="FR-2026-0231">
+          <td><div class="who">Lakshmi Iyer</div><div class="who-sub">Iyer Organic Foods</div></td>
+          <td class="dim">Trader</td><td class="dim">State</td>
+          <td><div class="mini"><div class="prog"><i style="width:100%"></i></div><span>100%</span></div></td>
+          <td><span class="pill p-ok"><i class="dot"></i>Filed with FSSAI</span></td><td class="dim">4d ago</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:22px">
+    <div class="card">
+      <div class="t-head" style="margin-bottom:12px">Why slide-over, not a new page</div>
+      <div class="t-sub dim" style="line-height:1.65">Staff process files in sequence. A full page load means losing scroll position, filters and momentum on every single customer. The panel keeps the list intact underneath — over hundreds of files a week, that difference is hours.</div>
+    </div>
+    <div class="card">
+      <div class="t-head" style="margin-bottom:12px">"Not logged in" is the money filter</div>
+      <div class="t-sub dim" style="line-height:1.65">Those 31 people already raised their hand and gave you their number. They are the warmest leads in the business and the cheapest to convert. Making them a one-tap list turns a forgotten segment into a daily call sheet.</div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- Slide-over -->
+<div class="scrim" id="scrim"></div>
+<aside class="over" id="over">
+  <div class="over-top">
+    <div class="grabber"></div>
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px">
+      <div>
+        <div class="t-title2" id="o-name">—</div>
+        <div class="t-sub dim" id="o-biz" style="margin-top:3px">—</div>
+      </div>
+      <button class="btn btn-quiet btn-xs" id="close">Close</button>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap">
+      <span class="pill" id="o-status">—</span>
+      <span class="pill p-idle" id="o-app">—</span>
+    </div>
+  </div>
+  <div class="over-body">
+    <div class="group">
+      <div class="group-hd">Progress</div>
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px">
+          <div class="t-sub dim">Sections complete</div><div class="t-title3" id="o-pct">—</div>
+        </div>
+        <div class="prog"><i id="o-bar" style="width:0%"></i></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-hd">Contact</div>
+      <div class="list">
+        <div class="row"><div class="row-main"><div class="row-sub">Mobile</div><div class="row-title" style="font-size:15px" id="o-mob">—</div></div></div>
+        <div class="row"><div class="row-main"><div class="row-sub">Email</div><div class="row-title" style="font-size:15px" id="o-mail">—</div></div></div>
+        <div class="row"><div class="row-main"><div class="row-sub">Location</div><div class="row-title" style="font-size:15px" id="o-city">—</div></div></div>
+        <div class="row"><div class="row-main"><div class="row-sub">Licence type</div><div class="row-title" style="font-size:15px" id="o-lic">—</div></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-hd">Sections — tap to view or edit</div>
+      <div class="list">
+        <div class="row row-tap"><div class="icon icon-done">✓</div><div class="row-main"><div class="row-title" style="font-size:15px">Business Details</div></div><div class="chev">›</div></div>
+        <div class="row row-tap"><div class="icon icon-done">✓</div><div class="row-main"><div class="row-title" style="font-size:15px">Applicant Details</div></div><div class="chev">›</div></div>
+        <div class="row row-tap"><div class="icon icon-done">✓</div><div class="row-main"><div class="row-title" style="font-size:15px">Premises &amp; Address</div></div><div class="chev">›</div></div>
+        <div class="row row-tap"><div class="icon icon-now">4</div><div class="row-main"><div class="row-title" style="font-size:15px">Food Categories</div><div class="row-sub">Partially complete</div></div><div class="chev">›</div></div>
+        <div class="row row-tap"><div class="icon icon-idle">5</div><div class="row-main"><div class="row-title" style="font-size:15px">Equipment &amp; Capacity</div><div class="row-sub">Not started</div></div><div class="chev">›</div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-hd">Documents</div>
+      <div class="list">
+        <div class="row"><div class="icon icon-done">✓</div><div class="row-main"><div class="row-title" style="font-size:15px">Aadhaar Card</div><div class="row-sub">Approved</div></div></div>
+        <div class="row"><div class="icon" style="background:var(--wait)">!</div><div class="row-main"><div class="row-title" style="font-size:15px">Water Test Report</div><div class="row-sub">Unreadable — re-upload requested</div></div></div>
+        <div class="row"><div class="icon icon-idle">·</div><div class="row-main"><div class="row-title" style="font-size:15px">Layout Plan</div><div class="row-sub">Awaiting upload</div></div></div>
+      </div>
+    </div>
+
+    <div class="group" style="margin-bottom:0">
+      <div class="group-hd">Generated forms</div>
+      <div class="list">
+        <div class="row row-tap"><div class="icon icon-done">↓</div><div class="row-main"><div class="row-title" style="font-size:15px">All application PDFs</div><div class="row-sub">17 forms · regenerate after edits</div></div><div class="chev">›</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="over-foot">
+    <button class="btn btn-quiet" style="flex:1">Raise Query</button>
+    <button class="btn btn-primary" style="flex:1.4">Generate PDFs</button>
+  </div>
+</aside>
+
+<script>
+// Tabs
+document.querySelectorAll('#tabs button').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+    document.getElementById('s-'+b.dataset.s).classList.add('on');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+});
+
+// Filter chips
+document.querySelectorAll('.chip').forEach(c=>{
+  c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on')); c.classList.add('on');};
+});
+
+// Slide-over
+const over=document.getElementById('over'), scrim=document.getElementById('scrim');
+function shut(){over.classList.remove('on'); scrim.classList.remove('on');
+  document.querySelectorAll('#rows tr').forEach(r=>r.classList.remove('sel'));}
+document.getElementById('close').onclick=shut;
+scrim.onclick=shut;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')shut()});
+
+document.querySelectorAll('#rows tr').forEach(r=>{
+  r.onclick=()=>{
+    const d=r.dataset;
+    document.querySelectorAll('#rows tr').forEach(x=>x.classList.remove('sel'));
+    r.classList.add('sel');
+    o('o-name',d.n); o('o-biz',d.b+' · '+d.t); o('o-pct',d.p+'%');
+    o('o-mob',d.m); o('o-mail',d.e); o('o-city',d.city); o('o-lic',d.l+' Licence');
+    o('o-app',d.app);
+    const st=document.getElementById('o-status');
+    st.className='pill '+d.c; st.innerHTML='<i class="dot"></i>'+d.s;
+    document.getElementById('o-bar').style.width=d.p+'%';
+    over.classList.add('on'); scrim.classList.add('on');
+  };
+});
+function o(id,v){document.getElementById(id).textContent=v}
+
+// Toggles
+document.querySelectorAll('.tog').forEach(t=>t.onclick=()=>t.classList.toggle('on'));
+</script>
+</body>
+</html>
