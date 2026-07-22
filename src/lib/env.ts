@@ -28,6 +28,21 @@ const schema = z.object({
     .default(15),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
 
+  // Object storage. Absent means uploads are switched off with a clear
+  // message rather than half-working.
+  S3_ENDPOINT: optional,
+  S3_REGION: optional,
+  S3_ACCESS_KEY_ID: optional,
+  S3_SECRET_ACCESS_KEY: optional,
+  S3_BUCKET_DOCUMENTS: optional,
+  // Never longer than 15 minutes, whatever the environment says.
+  S3_SIGNED_URL_TTL_SECONDS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .max(900)
+    .default(900),
+
   // Delivery providers. Absent means "not configured yet" — credential
   // delivery is then reported as skipped, never as a signup failure.
   RESEND_API_KEY: optional,

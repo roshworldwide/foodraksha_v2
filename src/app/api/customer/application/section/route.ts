@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     });
 
     const answers = parseAnswers(fresh.data);
-    const errors = validateSection(section.fields, answers);
+    const errors = validateSection(section.fields, answers, context.uploaded);
     const isComplete = Object.keys(errors).length === 0;
 
     const completed = new Set(fresh.completedSections);

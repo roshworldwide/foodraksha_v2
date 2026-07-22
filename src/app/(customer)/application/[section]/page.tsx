@@ -10,6 +10,8 @@ import {
   loadQuestionnaire,
   neighbourSections,
 } from "@/lib/questionnaire/application";
+import { SectionFooter } from "../SectionFooter";
+import { DocumentSection, isDocumentSection } from "./SectionBody";
 
 export const metadata: Metadata = {
   title: "Your application — FoodRaksha",
@@ -53,17 +55,33 @@ export default async function SectionPage({
         </p>
       )}
 
-      <SectionForm
-        applicationId={context.application.id}
-        sectionKey={section.key}
-        fields={section.fields}
-        mirrors={mirrors}
-        answers={context.answers}
-        disabled={!context.isEditable}
-        previousHref={previous ? `/application/${previous}` : null}
-        nextHref={next ? `/application/${next}` : "/application/review"}
-        nextLabel={next ? "Continue" : "Review & submit"}
-      />
+      {isDocumentSection(section) ? (
+        <>
+          <DocumentSection
+            section={section}
+            sections={context.sections}
+            documents={context.documents}
+            editable={context.isEditable}
+          />
+          <SectionFooter
+            previousHref={previous ? `/application/${previous}` : null}
+            nextHref={next ? `/application/${next}` : "/application/review"}
+            nextLabel={next ? "Continue" : "Review & submit"}
+          />
+        </>
+      ) : (
+        <SectionForm
+          applicationId={context.application.id}
+          sectionKey={section.key}
+          fields={section.fields}
+          mirrors={mirrors}
+          answers={context.answers}
+          disabled={!context.isEditable}
+          previousHref={previous ? `/application/${previous}` : null}
+          nextHref={next ? `/application/${next}` : "/application/review"}
+          nextLabel={next ? "Continue" : "Review & submit"}
+        />
+      )}
     </div>
   );
 }

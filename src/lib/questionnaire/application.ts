@@ -1,4 +1,9 @@
 import type { AppStatus, LicenceType } from "@prisma/client";
+import {
+  listDocuments,
+  satisfiedSlots,
+  type DocumentSummary,
+} from "@/lib/documents";
 import type { FieldDef } from "@/lib/fields";
 import { prisma } from "@/lib/prisma";
 import { parseAnswers, parseFields, type AnswerMap } from "./schema";
@@ -25,6 +30,10 @@ export interface QuestionnaireContext {
   /** Core sections plus this category's extras, in order. */
   sections: ResolvedSection[];
   answers: AnswerMap;
+  /** Uploaded files, newest first. */
+  documents: DocumentSummary[];
+  /** Slots that already hold an acceptable file. */
+  uploaded: ReadonlySet<string>;
   /** Editing is closed once the application is with staff or the authority. */
   isEditable: boolean;
 }
@@ -85,7 +94,10 @@ export async function loadQuestionnaire(
   const application = customer?.applications[0];
   if (!application) return null;
 
-  const sections = await resolveSections(application.category.extraSections);
+  const [sections, documents] = await Promise.all([
+    resolveSections(application.category.extraSections),
+    listDocuments(application.id),
+  ]);
 
   return {
     application: {
@@ -98,6 +110,8 @@ export async function loadQuestionnaire(
     },
     sections,
     answers: parseAnswers(application.data),
+    documents,
+    uploaded: satisfiedSlots(documents),
     isEditable: EDITABLE.includes(application.status),
   };
 }
@@ -162,11 +176,12 @@ export interface SectionProgress {
 export function sectionStates(
   sections: ResolvedSection[],
   answers: AnswerMap,
+  uploaded: ReadonlySet<string> = new Set(),
 ): SectionProgress[] {
   return sections.map((section) => ({
     key: section.key,
     title: section.title,
-    isComplete: isSectionComplete(section.fields, answers),
+    isComplete: isSectionComplete(section.fields, answers, uploaded),
   }));
 }
 

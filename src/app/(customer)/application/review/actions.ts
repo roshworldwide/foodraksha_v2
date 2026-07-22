@@ -29,7 +29,11 @@ export async function submitApplication(
     return { error: "This application has already been submitted." };
   }
 
-  const states = sectionStates(context.sections, context.answers);
+  const states = sectionStates(
+    context.sections,
+    context.answers,
+    context.uploaded,
+  );
   const incomplete = states.filter((state) => !state.isComplete);
   if (incomplete.length > 0) {
     return {

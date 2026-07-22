@@ -22,7 +22,11 @@ export default async function ApplicationLayout({
   const context = await loadQuestionnaire(session.user.id);
   if (!context) redirect("/dashboard");
 
-  const states = sectionStates(context.sections, context.answers);
+  const states = sectionStates(
+    context.sections,
+    context.answers,
+    context.uploaded,
+  );
   const done = completedCount(states);
   const percent = states.length ? Math.round((done / states.length) * 100) : 0;
 

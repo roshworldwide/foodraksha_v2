@@ -84,6 +84,31 @@ Field types: `text`, `multiline`, `number`, `date`, `select`, `multiselect`,
 `file`/`signature` placeholders until uploads land. Add `"width": "half"` to
 two consecutive fields to put them side by side.
 
+## Files and uploads
+
+Buckets are private. Nothing is ever served from a public URL.
+
+1. The browser asks `POST /api/customer/documents/presign` for permission and
+   gets a **presigned PUT** valid for five minutes. (R2 does not support
+   presigned POST — its S3 API presigns GET, HEAD, PUT and DELETE only.)
+2. It uploads straight to storage, into a `quarantine/` key.
+3. `POST /api/customer/documents/finalize` reads the bytes back, identifies the
+   file **by magic bytes** — never by extension or the browser's content type —
+   re-encodes images to strip EXIF (including GPS), and only then writes the
+   real object and the `Document` row.
+4. Reading a file goes through `GET /api/customer/documents/[id]/file`, which
+   redirects to a signed URL that expires in 15 minutes. Only storage keys are
+   kept in the database.
+
+Passport photographs are cropped to 3:4 and stored as PNG. Signatures — drawn
+on the canvas or uploaded as a scan — are converted to black ink on a
+transparent background and trimmed to the strokes, so they drop straight into a
+PDF signature box later.
+
+Without S3 credentials the upload UI says so plainly and the rest of the
+application keeps working. For local development run `npm run dev:storage`
+(in-memory, unsigned, loopback only — never point anything real at it).
+
 ## Scripts
 
 | Command              | What it does                                          |

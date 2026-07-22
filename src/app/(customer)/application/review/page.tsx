@@ -9,6 +9,7 @@ import {
   StatusPill,
 } from "@/components/ui";
 import { requireCustomer } from "@/lib/auth/guards";
+import { documentsByType } from "@/lib/documents";
 import {
   buildMirrorMap,
   loadQuestionnaire,
@@ -16,7 +17,7 @@ import {
   sectionStates,
 } from "@/lib/questionnaire/application";
 import { formatAnswer } from "@/lib/questionnaire/format";
-import { APP_STATUS } from "@/lib/status";
+import { APP_STATUS, DOC_STATUS } from "@/lib/status";
 import { ReviewSubmit } from "./ReviewSubmit";
 
 export const metadata: Metadata = {
@@ -28,10 +29,16 @@ export default async function ReviewPage() {
   const context = await loadQuestionnaire(session.user.id);
   if (!context) redirect("/dashboard");
 
-  const states = sectionStates(context.sections, context.answers);
+  const states = sectionStates(
+    context.sections,
+    context.answers,
+    context.uploaded,
+  );
   const incomplete = states.filter((state) => !state.isComplete);
   const mirrors = buildMirrorMap(context.sections);
   const status = APP_STATUS[context.application.status];
+  // File fields are answered by uploading, so they read from Document rows.
+  const byType = documentsByType(context.documents);
 
   return (
     <div className="pt-2 pb-4">
@@ -95,7 +102,19 @@ export default async function ReviewPage() {
 
             <List>
               {fields.map((field) => {
-                const lines = formatAnswer(field, context.answers[field.key]);
+                const isUpload =
+                  field.type === "file" || field.type === "signature";
+                const document = isUpload ? byType.get(field.key) : undefined;
+                const lines = isUpload
+                  ? document
+                    ? [
+                        `${document.fileName} — ${DOC_STATUS[document.status].label.toLowerCase()}`,
+                        ...(document.rejectionReason
+                          ? [document.rejectionReason]
+                          : []),
+                      ]
+                    : []
+                  : formatAnswer(field, context.answers[field.key]);
                 return (
                   <li
                     key={field.key}

@@ -16,7 +16,9 @@ function generatePassword(): string {
 }
 
 function password(envKey: string): string {
-  return process.env[envKey] ?? generatePassword();
+  // `||`, not `??`: an empty environment variable means "not set", and must
+  // never become an account with an empty password.
+  return process.env[envKey] || generatePassword();
 }
 
 /* ─────────────────────────────────────────────────────── demo data */

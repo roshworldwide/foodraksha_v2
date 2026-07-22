@@ -136,8 +136,8 @@ export function FieldControl(props: FieldControlProps) {
     case "signature":
       return (
         <div className="rounded-input border-[0.5px] border-dashed border-separator bg-white-titanium-lt px-4 py-[14px] text-subhead text-label-2">
-          Uploads arrive in the next stage. Your FoodRaksha agent will collect
-          this from you in the meantime.
+          Upload this in the Documents section, where you can drag a file in or
+          take a photograph.
         </div>
       );
 

@@ -59,6 +59,17 @@ export const FIELD_KEYS = [
   // Declaration — added for the Form B declaration block, never renamed.
   "declaration.accepted",
   "declaration.place",
+
+  // Document slots. These identify uploads (Document.docType) rather than
+  // values printed into a form, but they live in the same dictionary so a
+  // slot can never be renamed by accident either.
+  "doc.aadhaar",
+  "doc.pan_card",
+  "doc.premises_proof",
+  "doc.noc_owner",
+  "doc.water_test_report",
+  "doc.layout_plan",
+  "doc.machinery_list",
 ] as const;
 
 export type FieldKey = (typeof FIELD_KEYS)[number];

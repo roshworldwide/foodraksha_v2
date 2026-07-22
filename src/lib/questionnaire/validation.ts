@@ -152,11 +152,21 @@ function validateSubField(
     : (result.error.issues[0]?.message ?? `${subField.label} is not valid`);
 }
 
-/** The first problem with this answer, or null when it is fine. */
+/**
+ * The first problem with this answer, or null when it is fine.
+ * `uploaded` carries the slots that already have a file, because file and
+ * signature fields are answered by uploading, not by typing.
+ */
 export function validateField(
   field: FieldDef,
   value: AnswerValue | undefined,
+  uploaded: ReadonlySet<string> = new Set(),
 ): string | null {
+  if (field.type === "file" || field.type === "signature") {
+    if (uploaded.has(field.key)) return null;
+    return field.required ? `Upload ${field.label.toLowerCase()}` : null;
+  }
+
   if (!hasAnswer(value)) {
     return field.required ? requiredMessage(field.label, field.type) : null;
   }
@@ -186,10 +196,11 @@ export function validateField(
 export function validateSection(
   fields: FieldDef[],
   answers: AnswerMap,
+  uploaded: ReadonlySet<string> = new Set(),
 ): Record<string, string> {
   const errors: Record<string, string> = {};
   for (const field of fields) {
-    const issue = validateField(field, answers[field.key]);
+    const issue = validateField(field, answers[field.key], uploaded);
     if (issue) errors[field.key] = issue;
   }
   return errors;
@@ -198,6 +209,7 @@ export function validateSection(
 export function isSectionComplete(
   fields: FieldDef[],
   answers: AnswerMap,
+  uploaded: ReadonlySet<string> = new Set(),
 ): boolean {
-  return Object.keys(validateSection(fields, answers)).length === 0;
+  return Object.keys(validateSection(fields, answers, uploaded)).length === 0;
 }

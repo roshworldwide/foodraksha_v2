@@ -12,7 +12,11 @@ export default async function ApplicationIndexPage() {
   const context = await loadQuestionnaire(session.user.id);
   if (!context) redirect("/dashboard");
 
-  const states = sectionStates(context.sections, context.answers);
+  const states = sectionStates(
+    context.sections,
+    context.answers,
+    context.uploaded,
+  );
   const resumeAt = firstIncompleteSection(states);
 
   redirect(resumeAt ? `/application/${resumeAt}` : "/application/review");
