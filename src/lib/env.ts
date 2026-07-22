@@ -5,6 +5,12 @@ import { z } from "zod";
  * rather than at the first request that needs it.
  * Never import this from a Client Component.
  */
+/** Empty strings in a .env file mean "unset", not "set to nothing". */
+const optional = z
+  .string()
+  .optional()
+  .transform((value) => (value?.trim() ? value.trim() : undefined));
+
 const schema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   AUTH_SECRET: z
@@ -21,6 +27,15 @@ const schema = z.object({
     .positive()
     .default(15),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+
+  // Delivery providers. Absent means "not configured yet" — credential
+  // delivery is then reported as skipped, never as a signup failure.
+  RESEND_API_KEY: optional,
+  EMAIL_FROM: optional,
+  EMAIL_REPLY_TO: optional,
+  MSG91_AUTH_KEY: optional,
+  MSG91_SENDER_ID: optional,
+  MSG91_TEMPLATE_ID_CREDENTIALS: optional,
 });
 
 const parsed = schema.safeParse(process.env);

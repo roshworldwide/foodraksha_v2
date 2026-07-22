@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import {
   Button,
+  ButtonLink,
   Card,
   Field,
   Input,
@@ -262,6 +263,12 @@ export default function DesignSystemPage() {
           <Button variant="primary" fullWidth>
             Full width
           </Button>
+        </div>
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <ButtonLink href="/design-system" variant="secondary">
+            Link styled as a button
+          </ButtonLink>
+          <Spec>ButtonLink — never nest a Button inside a Link</Spec>
         </div>
         <Spec>
           border-radius: 980px · min-height: 50px · active: scale(.965)

@@ -41,6 +41,28 @@ To seed with passwords you choose:
 SEED_ADMIN_PASSWORD=... SEED_CUSTOMER_1_PASSWORD=... npm run db:seed
 ```
 
+## Account creation
+
+Signup is an API endpoint, not a page — the marketing website (phase 2) will
+call the same one:
+
+```
+POST /api/public/signup
+{ name, mobile, email, businessType, city, consent,
+  utmSource?, utmMedium?, utmCampaign?, referrer? }
+→ 201 { username, password, applicationNo, delivery }
+→ 400 validation · 409 duplicate mobile · 429 rate limited
+```
+
+One transaction creates the Lead, User, Customer and a DRAFT application; the
+generated password is returned once and never stored or logged. Limits are 5
+requests per IP per hour and 3 per mobile per day.
+
+`/get-started` is a **temporary** internal caller for that endpoint. Delete it
+when the marketing site ships. Credential delivery uses the adapters in
+`src/lib/notifications` — without `RESEND_API_KEY` / `MSG91_AUTH_KEY` set,
+delivery is reported as skipped and signup still succeeds.
+
 ## Scripts
 
 | Command              | What it does                                          |

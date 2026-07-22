@@ -1,21 +1,31 @@
-import { env } from "@/lib/env";
-
 /**
- * Fixed-window limiter for failed logins, keyed by mobile number and by IP.
+ * Fixed-window rate limiting, keyed by whatever the caller passes.
  *
  * In-memory: correct for a single Node process, which is what this deploys as
- * today. Moving to more than one instance means swapping this module for Redis
+ * today. More than one instance means swapping this module for Redis
  * (Upstash) — the surface is deliberately three functions wide.
  */
+export const MINUTE = 60_000;
+export const HOUR = 60 * MINUTE;
+export const DAY = 24 * HOUR;
+
+export interface RateRule {
+  key: string;
+  limit: number;
+  windowMs: number;
+}
+
+export interface RateVerdict {
+  allowed: boolean;
+  retryAfterSeconds: number;
+}
+
 interface Window {
-  failures: number;
+  count: number;
   resetAt: number;
 }
 
-const WINDOW_MS = env.LOGIN_RATE_LIMIT_WINDOW_MINUTES * 60_000;
-const MAX_FAILURES = env.LOGIN_RATE_LIMIT_ATTEMPTS;
 const MAX_TRACKED_KEYS = 10_000;
-
 const windows = new Map<string, Window>();
 
 function sweep(now: number): void {
@@ -24,23 +34,19 @@ function sweep(now: number): void {
   }
 }
 
-export interface RateLimitVerdict {
-  allowed: boolean;
-  retryAfterSeconds: number;
-}
-
-export function checkRateLimit(keys: string[]): RateLimitVerdict {
+/** Does any rule already sit at its limit? */
+export function checkRateLimit(rules: RateRule[]): RateVerdict {
   const now = Date.now();
   let retryAfterMs = 0;
 
-  for (const key of keys) {
-    const window = windows.get(key);
+  for (const rule of rules) {
+    const window = windows.get(rule.key);
     if (!window) continue;
     if (window.resetAt <= now) {
-      windows.delete(key);
+      windows.delete(rule.key);
       continue;
     }
-    if (window.failures >= MAX_FAILURES) {
+    if (window.count >= rule.limit) {
       retryAfterMs = Math.max(retryAfterMs, window.resetAt - now);
     }
   }
@@ -51,20 +57,34 @@ export function checkRateLimit(keys: string[]): RateLimitVerdict {
   };
 }
 
-export function recordFailure(keys: string[]): void {
+/** Count one event against every rule. */
+export function recordHit(rules: RateRule[]): void {
   const now = Date.now();
   if (windows.size > MAX_TRACKED_KEYS) sweep(now);
 
-  for (const key of keys) {
-    const window = windows.get(key);
+  for (const rule of rules) {
+    const window = windows.get(rule.key);
     if (!window || window.resetAt <= now) {
-      windows.set(key, { failures: 1, resetAt: now + WINDOW_MS });
+      windows.set(rule.key, { count: 1, resetAt: now + rule.windowMs });
     } else {
-      window.failures += 1;
+      window.count += 1;
     }
   }
 }
 
+/** Forget these keys — e.g. a successful login clears its failure count. */
 export function clearRateLimit(keys: string[]): void {
   for (const key of keys) windows.delete(key);
+}
+
+/** "3 minutes", "45 seconds" — for user-facing retry messages. */
+export function formatRetryAfter(seconds: number): string {
+  if (seconds < 90) {
+    const rounded = Math.max(1, seconds);
+    return `${rounded} second${rounded === 1 ? "" : "s"}`;
+  }
+  const minutes = Math.ceil(seconds / 60);
+  if (minutes < 90) return `${minutes} minute${minutes === 1 ? "" : "s"}`;
+  const hours = Math.ceil(minutes / 60);
+  return `${hours} hour${hours === 1 ? "" : "s"}`;
 }

@@ -15,7 +15,7 @@ function normaliseMobile(raw: string): string {
 
 /** Accepts what a person types; always yields E.164 (+91XXXXXXXXXX). */
 export const mobileSchema = z
-  .string()
+  .string({ error: "Enter your mobile number" })
   .trim()
   .min(1, "Enter your mobile number")
   .transform(normaliseMobile)
@@ -62,3 +62,52 @@ export const loginSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+
+/** Attribution captured with a lead. Never required, never trusted. */
+const attribution = z.string().trim().max(500).optional();
+
+/**
+ * The public signup contract. The marketing website (phase 2) posts exactly
+ * this shape to /api/public/signup — keep it stable.
+ */
+export const signupSchema = z.object({
+  name: z
+    .string({ error: "Enter your full name" })
+    .trim()
+    .min(2, "Enter your full name")
+    .max(120, "That name is too long"),
+  mobile: mobileSchema,
+  email: z
+    .string({ error: "Enter a valid email address" })
+    .trim()
+    .toLowerCase()
+    .pipe(z.email("Enter a valid email address"))
+    .pipe(z.string().max(160)),
+  /** BusinessCategory.code, e.g. "RESTAURANT". */
+  businessType: z
+    .string({ error: "Choose your business type" })
+    .trim()
+    .min(1, "Choose your business type")
+    .max(60),
+  city: z
+    .string({ error: "Enter your city" })
+    .trim()
+    .min(2, "Enter your city")
+    .max(80, "That city name is too long"),
+  /** DPDP Act 2023 — an account cannot be created without it. */
+  consent: z
+    .boolean({
+      error:
+        "Please agree to the privacy terms so we can process your application",
+    })
+    .refine(
+      (given) => given,
+      "Please agree to the privacy terms so we can process your application",
+    ),
+  utmSource: attribution,
+  utmMedium: attribution,
+  utmCampaign: attribution,
+  referrer: attribution,
+});
+
+export type SignupInput = z.infer<typeof signupSchema>;

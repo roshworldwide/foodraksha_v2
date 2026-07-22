@@ -3,11 +3,19 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { Role } from "@prisma/client";
+import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validation";
 import { CUSTOMER_ROLES, STAFF_ROLES, getSession } from "./guards";
 import { fakeVerify, verifyPassword } from "./password";
-import { checkRateLimit, clearRateLimit, recordFailure } from "./rate-limit";
+import {
+  MINUTE,
+  checkRateLimit,
+  clearRateLimit,
+  formatRetryAfter,
+  recordHit,
+  type RateRule,
+} from "./rate-limit";
 import {
   clearSessionCookie,
   createSession,
@@ -67,25 +75,29 @@ async function attemptLogin(
 
   const { ip, userAgent } = await requestMeta();
 
-  const ipKeys = ip ? [`ip:${ip}`] : [];
+  const windowMs = env.LOGIN_RATE_LIMIT_WINDOW_MINUTES * MINUTE;
+  const limit = env.LOGIN_RATE_LIMIT_ATTEMPTS;
+  const ipRules: RateRule[] = ip
+    ? [{ key: `login:ip:${ip}`, limit, windowMs }]
+    : [];
 
   // A malformed mobile still costs an attempt against the IP.
   if (!parsed.success) {
-    recordFailure(ipKeys);
+    recordHit(ipRules);
     return { state: { error: GENERIC_ERROR } };
   }
 
   const { mobile, password } = parsed.data;
-  const keys = [`mobile:${mobile}`, ...ipKeys];
+  const mobileKey = `login:mobile:${mobile}`;
+  const rules: RateRule[] = [{ key: mobileKey, limit, windowMs }, ...ipRules];
 
-  const verdict = checkRateLimit(keys);
+  const verdict = checkRateLimit(rules);
   if (!verdict.allowed) {
-    const minutes = Math.ceil(verdict.retryAfterSeconds / 60);
     return {
       state: {
-        error: `Too many attempts. Try again in ${minutes} minute${
-          minutes === 1 ? "" : "s"
-        }.`,
+        error: `Too many attempts. Try again in ${formatRetryAfter(
+          verdict.retryAfterSeconds,
+        )}.`,
       },
     };
   }
@@ -94,18 +106,18 @@ async function attemptLogin(
 
   if (!user) {
     await fakeVerify(password); // keep unknown-account timing indistinguishable
-    recordFailure(keys);
+    recordHit(rules);
     return { state: { error: GENERIC_ERROR } };
   }
 
   const passwordOk = await verifyPassword(user.passwordHash, password);
 
   if (!passwordOk || !user.isActive || !allowedRoles.includes(user.role)) {
-    recordFailure(keys);
+    recordHit(rules);
     return { state: { error: GENERIC_ERROR } };
   }
 
-  clearRateLimit([`mobile:${mobile}`]);
+  clearRateLimit([mobileKey]);
 
   const { token, expiresAt } = await createSession(user.id, {
     ipAddress: ip,
