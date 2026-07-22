@@ -1,82 +1,94 @@
 import type { Metadata } from "next";
-import {
-  Card,
-  List,
-  ListGroup,
-  ListGroupHeader,
-  ListRow,
-  Progress,
-  StatusPill,
-} from "@/components/ui";
+import { StaffDesk } from "@/components/staff/StaffDesk";
+import type { DeskRowView } from "@/components/staff/types";
 import { requireStaff } from "@/lib/auth/guards";
-import { prisma } from "@/lib/prisma";
+import {
+  deskCounts,
+  listApplications,
+  parseDeskQuery,
+  type DeskRow,
+} from "@/lib/staff/desk";
 import { APP_STATUS, LICENCE_TYPE } from "@/lib/status";
 
 export const metadata: Metadata = {
   title: "Desk — FoodRaksha Staff",
 };
 
-export default async function StaffDeskPage() {
+function timeAgo(date: Date): string {
+  const minutes = Math.round((Date.now() - date.getTime()) / 60000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  return days < 30 ? `${days}d ago` : `${Math.round(days / 30)}mo ago`;
+}
+
+function toView(row: DeskRow): DeskRowView {
+  // Someone who has never signed in reads as exactly that, whatever the
+  // application status says — it is the state staff act on.
+  const neverSignedIn = row.lastLoginAt === null;
+  const status = APP_STATUS[row.status];
+
+  return {
+    applicationId: row.applicationId,
+    applicationNo: row.applicationNo,
+    customerName: row.customerName,
+    businessName: row.businessName,
+    categoryName: row.categoryName,
+    licenceLabel: LICENCE_TYPE[row.licenceType].replace(
+      /\s*(Licence|Registration)$/,
+      "",
+    ),
+    percent:
+      row.totalSections > 0
+        ? Math.round((row.completedSections / row.totalSections) * 100)
+        : 0,
+    statusLabel: neverSignedIn ? "Not logged in" : status.label,
+    statusTone: neverSignedIn ? "idle" : status.tone,
+    updatedLabel: timeAgo(row.updatedAt),
+  };
+}
+
+export default async function StaffDeskPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requireStaff();
 
-  const [applications, coreSectionCount] = await Promise.all([
-    prisma.application.findMany({
-      orderBy: { updatedAt: "desc" },
-      include: { customer: { include: { user: true } }, category: true },
-    }),
-    prisma.formSection.count({ where: { isCore: true } }),
+  const params = await searchParams;
+  const single = (key: string) => {
+    const value = params[key];
+    return Array.isArray(value) ? value[0] : value;
+  };
+
+  const query = parseDeskQuery({
+    q: single("q"),
+    filter: single("filter"),
+    sort: single("sort"),
+    dir: single("dir"),
+    page: single("page"),
+  });
+
+  const [page, counts] = await Promise.all([
+    listApplications(query),
+    deskCounts(query.search),
   ]);
 
   return (
-    <main className="mx-auto max-w-[1180px] px-6 py-10">
-      <h1 className="text-large-title">Desk</h1>
-      <p className="mt-2 mb-8 text-body text-label-2">
-        {applications.length} application{applications.length === 1 ? "" : "s"}{" "}
-        · every customer, flat.
-      </p>
-
-      {applications.length > 0 ? (
-        <ListGroup>
-          <ListGroupHeader>All applications</ListGroupHeader>
-          <List>
-            {applications.map((application) => {
-              const status = APP_STATUS[application.status];
-              const done = application.completedSections.length;
-              const percent =
-                coreSectionCount > 0
-                  ? Math.round((done / coreSectionCount) * 100)
-                  : 0;
-
-              return (
-                <ListRow
-                  key={application.id}
-                  title={application.customer.user.name}
-                  subtitle={`${application.customer.businessName} · ${application.applicationNo} · ${LICENCE_TYPE[application.licenceType]}`}
-                  trailing={
-                    <span className="flex items-center gap-3">
-                      <Progress
-                        value={percent}
-                        thin
-                        label={`${application.applicationNo} progress`}
-                        className="w-[92px]"
-                      />
-                      <StatusPill tone={status.tone}>{status.label}</StatusPill>
-                    </span>
-                  }
-                />
-              );
-            })}
-          </List>
-        </ListGroup>
-      ) : (
-        <Card>
-          <h2 className="text-title-3">Nothing on the desk</h2>
-          <p className="mt-1.5 text-body text-label-2">
-            Run <code className="font-mono text-[15px]">npm run db:seed</code>{" "}
-            to load demo customers, or create the first application from a lead.
-          </p>
-        </Card>
-      )}
+    <main className="mx-auto flex h-[calc(100vh-65px)] max-w-[1440px] flex-col px-6 py-4">
+      <StaffDesk
+        rows={page.rows.map(toView)}
+        counts={counts}
+        total={page.total}
+        page={page.page}
+        pageCount={page.pageCount}
+        search={query.search}
+        filter={query.filter}
+        sort={query.sort}
+        direction={query.direction}
+      />
     </main>
   );
 }

@@ -7,11 +7,11 @@ export const APP_STATUS: Record<
   { label: string; tone: StatusTone }
 > = {
   DRAFT: { label: "Draft", tone: "idle" },
-  SUBMITTED: { label: "Submitted", tone: "wait" },
+  SUBMITTED: { label: "Awaiting review", tone: "wait" },
   UNDER_REVIEW: { label: "Under review", tone: "wait" },
   QUERY_RAISED: { label: "Query raised", tone: "stop" },
   READY_TO_FILE: { label: "Ready to file", tone: "ok" },
-  FILED: { label: "Filed", tone: "ok" },
+  FILED: { label: "Filed with FSSAI", tone: "ok" },
   FSSAI_QUERY: { label: "FSSAI query", tone: "stop" },
   ISSUED: { label: "Licence issued", tone: "ok" },
   REJECTED: { label: "Rejected", tone: "stop" },

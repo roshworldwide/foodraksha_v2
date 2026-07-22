@@ -2,12 +2,17 @@
 // Source: docs/DATA-MODEL.md. Change that document first, then this file.
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  // Trigram matching: the staff desk searches with ILIKE %term%, which no
+  // btree index can serve. Added in the staff-desk stage, not in
+  // docs/DATA-MODEL.md.
+  extensions = [pg_trgm]
 }
 
 // ─────────────────────────── Enums
@@ -76,6 +81,10 @@ model User {
   pdfsGenerated GeneratedPdf[] @relation("PdfGeneratedBy")
 
   @@index([role])
+  // "Not logged in" is the staff desk's highest-value follow-up list.
+  @@index([lastLoginAt])
+  @@index([name(ops: raw("gin_trgm_ops"))], map: "User_name_trgm_idx", type: Gin)
+  @@index([mobile(ops: raw("gin_trgm_ops"))], map: "User_mobile_trgm_idx", type: Gin)
 }
 
 model Session {
@@ -129,6 +138,7 @@ model Customer {
   applications Application[]
 
   @@index([businessName])
+  @@index([businessName(ops: raw("gin_trgm_ops"))], map: "Customer_businessName_trgm_idx", type: Gin)
 }
 
 // ─────────────────────────── Configuration
@@ -196,6 +206,7 @@ model Application {
   @@index([customerId])
   @@index([licenceExpiresAt])
   @@index([updatedAt])
+  @@index([applicationNo(ops: raw("gin_trgm_ops"))], map: "Application_applicationNo_trgm_idx", type: Gin)
 }
 
 model Document {

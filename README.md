@@ -109,6 +109,31 @@ Without S3 credentials the upload UI says so plainly and the rest of the
 application keeps working. For local development run `npm run dev:storage`
 (in-memory, unsigned, loopback only — never point anything real at it).
 
+## The staff desk
+
+`/staff` is where employees spend the day, so it is built for density and for
+never losing your place.
+
+- Every list control — search, filter chip, sort, page — lives in the URL.
+  The slide-over does **not**: opening a customer fetches
+  `GET /api/staff/applications/[id]` and renders a panel. Nothing navigates, so
+  scroll position, filters and page survive every open and close.
+- 50 rows per page, server-side. Chip counts are live and respect the current
+  search: two queries, not seven.
+- "Not logged in" is `User.lastLoginAt IS NULL` — accounts created and never
+  used. It is the client's follow-up list, and it is indexed.
+- Search covers name, mobile, business name and application number. Each branch
+  is looked up on its own table so the trigram indexes apply; a single
+  cross-table `OR` cannot use them.
+- Staff editing reuses the questionnaire renderer in embedded mode. Every
+  changed field writes an `AuditLog` row with before and after values, in the
+  same transaction as the change. Unchanged values write nothing.
+- Documents are approved, or rejected with a reason the customer reads on their
+  own documents page. Raising a query moves the application back to the
+  customer and records a `StatusEvent`.
+
+Staff access is flat by design: any staff user can open any customer.
+
 ## Scripts
 
 | Command              | What it does                                          |

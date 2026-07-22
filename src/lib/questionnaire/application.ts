@@ -65,35 +65,29 @@ export async function resolveSections(
   }));
 }
 
-/**
- * The application this customer is working on — the most recently touched one.
- * Customers have exactly one in practice today.
- */
-export async function loadQuestionnaire(
-  userId: string,
-): Promise<QuestionnaireContext | null> {
-  const customer = await prisma.customer.findUnique({
-    where: { userId },
-    select: {
-      applications: {
-        orderBy: { updatedAt: "desc" },
-        take: 1,
-        select: {
-          id: true,
-          applicationNo: true,
-          status: true,
-          licenceType: true,
-          data: true,
-          completedSections: true,
-          category: { select: { name: true, extraSections: true } },
-        },
-      },
-    },
-  });
+type ApplicationRow = {
+  id: string;
+  applicationNo: string;
+  status: AppStatus;
+  licenceType: LicenceType;
+  data: unknown;
+  completedSections: string[];
+  category: { name: string; extraSections: string[] };
+};
 
-  const application = customer?.applications[0];
-  if (!application) return null;
+const APPLICATION_SELECT = {
+  id: true,
+  applicationNo: true,
+  status: true,
+  licenceType: true,
+  data: true,
+  completedSections: true,
+  category: { select: { name: true, extraSections: true } },
+} as const;
 
+async function buildContext(
+  application: ApplicationRow,
+): Promise<QuestionnaireContext> {
   const [sections, documents] = await Promise.all([
     resolveSections(application.category.extraSections),
     listDocuments(application.id),
@@ -114,6 +108,43 @@ export async function loadQuestionnaire(
     uploaded: satisfiedSlots(documents),
     isEditable: EDITABLE.includes(application.status),
   };
+}
+
+/**
+ * The application this customer is working on — the most recently touched one.
+ * Customers have exactly one in practice today.
+ */
+export async function loadQuestionnaire(
+  userId: string,
+): Promise<QuestionnaireContext | null> {
+  const customer = await prisma.customer.findUnique({
+    where: { userId },
+    select: {
+      applications: {
+        orderBy: { updatedAt: "desc" },
+        take: 1,
+        select: APPLICATION_SELECT,
+      },
+    },
+  });
+
+  const application = customer?.applications[0];
+  return application ? buildContext(application) : null;
+}
+
+/**
+ * The same context, addressed by application. Staff work by application, not
+ * by whoever happens to be signed in.
+ */
+export async function loadQuestionnaireById(
+  applicationId: string,
+): Promise<QuestionnaireContext | null> {
+  const application = await prisma.application.findUnique({
+    where: { id: applicationId },
+    select: APPLICATION_SELECT,
+  });
+
+  return application ? buildContext(application) : null;
 }
 
 /* ─────────────────────────────────────────────── ask once, print everywhere */

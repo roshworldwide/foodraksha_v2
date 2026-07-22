@@ -21,6 +21,14 @@ export interface MirrorInfo {
 export interface SectionFormProps {
   applicationId: string;
   sectionKey: string;
+  /** Which save endpoint to post to — the customer's, or the staff one. */
+  endpoint?: string;
+  /** "embedded" drops the wizard footer, for the staff slide-over. */
+  mode?: "wizard" | "embedded";
+  onSaved?: (info: {
+    completedSections: string[];
+    editedBy: string | null;
+  }) => void;
   fields: FieldDef[];
   /** Keyed by field key — set when an earlier section already asked for it. */
   mirrors: Record<string, MirrorInfo>;
@@ -55,6 +63,9 @@ function layoutRows(fields: FieldDef[]): FieldDef[][] {
 export function SectionForm({
   applicationId,
   sectionKey,
+  endpoint = "/api/customer/application/section",
+  mode = "wizard",
+  onSaved,
   fields,
   mirrors,
   answers,
@@ -119,7 +130,7 @@ export function SectionForm({
     setSaveState("saving");
 
     try {
-      const response = await fetch("/api/customer/application/section", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         keepalive: true,
@@ -145,6 +156,7 @@ export function SectionForm({
         revision: number;
         completedSections: string[];
         errors: Record<string, string>;
+        editedBy?: string | null;
       };
 
       // Ignore a response that lost the race with a newer one.
@@ -153,11 +165,17 @@ export function SectionForm({
       }
       setSaveState(isDirty() ? "saving" : "saved");
 
-      // Refresh the sidebar only when completion actually moved.
+      onSaved?.({
+        completedSections: body.completedSections,
+        editedBy: body.editedBy ?? null,
+      });
+
+      // Refresh the sidebar only when completion actually moved. The staff
+      // slide-over refreshes nothing: the list underneath must not move.
       const signature = body.completedSections.slice().sort().join(",");
       if (signature !== completedRef.current) {
         completedRef.current = signature;
-        router.refresh();
+        if (mode === "wizard") router.refresh();
       }
 
       return body.errors ?? {};
@@ -247,6 +265,7 @@ export function SectionForm({
       }
       return;
     }
+    if (mode === "embedded") return;
     router.push(nextHref);
   }
 
@@ -364,23 +383,32 @@ export function SectionForm({
         </div>
       ))}
 
-      <div className="mt-8 flex items-center gap-3 border-t-[0.5px] border-separator pt-6">
-        {previousHref ? (
-          <Button variant="quiet" onClick={handleBack}>
-            Back
+      {mode === "embedded" ? (
+        <div className="mt-6 flex items-center gap-3 border-t-[0.5px] border-separator pt-5">
+          <Button size="sm" onClick={handleContinue} disabled={disabled}>
+            Save section
           </Button>
-        ) : (
-          <ButtonLink href="/dashboard" variant="quiet">
-            Dashboard
-          </ButtonLink>
-        )}
+          <SaveIndicator state={saveState} />
+        </div>
+      ) : (
+        <div className="mt-8 flex items-center gap-3 border-t-[0.5px] border-separator pt-6">
+          {previousHref ? (
+            <Button variant="quiet" onClick={handleBack}>
+              Back
+            </Button>
+          ) : (
+            <ButtonLink href="/dashboard" variant="quiet">
+              Dashboard
+            </ButtonLink>
+          )}
 
-        <Button onClick={handleContinue} disabled={disabled}>
-          {nextLabel}
-        </Button>
+          <Button onClick={handleContinue} disabled={disabled}>
+            {nextLabel}
+          </Button>
 
-        <SaveIndicator state={saveState} />
-      </div>
+          <SaveIndicator state={saveState} />
+        </div>
+      )}
     </div>
   );
 }
