@@ -7,6 +7,7 @@ import {
   Button,
   Card,
   Field,
+  Input,
   List,
   ListGroup,
   ListGroupHeader,
@@ -21,7 +22,10 @@ import { DOC_STATUS, APP_STATUS, LICENCE_TYPE } from "@/lib/status";
 import type { StaffDetail } from "@/lib/staff/detail";
 
 type View =
-  { mode: "overview" } | { mode: "section"; key: string } | { mode: "query" };
+  | { mode: "overview" }
+  | { mode: "section"; key: string }
+  | { mode: "query" }
+  | { mode: "annexures" };
 
 export interface CustomerSlideOverProps {
   applicationId: string | null;
@@ -129,8 +133,7 @@ export function CustomerSlideOver({
             <Button
               variant="primary"
               className="flex-[1.4]"
-              disabled
-              title="Arrives with the PDF engine"
+              onClick={() => setView({ mode: "annexures" })}
             >
               Generate PDFs
             </Button>
@@ -187,6 +190,14 @@ export function CustomerSlideOver({
             }}
           />
         </div>
+      )}
+
+      {detail && loaded && view.mode === "annexures" && (
+        <Annexures
+          applicationId={detail.application.id}
+          onBack={() => setView({ mode: "overview" })}
+          onGenerated={() => setChangedFor(applicationId)}
+        />
       )}
 
       {detail && loaded && view.mode === "query" && (
@@ -558,6 +569,305 @@ function RaiseQuery({
           {busy ? "Sending…" : "Send query"}
         </Button>
       </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────── annexures */
+
+interface AnnexureRow {
+  id: string;
+  key: string;
+  title: string;
+  fileName: string;
+  generatedAt: string;
+  generatedBy: string | null;
+}
+
+interface Outcome {
+  key: string;
+  title: string;
+  status: "generated" | "failed";
+  error?: string;
+}
+
+/**
+ * The supporting annexures. FoSCoS produces Form A and Form B itself, so what
+ * gets generated here is what a staff member attaches alongside them.
+ */
+function Annexures({
+  applicationId,
+  onBack,
+  onGenerated,
+}: {
+  applicationId: string;
+  onBack: () => void;
+  onGenerated: () => void;
+}) {
+  const [rows, setRows] = useState<AnnexureRow[] | null>(null);
+  const [outcomes, setOutcomes] = useState<Outcome[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(() => {
+    return fetch(`/api/staff/applications/${applicationId}/annexures`, {
+      cache: "no-store",
+    })
+      .then(async (response) =>
+        response.ok
+          ? ((await response.json()) as { annexures: AnnexureRow[] })
+          : { annexures: [] },
+      )
+      .then((body) => setRows(body.annexures))
+      .catch(() => setRows([]));
+  }, [applicationId]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function generate() {
+    setBusy(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `/api/staff/applications/${applicationId}/annexures`,
+        { method: "POST" },
+      );
+      const body = (await response.json()) as {
+        outcomes?: Outcome[];
+        annexures?: AnnexureRow[];
+        error?: string;
+      };
+      if (!response.ok) {
+        setError(body.error ?? "The annexures could not be generated.");
+        return;
+      }
+      setOutcomes(body.outcomes ?? []);
+      setRows(body.annexures ?? []);
+      onGenerated();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onBack}
+        className="mb-4 cursor-pointer text-subhead text-label-2 hover:text-label"
+      >
+        ‹ Back to customer
+      </button>
+
+      <Letterhead applicationId={applicationId} onSaved={onGenerated} />
+
+      <h3 className="text-title-3">Annexures</h3>
+      <p className="mt-1 mb-4 text-subhead text-label-2">
+        The supporting documents that get attached to the FoSCoS application.
+        Which ones appear depends on the constitution and the kind of business.
+      </p>
+
+      {error && (
+        <p
+          role="alert"
+          className="mb-4 rounded-input bg-stop-bg px-4 py-3 text-footnote font-medium text-stop"
+        >
+          {error}
+        </p>
+      )}
+
+      {outcomes.length > 0 && (
+        <List className="mb-4">
+          {outcomes.map((outcome) => (
+            <ListRow
+              key={outcome.key}
+              compact
+              icon={
+                <ListIcon
+                  tone={outcome.status === "generated" ? "done" : "wait"}
+                >
+                  {outcome.status === "generated" ? "✓" : "!"}
+                </ListIcon>
+              }
+              title={outcome.title}
+              subtitle={
+                outcome.status === "generated"
+                  ? "Generated"
+                  : (outcome.error ?? "Could not be produced")
+              }
+            />
+          ))}
+        </List>
+      )}
+
+      {rows && rows.length > 0 && (
+        <ListGroup>
+          <ListGroupHeader>Ready to download</ListGroupHeader>
+          <List>
+            {rows.map((row) => (
+              <li
+                key={row.id}
+                className="flex items-center gap-3 border-b-[0.5px] border-separator px-4 py-[13px] last:border-b-0"
+              >
+                <ListIcon tone="done">↓</ListIcon>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[15px] tracking-[-0.008em]">{row.title}</p>
+                  <p className="mt-0.5 text-footnote text-label-2">
+                    {row.generatedBy
+                      ? `By ${row.generatedBy}, ${timeAgo(row.generatedAt)}`
+                      : timeAgo(row.generatedAt)}
+                  </p>
+                </div>
+                <a
+                  href={`/api/staff/annexures/${row.id}/file`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-footnote font-semibold text-label underline"
+                >
+                  Open PDF
+                </a>
+              </li>
+            ))}
+          </List>
+        </ListGroup>
+      )}
+
+      {rows && rows.length === 0 && outcomes.length === 0 && (
+        <Card className="mb-4">
+          <p className="text-subhead text-label-2">Nothing generated yet.</p>
+        </Card>
+      )}
+
+      <Button onClick={() => void generate()} disabled={busy} fullWidth>
+        {busy
+          ? "Generating…"
+          : rows && rows.length > 0
+            ? "Regenerate annexures"
+            : "Generate annexures"}
+      </Button>
+      <p className="mt-3 text-center text-footnote text-label-2">
+        Regenerating replaces the previous copies. The same answers always
+        produce the same document.
+      </p>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────── letterhead */
+
+/**
+ * The letterhead every generated annexure is printed on. FSSAI guidance wants
+ * name, address, contact details and CIN, and it is the client's letterhead —
+ * so it is configured here per client rather than hardcoded anywhere. The logo
+ * is uploaded as the "Business logo" document.
+ */
+function Letterhead({
+  applicationId,
+  onSaved,
+}: {
+  applicationId: string;
+  onSaved: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [values, setValues] = useState<Record<string, string> | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const load = useCallback(() => {
+    return fetch(`/api/staff/applications/${applicationId}`, {
+      cache: "no-store",
+    })
+      .then(async (response) => (response.ok ? await response.json() : null))
+      .then((detail: StaffDetail | null) => {
+        const answers = detail?.answers ?? {};
+        const read = (key: string) =>
+          typeof answers[key] === "string" ? (answers[key] as string) : "";
+        setValues({
+          name: read("letterhead.name"),
+          address: read("letterhead.address"),
+          contact: read("letterhead.contact"),
+          cin: read("letterhead.cin"),
+        });
+      })
+      .catch(() => setValues({ name: "", address: "", contact: "", cin: "" }));
+  }, [applicationId]);
+
+  useEffect(() => {
+    if (open && !values) void load();
+  }, [open, values, load]);
+
+  async function save() {
+    if (!values) return;
+    setBusy(true);
+    setSaved(false);
+    try {
+      const response = await fetch(
+        `/api/staff/applications/${applicationId}/letterhead`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(values),
+        },
+      );
+      if (response.ok) {
+        setSaved(true);
+        onSaved();
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mb-5">
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        className="cursor-pointer text-footnote font-semibold text-label underline"
+      >
+        {open ? "Hide letterhead settings" : "Letterhead settings"}
+      </button>
+
+      {open && values && (
+        <Card className="mt-3">
+          <p className="mb-4 text-footnote text-label-2">
+            Printed at the top of every annexure. Blank fields fall back to the
+            business and premises answers.
+          </p>
+
+          {(
+            [
+              ["name", "Business name"],
+              ["address", "Address"],
+              ["contact", "Contact details"],
+              ["cin", "CIN"],
+            ] as const
+          ).map(([key, label]) => (
+            <Field key={key} htmlFor={`lh-${key}`} label={label}>
+              <Input
+                id={`lh-${key}`}
+                value={values[key]}
+                onChange={(event) =>
+                  setValues({ ...values, [key]: event.target.value })
+                }
+              />
+            </Field>
+          ))}
+
+          <div className="flex items-center gap-3">
+            <Button size="sm" onClick={() => void save()} disabled={busy}>
+              {busy ? "Saving…" : "Save letterhead"}
+            </Button>
+            {saved && (
+              <span className="text-footnote text-label-2">
+                Saved — regenerate to apply
+              </span>
+            )}
+          </div>
+        </Card>
+      )}
     </div>
   );
 }

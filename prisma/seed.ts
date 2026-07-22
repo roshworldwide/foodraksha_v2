@@ -57,6 +57,44 @@ const SPICE_ROUTE_DATA: Prisma.InputJsonValue = {
   "licence.duration_years": "3 years",
 };
 
+/**
+ * Fatima is the annexure case: a proprietorship restaurant with every question
+ * answered, so Form IX, the List of Proprietor and the Self-Declaration can be
+ * generated straight after seeding.
+ */
+const SHEIKH_DATA: Prisma.InputJsonValue = {
+  "business.legal_name": "Sheikh Family Kitchen",
+  "business.trade_name": "Sheikh Family Kitchen",
+  "business.constitution": "Proprietorship",
+  "business.pan": "AVLPS6721H",
+  "business.incorporation_date": "2019-11-02",
+  "applicant.full_name": "Fatima Sheikh",
+  "applicant.designation": "Proprietor",
+  "applicant.aadhaar_no": "531284907612",
+  "applicant.mobile": "9820117744",
+  "applicant.email": "fatima@sheikhkitchen.in",
+  "premises.address_1": "Shop 3, Noor Manzil",
+  "premises.address_2": "Mohammed Ali Road",
+  "premises.city": "Mumbai",
+  "premises.district": "Mumbai City",
+  "premises.state": "Maharashtra",
+  "premises.pincode": "400003",
+  "premises.ownership": "Rented",
+  "premises.area_sqft": 640,
+  "licence.type": "State Licence",
+  "licence.kob": "Restaurant",
+  "licence.food_categories": ["Prepared foods", "Ready-to-eat savouries"],
+  "licence.duration_years": "5 years",
+  "water.source": "Municipal supply",
+  "water.test_report_date": "2026-04-18",
+  "declaration.place": "Mumbai",
+  "declaration.accepted": true,
+  "letterhead.name": "Sheikh Family Kitchen",
+  "letterhead.address": "Shop 3, Noor Manzil, Mohammed Ali Road, Mumbai 400003",
+  "letterhead.contact": "9820117744 · fatima@sheikhkitchen.in",
+  "letterhead.cin": "",
+};
+
 /** Arjun is a manufacturer: equipment and nominee are added to his set. */
 const KONKAN_DATA: Prisma.InputJsonValue = {
   "business.legal_name": "Konkan Foods LLP",
@@ -261,6 +299,69 @@ async function main() {
     },
   });
 
+  // ── Demo customer 3 — proprietorship restaurant, ready for annexures
+  const fatimaPassword = password("SEED_CUSTOMER_3_PASSWORD");
+  const fatima = await prisma.user.upsert({
+    where: { mobile: "+919820117744" },
+    update: {
+      name: "Fatima Sheikh",
+      email: "fatima@sheikhkitchen.in",
+      passwordHash: await hashPassword(fatimaPassword),
+      isActive: true,
+    },
+    create: {
+      role: "CUSTOMER",
+      name: "Fatima Sheikh",
+      mobile: "+919820117744",
+      email: "fatima@sheikhkitchen.in",
+      passwordHash: await hashPassword(fatimaPassword),
+      customer: {
+        create: {
+          businessName: "Sheikh Family Kitchen",
+          city: "Mumbai",
+          state: "Maharashtra",
+        },
+      },
+    },
+    include: { customer: true },
+  });
+  const fatimaCustomer =
+    fatima.customer ??
+    (await prisma.customer.findUniqueOrThrow({ where: { userId: fatima.id } }));
+  credentials.push({
+    who: "CUSTOMER — Sheikh Family Kitchen (proprietorship)",
+    mobile: fatima.mobile,
+    password: fatimaPassword,
+  });
+
+  const sheikhSections = [
+    "business_details",
+    "applicant_details",
+    "premises",
+    "licence_details",
+    "water",
+    "declaration",
+  ];
+  await prisma.application.upsert({
+    where: { applicationNo: "FR-2026-0301" },
+    update: {
+      status: "UNDER_REVIEW",
+      data: SHEIKH_DATA,
+      completedSections: sheikhSections,
+      submittedAt: new Date("2026-07-09T06:20:00Z"),
+    },
+    create: {
+      applicationNo: "FR-2026-0301",
+      customerId: fatimaCustomer.id,
+      categoryId: restaurant.id,
+      licenceType: "STATE",
+      status: "UNDER_REVIEW",
+      data: SHEIKH_DATA,
+      completedSections: sheikhSections,
+      submittedAt: new Date("2026-07-09T06:20:00Z"),
+    },
+  });
+
   // ── Desk volume: enough customers to exercise filters, sorting and paging
   const bulk = await seedDeskFixtures();
 
@@ -269,7 +370,7 @@ async function main() {
   console.log(
     `  ${SECTIONS.length} form sections (${SECTIONS.filter((s) => s.isCore).length} core)`,
   );
-  console.log(`  2 demo customers with applications`);
+  console.log(`  3 demo customers with applications`);
   console.log(`  ${bulk} more customers for the staff desk\n`);
   console.log("Sign in with:");
   for (const entry of credentials) {

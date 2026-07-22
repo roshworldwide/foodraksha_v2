@@ -14,13 +14,16 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset",
-    "dev:storage": "node scripts/dev-storage.mjs"
+    "dev:storage": "node scripts/dev-storage.mjs",
+    "test": "node --import tsx --test \"src/**/*.test.ts\""
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1093.0",
     "@aws-sdk/s3-request-presigner": "^3.1093.0",
+    "@fontsource/inter": "^5.3.0",
     "@node-rs/argon2": "^2.0.2",
     "@prisma/client": "^6.19.3",
+    "@react-pdf/renderer": "^4.5.1",
     "next": "16.2.11",
     "react": "19.2.4",
     "react-dom": "19.2.4",

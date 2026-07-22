@@ -19,6 +19,12 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    // PDF templates: <Image> here is @react-pdf's, not the DOM's — it takes
+    // no alt text because a PDF has no accessibility tree to put it in.
+    files: ["src/components/pdf/**/*.tsx"],
+    rules: { "jsx-a11y/alt-text": "off" },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

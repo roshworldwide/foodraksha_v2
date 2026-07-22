@@ -134,6 +134,45 @@ never losing your place.
 
 Staff access is flat by design: any staff user can open any customer.
 
+## Annexures
+
+FoodRaksha staff key applications into the FoSCoS portal themselves, and FoSCoS
+produces Form A and Form B. This system therefore never fills a government
+application form — it produces the **supporting annexures** that get attached
+(see [docs/FINDINGS.md](./docs/FINDINGS.md)).
+
+| Annexure                                  | When it applies                                                  |
+| ----------------------------------------- | ---------------------------------------------------------------- |
+| Form IX — Nomination of Persons           | Every application                                                |
+| List of Directors / Partners / Proprietor | Every application, heading follows the constitution              |
+| Self-Declaration for Proprietorship       | Constitution is Proprietorship                                   |
+| List of Equipment and Machinery           | Manufacturing categories, once the equipment section is answered |
+| Recall Plan                               | Manufacturing categories, once there is product data             |
+
+That rule lives in one tested function,
+[`applicableAnnexures`](./src/lib/annexures/applicability.ts).
+
+Documents are React components rendered server-side with `@react-pdf/renderer`
+— A4, 20mm margins, Inter embedded from `src/assets/fonts` so output never
+depends on the network or the machine. Signatures and photographs are elements
+in the layout, not coordinates on a page. Missing answers print as a ruled
+line, never as "undefined".
+
+Statutory wording in Form IX is reproduced verbatim from
+`docs/forms/FORM_IX.pdf`, typographical quirks included: it is a statutory
+format, not ours to tidy.
+
+**Determinism.** The same answers always produce the same document: PDF
+timestamps are fixed to the submission date and font subset tags are
+normalised. Byte-for-byte equality is not guaranteed, because the writer emits
+font objects in a racy order — `contentFingerprint()` compares what a reader
+would actually see, and that is what the tests assert.
+
+Staff generate from the customer slide-over, where they can also set the
+letterhead (name, address, contact, CIN — plus a logo uploaded as a document).
+Output is stored privately and downloaded through the same 15-minute signed
+URLs as everything else.
+
 ## Scripts
 
 | Command              | What it does                                          |

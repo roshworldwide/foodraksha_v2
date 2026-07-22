@@ -9,7 +9,11 @@ import { prisma } from "@/lib/prisma";
  */
 
 export type AuditAction =
-  "section_update" | "document_review" | "status_change" | "query_raised";
+  | "section_update"
+  | "document_review"
+  | "status_change"
+  | "query_raised"
+  | "annexure_generated";
 
 export interface AuditEntry {
   userId: string;

@@ -174,6 +174,55 @@ export const SECTIONS: SeedSection[] = [
         type: "date",
         required: false,
       },
+      {
+        // Feeds the List of Directors / Partners / Executive members annexure.
+        // A proprietorship leaves this empty: the applicant is the only person.
+        key: "business.directors",
+        label: "Directors, partners or executive members",
+        type: "group",
+        required: false,
+        itemLabel: "person",
+        helpText:
+          "Leave empty for a proprietorship — you are the only person listed.",
+        itemFields: [
+          {
+            key: "name",
+            label: "Full name",
+            type: "text",
+            required: true,
+            width: "half",
+          },
+          {
+            key: "designation",
+            label: "Designation",
+            type: "text",
+            required: true,
+            width: "half",
+          },
+          { key: "address", label: "Address", type: "text", required: true },
+          {
+            key: "contact",
+            label: "Contact number",
+            type: "tel",
+            required: true,
+            width: "half",
+          },
+          {
+            key: "id_details",
+            label: "Government photo ID",
+            type: "text",
+            required: false,
+            width: "half",
+          },
+          {
+            key: "appointed_on",
+            label: "Date of appointment",
+            type: "date",
+            required: false,
+            width: "half",
+          },
+        ],
+      },
     ],
   },
   {
@@ -527,6 +576,14 @@ export const SECTIONS: SeedSection[] = [
         type: "file",
         required: false,
         helpText: "Only if the premises are rented or shared.",
+      },
+      {
+        key: "doc.letterhead_logo",
+        label: "Business logo for the letterhead",
+        type: "file",
+        required: false,
+        helpText:
+          "Used on generated annexures. PNG with a transparent background works best.",
       },
       {
         key: "doc.water_test_report",

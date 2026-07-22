@@ -70,6 +70,18 @@ export const FIELD_KEYS = [
   "doc.water_test_report",
   "doc.layout_plan",
   "doc.machinery_list",
+  "doc.letterhead_logo",
+
+  // The people who sign for the business — directors, partners, executive
+  // members. A proprietorship leaves this empty and the applicant stands in.
+  "business.directors",
+
+  // Letterhead block for generated annexures. FSSAI guidance requires the
+  // letterhead to carry name, address, contact details and CIN.
+  "letterhead.name",
+  "letterhead.address",
+  "letterhead.contact",
+  "letterhead.cin",
 ] as const;
 
 export type FieldKey = (typeof FIELD_KEYS)[number];
