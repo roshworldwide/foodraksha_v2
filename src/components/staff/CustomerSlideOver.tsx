@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { SectionForm } from "@/components/questionnaire/SectionForm";
 import {
   Button,
+  ButtonLink,
   Card,
   Field,
   Input,
@@ -228,6 +229,15 @@ function Overview({
 }) {
   return (
     <>
+      <ButtonLink
+        href={`/staff/applications/${detail.application.id}/filing`}
+        variant="secondary"
+        fullWidth
+        className="mb-[26px]"
+      >
+        Open filing workspace
+      </ButtonLink>
+
       <ListGroup>
         <ListGroupHeader>Progress</ListGroupHeader>
         <Card>

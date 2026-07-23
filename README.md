@@ -173,6 +173,35 @@ letterhead (name, address, contact, CIN — plus a logo uploaded as a document).
 Output is stored privately and downloaded through the same 15-minute signed
 URLs as everything else.
 
+## Filing workspace
+
+`/staff/applications/[id]/filing` is built to sit on one half of the screen
+with the FoSCoS portal open on the other. FoodRaksha files applications by
+re-keying them into FoSCoS by hand, and that retyping is the biggest cost and
+error source per file — this screen removes it.
+
+- Fields run in **FoSCoS screen order**, not our questionnaire order, under the
+  portal's own headings, so staff tab down in lockstep. The order lives in one
+  data file, [`foscos-layout.ts`](./src/lib/filing/foscos-layout.ts).
+- **Every field is one click to copy**, with a visible "Copied" flash, and each
+  copied field ticks off so staff can see their place if interrupted (tracking
+  is session-local — it does not need persisting). Sections the portal accepts
+  as pasted multi-line input (address, food categories, directors) have a
+  **Copy block** button.
+- A **completeness check** runs before filing: invalid PIN / GSTIN / mobile /
+  Aadhaar, missing required answers, and any required document not yet approved.
+  Errors block a clean filing; a document still awaiting review is a warning.
+- The **attachment tray** lists every uploaded document and every generated
+  annexure together, each downloaded through a 15-minute signed URL. A rejected
+  document is shown but cannot be attached.
+- Recording the filing takes the FoSCoS reference number, sets the application
+  to `FILED`, writes a `StatusEvent` and audit row, and notifies the customer
+  by email and SMS (best effort).
+
+Values are reshaped for the portal where it helps — the licence tenure drops
+its "years" suffix to match the dropdown, and the premises address is offered
+as one pasteable block.
+
 ## Scripts
 
 | Command              | What it does                                          |

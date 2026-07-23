@@ -51,6 +51,7 @@ const schema = z.object({
   MSG91_AUTH_KEY: optional,
   MSG91_SENDER_ID: optional,
   MSG91_TEMPLATE_ID_CREDENTIALS: optional,
+  MSG91_TEMPLATE_ID_STATUS_UPDATE: optional,
 });
 
 const parsed = schema.safeParse(process.env);

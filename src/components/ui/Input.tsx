@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes } from "react";
+import type { ComponentPropsWithRef } from "react";
 import { cn } from "@/lib/cn";
 
 /**
@@ -14,7 +14,7 @@ export const controlClass = cn(
   "aria-[invalid=true]:border-stop aria-[invalid=true]:focus:border-stop",
 );
 
-export type InputProps = InputHTMLAttributes<HTMLInputElement>;
+export type InputProps = ComponentPropsWithRef<"input">;
 
 export function Input({ className, ...props }: InputProps) {
   return <input className={cn(controlClass, className)} {...props} />;
