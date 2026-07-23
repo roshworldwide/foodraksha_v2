@@ -60,6 +60,7 @@ export default async function RenewalsPage() {
             columns={columns}
             rows={rows}
             rowKey={(r) => r.applicationId}
+            rowHref={(r) => `/staff/applications/${r.applicationId}`}
           />
         </>
       )}

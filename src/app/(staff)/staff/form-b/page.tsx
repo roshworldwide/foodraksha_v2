@@ -54,8 +54,7 @@ export default async function FormBPage() {
       {rows.length === 0 ? (
         <EmptyState title="Nothing ready to file">
           Applications appear here once they are under review or approved for
-          filing. Move one along from the pipeline or a client&rsquo;s
-          slide-over.
+          filing. Move one along from the pipeline or a client&rsquo;s file.
         </EmptyState>
       ) : (
         <DataTable

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { DataTable, type Column } from "@/components/staff/DataTable";
 import { EmptyState, StaffPage } from "@/components/staff/StaffPage";
 import { StatusPill } from "@/components/ui";
@@ -56,15 +55,8 @@ export default async function CompliancePage() {
     },
     {
       header: "",
-      className: "text-right",
-      cell: (r) => (
-        <Link
-          href={`/staff/clients?q=${r.applicationNo}`}
-          className="text-footnote font-semibold text-label underline"
-        >
-          Open client →
-        </Link>
-      ),
+      className: "text-right text-label-3",
+      cell: () => <span aria-hidden="true">›</span>,
     },
   ];
 
@@ -80,6 +72,7 @@ export default async function CompliancePage() {
           columns={columns}
           rows={rows}
           rowKey={(r) => r.applicationId}
+          rowHref={(r) => `/staff/applications/${r.applicationId}`}
         />
       )}
     </StaffPage>

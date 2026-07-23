@@ -19,7 +19,7 @@ export default async function NewApplicationPage() {
       {/* SCAFFOLD: needs a staff-fill wizard that creates the account and walks
           the questionnaire in one flow. Today staff create the account by
           converting a lead (or the customer signs up), then fill the
-          questionnaire from the client's slide-over. */}
+          questionnaire from the client's file. */}
       <ScaffoldBanner needs="a staff-fill wizard (create account + walk the questionnaire in one flow)" />
       <EmptyState
         title="Create an application for a walk-in"
@@ -34,8 +34,8 @@ export default async function NewApplicationPage() {
       >
         The account-creation logic already exists — the signup endpoint used by
         the website. For now, create the account by converting a lead or website
-        enquiry, then fill their questionnaire from the client&rsquo;s
-        slide-over. A single staff-fill wizard is the next step.
+        enquiry, then fill their questionnaire from the client&rsquo;s file. A
+        single staff-fill wizard is the next step.
       </EmptyState>
     </StaffPage>
   );

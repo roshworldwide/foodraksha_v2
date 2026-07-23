@@ -53,6 +53,7 @@ export default async function RegistrationsPage() {
           columns={columns}
           rows={rows}
           rowKey={(r) => r.applicationId}
+          rowHref={(r) => `/staff/applications/${r.applicationId}`}
         />
       )}
     </StaffPage>

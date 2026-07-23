@@ -62,7 +62,7 @@ export default async function NocPage() {
   ];
 
   return (
-    <StaffPage description="Proof-of-premises and owner NOC documents. Approve or reject each from the client's slide-over; this is the review queue.">
+    <StaffPage description="Proof-of-premises and owner NOC documents. Approve or reject each from the client's file; this is the review queue.">
       {rows.length === 0 ? (
         <EmptyState title="No premises documents yet">
           Proof of premises and owner NOCs uploaded by customers land here for

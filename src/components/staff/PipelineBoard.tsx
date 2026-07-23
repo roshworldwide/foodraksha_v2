@@ -126,7 +126,7 @@ export function PipelineBoard({
                     className="cursor-grab rounded-[10px] border-[0.5px] border-separator bg-surface p-3 shadow-1 active:cursor-grabbing"
                   >
                     <Link
-                      href={`/staff/clients?q=${card.applicationNo}`}
+                      href={`/staff/applications/${card.applicationId}`}
                       className="block"
                     >
                       <p className="truncate text-[14px] font-semibold">

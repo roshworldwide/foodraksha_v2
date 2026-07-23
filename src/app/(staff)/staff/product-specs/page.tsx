@@ -66,6 +66,7 @@ export default async function ProductSpecsPage() {
           columns={columns}
           rows={rows}
           rowKey={(r) => r.applicationId}
+          rowHref={(r) => `/staff/applications/${r.applicationId}`}
         />
       )}
     </StaffPage>

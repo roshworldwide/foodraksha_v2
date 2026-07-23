@@ -142,7 +142,7 @@ function ActivityRow({
   return (
     <li className="border-b-[0.5px] border-separator last:border-b-0">
       <Link
-        href={`/staff/clients?q=${event.applicationNo}`}
+        href={`/staff/applications/${event.applicationId}`}
         className="flex items-center gap-3 px-5 py-3 hover:bg-white-titanium-lt"
       >
         <StatusPill tone={s.tone}>{s.label}</StatusPill>
