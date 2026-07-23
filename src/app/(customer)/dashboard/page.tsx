@@ -4,15 +4,15 @@ import {
   ButtonLink,
   Card,
   List,
-  ListGroup,
   ListGroupHeader,
   ListIcon,
   ListRow,
+  Progress,
   StatusPill,
   Timeline,
 } from "@/components/ui";
 import { loadDashboard } from "@/lib/customer/dashboard";
-import { APP_STATUS, DOC_STATUS } from "@/lib/status";
+import { APP_STATUS } from "@/lib/status";
 
 export const metadata: Metadata = {
   title: "Your dashboard — FoodRaksha",
@@ -57,13 +57,27 @@ export default async function CustomerDashboardPage({
 
   const { application, attention, timeline, documents, licenceHref } = data;
   const status = APP_STATUS[application.status];
+  const isIssued = application.status === "ISSUED";
+
+  // Documents become a summary here, not a full checklist — the list itself
+  // lives on the Documents screen.
+  const docTotal = documents.length;
+  const docUploaded = documents.filter((d) => d.status !== "AWAITING").length;
+  const docApproved = documents.filter((d) => d.status === "APPROVED").length;
+  const docPercent = docTotal ? Math.round((docUploaded / docTotal) * 100) : 0;
 
   return (
-    <main className="mx-auto max-w-[720px] px-6 py-10">
-      <h1 className="text-large-title">Hello, {firstName}</h1>
-      <p className="mt-2 mb-7 text-body text-label-2">
-        {application.applicationNo}
-      </p>
+    <main className="mx-auto max-w-[1120px] px-6 py-8">
+      {/* ── Header */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div>
+          <h1 className="text-large-title">Hello, {firstName}</h1>
+          <p className="mt-1 text-body text-label-2">
+            Application {application.applicationNo}
+          </p>
+        </div>
+        <StatusPill tone={status.tone}>{status.label}</StatusPill>
+      </div>
 
       {submitted === "1" && (
         <Card className="mb-6 border-l-[3px] border-ok">
@@ -81,161 +95,146 @@ export default async function CustomerDashboardPage({
         </Card>
       )}
 
-      {/* ── Progress card: the one dark, high-contrast element */}
-      <Card tone="dark" className="mb-[26px]">
-        <div className="mb-3.5 flex items-baseline justify-between">
-          <span className="text-headline">
-            {application.status === "ISSUED"
-              ? "Licence issued"
-              : "Application progress"}
-          </span>
-          <span className="text-title-3">
-            {application.status === "ISSUED" ? "✓" : `${application.percent}%`}
-          </span>
-        </div>
-
-        {application.status === "ISSUED" ? (
-          <>
-            <p className="text-subhead text-white/[0.62]">
-              Licence {application.licenceNo}
-              {application.licenceExpiresAt &&
-                ` · valid to ${formatDate(application.licenceExpiresAt)}`}
-            </p>
-            {licenceHref && (
-              <a href={licenceHref} target="_blank" rel="noreferrer">
-                <span className="mt-[17px] flex min-h-[50px] w-full items-center justify-center rounded-pill bg-white text-[17px] font-semibold text-graphite">
-                  Download your licence
-                </span>
-              </a>
-            )}
-          </>
-        ) : (
-          <>
-            <div className="h-[7px] overflow-hidden rounded-pill bg-white/20">
-              <span
-                className="block h-full rounded-pill bg-white"
-                style={{ width: `${application.percent}%` }}
-              />
+      <div className="grid items-start gap-6 lg:grid-cols-[1.5fr_1fr]">
+        {/* ── Left: what to do next */}
+        <div className="flex flex-col gap-6">
+          {/* Progress card: the one dark, high-contrast element */}
+          <Card tone="dark">
+            <div className="mb-3.5 flex items-baseline justify-between">
+              <span className="text-headline">
+                {isIssued ? "Licence issued" : "Application progress"}
+              </span>
+              <span className="text-title-3">
+                {isIssued ? "✓" : `${application.percent}%`}
+              </span>
             </div>
-            <p className="mt-2.5 text-footnote text-white/[0.62]">
-              {application.completed} of {application.total} sections complete
-            </p>
-            {application.resumable && (
+
+            {isIssued ? (
               <>
-                <ButtonLink
-                  href="/application"
-                  variant="onDark"
-                  fullWidth
-                  className="mt-[17px]"
-                >
-                  {application.completed === 0
-                    ? "Start your application"
-                    : "Continue where you left off"}
-                </ButtonLink>
-                {application.resumeSection && (
-                  <p className="mt-2.5 text-center text-footnote text-white/[0.62]">
-                    Next: {application.resumeSection}
-                  </p>
+                <p className="text-subhead text-white/[0.62]">
+                  Licence {application.licenceNo}
+                  {application.licenceExpiresAt &&
+                    ` · valid to ${formatDate(application.licenceExpiresAt)}`}
+                </p>
+                {licenceHref && (
+                  <a href={licenceHref} target="_blank" rel="noreferrer">
+                    <span className="mt-[17px] flex min-h-[50px] w-full items-center justify-center rounded-pill bg-white text-[17px] font-semibold text-graphite">
+                      Download your licence
+                    </span>
+                  </a>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="h-[7px] overflow-hidden rounded-pill bg-white/20">
+                  <span
+                    className="block h-full rounded-pill bg-white"
+                    style={{ width: `${application.percent}%` }}
+                  />
+                </div>
+                <p className="mt-2.5 text-footnote text-white/[0.62]">
+                  {application.completed} of {application.total} sections
+                  complete
+                </p>
+                {application.resumable && (
+                  <>
+                    <ButtonLink
+                      href="/application"
+                      variant="onDark"
+                      fullWidth
+                      className="mt-[17px]"
+                    >
+                      {application.completed === 0
+                        ? "Start your application"
+                        : "Continue where you left off"}
+                    </ButtonLink>
+                    {application.resumeSection && (
+                      <p className="mt-2.5 text-center text-footnote text-white/[0.62]">
+                        Next: {application.resumeSection}
+                      </p>
+                    )}
+                  </>
                 )}
               </>
             )}
-          </>
-        )}
-      </Card>
+          </Card>
 
-      {/* ── Needs your attention */}
-      {attention.length > 0 && (
-        <ListGroup>
-          <ListGroupHeader>Needs your attention</ListGroupHeader>
-          <List>
-            {attention.map((item, index) => (
-              <ListRow
-                key={index}
-                href={item.href}
-                chevron
-                icon={<ListIcon tone="wait">!</ListIcon>}
-                title={item.title}
-                subtitle={item.detail}
-              />
-            ))}
-          </List>
-        </ListGroup>
-      )}
-
-      {/* ── Status timeline */}
-      <ListGroup>
-        <ListGroupHeader>Application status</ListGroupHeader>
-        <Card>
-          <div className="mb-4">
-            <StatusPill tone={status.tone}>{status.label}</StatusPill>
-          </div>
-          <Timeline
-            items={timeline.map((step) => ({
-              label: step.label,
-              state: step.state,
-              // Only show a date once a milestone is actually reached — a date
-              // under an upcoming step reads as if it has already happened.
-              detail:
-                step.state === "now" && step.key === "review"
-                  ? "Our team is checking your file"
-                  : step.state === "upcoming"
-                    ? undefined
-                    : formatDate(step.on),
-            }))}
-          />
-        </Card>
-      </ListGroup>
-
-      {/* ── Documents */}
-      <ListGroup className="mb-0">
-        <ListGroupHeader>Your documents</ListGroupHeader>
-        <List>
-          {licenceHref && (
-            <ListRow
-              href={licenceHref}
-              external
-              chevron
-              icon={<ListIcon tone="done">↓</ListIcon>}
-              title="FSSAI licence"
-              subtitle="Issued · opens the PDF"
-            />
+          {/* Needs your attention */}
+          {attention.length > 0 && (
+            <section>
+              <ListGroupHeader>Needs your attention</ListGroupHeader>
+              <List>
+                {attention.map((item, index) => (
+                  <ListRow
+                    key={index}
+                    href={item.href}
+                    chevron
+                    icon={<ListIcon tone="wait">!</ListIcon>}
+                    title={item.title}
+                    subtitle={item.detail}
+                  />
+                ))}
+              </List>
+            </section>
           )}
-          {documents.map((document) => {
-            const docStatus = DOC_STATUS[document.status];
-            return (
-              <ListRow
-                key={document.id}
-                href={document.href ?? undefined}
-                external={Boolean(document.href)}
-                chevron={Boolean(document.href)}
-                icon={
-                  <ListIcon
-                    tone={
-                      document.status === "APPROVED"
-                        ? "done"
-                        : document.status === "REJECTED"
-                          ? "wait"
-                          : "pending"
-                    }
-                  >
-                    {document.status === "APPROVED"
-                      ? "✓"
-                      : document.status === "REJECTED"
-                        ? "!"
-                        : "·"}
-                  </ListIcon>
-                }
-                title={document.label}
-                trailing={
-                  <StatusPill tone={docStatus.tone}>
-                    {docStatus.label}
-                  </StatusPill>
-                }
+        </div>
+
+        {/* ── Right: where it stands */}
+        <div className="flex flex-col gap-6">
+          <section>
+            <ListGroupHeader>Application status</ListGroupHeader>
+            <Card>
+              <Timeline
+                items={timeline.map((step) => ({
+                  label: step.label,
+                  state: step.state,
+                  // Only show a date once a milestone is actually reached — a
+                  // date under an upcoming step reads as already done.
+                  detail:
+                    step.state === "now" && step.key === "review"
+                      ? "Our team is checking your file"
+                      : step.state === "upcoming"
+                        ? undefined
+                        : formatDate(step.on),
+                }))}
               />
-            );
-          })}
-        </List>
-      </ListGroup>
+            </Card>
+          </section>
+
+          {docTotal > 0 && (
+            <section>
+              <ListGroupHeader>Your documents</ListGroupHeader>
+              <Card>
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-headline">
+                    {docUploaded} of {docTotal} uploaded
+                  </span>
+                  {docApproved > 0 && (
+                    <StatusPill tone="ok">{docApproved} approved</StatusPill>
+                  )}
+                </div>
+                <Progress
+                  thin
+                  value={docPercent}
+                  label="Documents uploaded"
+                  className="mt-3"
+                />
+                <ButtonLink
+                  href="/application/documents"
+                  variant="secondary"
+                  size="sm"
+                  fullWidth
+                  className="mt-4"
+                >
+                  {docUploaded < docTotal
+                    ? "Upload documents"
+                    : "Review documents"}
+                </ButtonLink>
+              </Card>
+            </section>
+          )}
+        </div>
+      </div>
     </main>
   );
 }
