@@ -17,6 +17,7 @@ export function LoginLockup({
   subtitle,
   panelHeadline,
   highlights,
+  toggle,
   children,
   footer,
 }: {
@@ -27,6 +28,8 @@ export function LoginLockup({
   panelHeadline: string;
   /** Two or three short reassurance points for the brand panel. */
   highlights: string[];
+  /** Optional control shown in place of the badge (the portal switcher). */
+  toggle?: ReactNode;
   children: ReactNode;
   footer: ReactNode;
 }) {
@@ -87,10 +90,16 @@ export function LoginLockup({
           </div>
 
           <div className="mb-7">
-            <span className="inline-flex items-center rounded-pill bg-graphite px-3 py-1 text-[12px] font-semibold tracking-[0.02em] text-white uppercase">
-              {badge}
-            </span>
-            <h1 className="mt-4 text-title-1">{title}</h1>
+            {toggle ? (
+              <div className="mb-6">{toggle}</div>
+            ) : (
+              <span className="inline-flex items-center rounded-pill bg-graphite px-3 py-1 text-[12px] font-semibold tracking-[0.02em] text-white uppercase">
+                {badge}
+              </span>
+            )}
+            <h1 className={toggle ? "text-title-1" : "mt-4 text-title-1"}>
+              {title}
+            </h1>
             <p className="mt-1.5 text-body text-label-2">{subtitle}</p>
           </div>
 

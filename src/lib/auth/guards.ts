@@ -16,7 +16,10 @@ export function portalHomeFor(role: Role): string {
 }
 
 function loginPathFor(roles: Role[]): string {
-  return roles.some((role) => role !== "CUSTOMER") ? "/staff/login" : "/login";
+  // One sign-in page for both portals; staff land on its Staff side.
+  return roles.some((role) => role !== "CUSTOMER")
+    ? "/login?role=staff"
+    : "/login";
 }
 
 /**

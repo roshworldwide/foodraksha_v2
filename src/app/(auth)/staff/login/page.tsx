@@ -1,62 +1,17 @@
-import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LoginForm } from "@/components/auth/LoginForm";
-import { LoginLockup } from "@/components/auth/LoginLockup";
-import { Card } from "@/components/ui";
-import { loginStaff } from "@/lib/auth/actions";
-import { getSession, portalHomeFor } from "@/lib/auth/guards";
 
-export const metadata: Metadata = {
-  title: "Staff sign in — FoodRaksha",
-};
-
-export default async function StaffLoginPage({
+/**
+ * Staff sign-in now lives on the single /login page, opened on the Staff side
+ * of the switcher. This route stays as a redirect so old links, bookmarks and
+ * the auth guard keep working.
+ */
+export default async function StaffLoginRedirect({
   searchParams,
 }: {
   searchParams: Promise<{ next?: string }>;
 }) {
-  const session = await getSession();
-  if (session) redirect(portalHomeFor(session.user.role));
-
   const { next } = await searchParams;
-
-  return (
-    <LoginLockup
-      badge="Staff"
-      title="CRM Workspace"
-      subtitle="for the FoodRaksha team"
-      panelHeadline="Every client, every application, every form — one workspace."
-      highlights={[
-        "The whole book of business, searchable in one desk",
-        "Review documents, raise queries and generate forms in place",
-        "Every change is logged — who touched what is always answerable",
-      ]}
-      footer={
-        <>
-          Not a team member?{" "}
-          <Link href="/login" className="font-semibold text-label underline">
-            → Customer login
-          </Link>
-        </>
-      }
-    >
-      <Card>
-        <LoginForm
-          action={loginStaff}
-          submitLabel="Sign in"
-          nextPath={next}
-          identifier={{
-            name: "identifier",
-            label: "Work email",
-            hint: "Your FoodRaksha email. Your mobile number works too.",
-            type: "text",
-            inputMode: "email",
-            autoComplete: "username",
-            placeholder: "you@foodraksha.in",
-          }}
-        />
-      </Card>
-    </LoginLockup>
-  );
+  const query = new URLSearchParams({ role: "staff" });
+  if (next) query.set("next", next);
+  redirect(`/login?${query.toString()}`);
 }
