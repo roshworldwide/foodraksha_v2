@@ -10,11 +10,8 @@ import { loginCustomer, loginStaff, type LoginState } from "@/lib/auth/actions";
 type Role = "customer" | "staff";
 
 interface RoleConfig {
-  badge: string;
   title: string;
   subtitle: string;
-  panelHeadline: string;
-  highlights: string[];
   identifier: IdentifierField;
   action: (state: LoginState, formData: FormData) => Promise<LoginState>;
   footer: React.ReactNode;
@@ -22,16 +19,8 @@ interface RoleConfig {
 
 const CONFIG: Record<Role, RoleConfig> = {
   customer: {
-    badge: "Customer",
     title: "Welcome back",
     subtitle: "Track your FSSAI licence application",
-    panelHeadline:
-      "Your FSSAI licence, from application to certificate — in one place.",
-    highlights: [
-      "See exactly where your application stands, at any time",
-      "Upload documents once — we prepare every form for you",
-      "Get told the moment we need anything from you",
-    ],
     identifier: {
       name: "mobile",
       label: "Mobile number",
@@ -50,16 +39,8 @@ const CONFIG: Record<Role, RoleConfig> = {
     ),
   },
   staff: {
-    badge: "Staff",
     title: "CRM Workspace",
     subtitle: "for the FoodRaksha team",
-    panelHeadline:
-      "Every client, every application, every form — one workspace.",
-    highlights: [
-      "The whole book of business, searchable in one desk",
-      "Review documents, raise queries and generate forms in place",
-      "Every change is logged — who touched what is always answerable",
-    ],
     identifier: {
       name: "identifier",
       label: "Work email",
@@ -105,11 +86,8 @@ export function LoginSwitcher({
 
   return (
     <LoginLockup
-      badge={config.badge}
       title={config.title}
       subtitle={config.subtitle}
-      panelHeadline={config.panelHeadline}
-      highlights={config.highlights}
       toggle={<RoleToggle role={role} onChange={setRole} />}
       footer={
         <>
