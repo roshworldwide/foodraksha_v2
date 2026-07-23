@@ -2,13 +2,17 @@ import type { ComponentPropsWithRef } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 
-export type ButtonVariant = "primary" | "secondary" | "quiet";
+export type ButtonVariant = "primary" | "secondary" | "quiet" | "onDark";
 export type ButtonSize = "lg" | "sm" | "xs";
 
 const VARIANT: Record<ButtonVariant, string> = {
   primary: "bg-graphite text-white hover:opacity-[0.86]",
   secondary: "bg-nat-titanium text-label hover:bg-nat-titanium-mid",
   quiet: "bg-quiet text-label hover:bg-quiet-hover",
+  // The white button that sits on the dark progress card. A dedicated variant,
+  // not a className override — cn() does not tailwind-merge, so overriding a
+  // variant's colour leaves both classes on the element and the wrong one wins.
+  onDark: "bg-white text-graphite hover:opacity-90",
 };
 
 const SIZE: Record<ButtonSize, string> = {

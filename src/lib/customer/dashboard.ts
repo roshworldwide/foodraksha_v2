@@ -48,6 +48,8 @@ export interface DashboardData {
     total: number;
     /** DRAFT or QUERY_RAISED — the questionnaire is open. */
     resumable: boolean;
+    /** Title of the next section to fill, so "Continue" names where it goes. */
+    resumeSection: string | null;
     licenceNo: string | null;
     licenceExpiresAt: string | null;
   };
@@ -151,6 +153,12 @@ export async function loadDashboard(
 
   const licence = byType.get("licence_certificate");
 
+  // The next section that still needs work — what "Continue" actually opens.
+  const resumeSection =
+    context.sections.find(
+      (section) => !context.application.completedSections.includes(section.key),
+    )?.title ?? null;
+
   return {
     application: {
       id: context.application.id,
@@ -160,6 +168,7 @@ export async function loadDashboard(
       completed,
       total,
       resumable: RESUMABLE.includes(context.application.status),
+      resumeSection,
       licenceNo: record.licenceNo,
       licenceExpiresAt: record.licenceExpiresAt?.toISOString() ?? null,
     },

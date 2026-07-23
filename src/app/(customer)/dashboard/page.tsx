@@ -121,13 +121,23 @@ export default async function CustomerDashboardPage({
               {application.completed} of {application.total} sections complete
             </p>
             {application.resumable && (
-              <ButtonLink
-                href="/application"
-                fullWidth
-                className="mt-[17px] bg-white text-graphite hover:opacity-90"
-              >
-                Continue where you left off
-              </ButtonLink>
+              <>
+                <ButtonLink
+                  href="/application"
+                  variant="onDark"
+                  fullWidth
+                  className="mt-[17px]"
+                >
+                  {application.completed === 0
+                    ? "Start your application"
+                    : "Continue where you left off"}
+                </ButtonLink>
+                {application.resumeSection && (
+                  <p className="mt-2.5 text-center text-footnote text-white/[0.62]">
+                    Next: {application.resumeSection}
+                  </p>
+                )}
+              </>
             )}
           </>
         )}
@@ -163,10 +173,14 @@ export default async function CustomerDashboardPage({
             items={timeline.map((step) => ({
               label: step.label,
               state: step.state,
+              // Only show a date once a milestone is actually reached — a date
+              // under an upcoming step reads as if it has already happened.
               detail:
                 step.state === "now" && step.key === "review"
                   ? "Our team is checking your file"
-                  : formatDate(step.on),
+                  : step.state === "upcoming"
+                    ? undefined
+                    : formatDate(step.on),
             }))}
           />
         </Card>
