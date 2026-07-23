@@ -67,11 +67,10 @@ function safeNextPath(raw: FormDataEntryValue | null, role: Role): string {
 /**
  * Resolve the login identifier to a single user.
  *
- * Staff sign in with their work email; the same field also accepts a mobile
- * number as a fallback, so nothing breaks for staff who only know their
- * number. Customers always use mobile. Email is not unique in the schema, so a
- * staff email lookup is scoped to the allowed roles and fails closed unless it
- * matches exactly one account.
+ * Both portals sign in with email; the same field also accepts a mobile number
+ * as a fallback, so nothing breaks for someone who only knows their number.
+ * Email is not unique in the schema, so an email lookup is scoped to the
+ * allowed roles and fails closed unless it matches exactly one account.
  */
 async function resolveLogin(
   raw: string,
@@ -182,7 +181,7 @@ export async function loginCustomer(
   _prev: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
-  const result = await attemptLogin(formData, CUSTOMER_ROLES, false);
+  const result = await attemptLogin(formData, CUSTOMER_ROLES, true);
   if ("redirectTo" in result) redirect(result.redirectTo);
   return result.state;
 }
