@@ -34,11 +34,15 @@ const NAV: Record<Role, NavGroup[]> = {
         { label: "Dashboard", href: "/dashboard", icon: "home" },
         { label: "My application", href: "/application", icon: "doc" },
         { label: "Documents", href: "/application/documents", icon: "folder" },
+        { label: "My Forms & Licence", href: "/forms", icon: "award" },
       ],
     },
     {
-      heading: "Account",
-      items: [{ label: "Account", href: "/account", icon: "user" }],
+      heading: "Support",
+      items: [
+        { label: "Messages", href: "/messages", icon: "inbox" },
+        { label: "Profile", href: "/profile", icon: "user" },
+      ],
     },
   ],
   STAFF: [
@@ -131,9 +135,12 @@ const TITLES: [string, string][] = [
   ["/staff/form-ix", "Form IX"],
   ["/staff", "Dashboard"],
   ["/application/review", "Review & submit"],
+  ["/application/documents", "Documents"],
   ["/application", "Your application"],
   ["/dashboard", "Dashboard"],
-  ["/account", "Account"],
+  ["/forms", "Forms & licence"],
+  ["/messages", "Messages"],
+  ["/profile", "Profile"],
 ];
 
 function titleFor(pathname: string): string {
@@ -296,6 +303,19 @@ export function AppShell({
               />
               {!collapsed && "Back to website"}
             </Link>
+          )}
+          {role === "CUSTOMER" && (
+            <a
+              href="mailto:support@foodraksha.in"
+              title="Help"
+              className={cn(
+                "mb-1 flex items-center gap-2.5 rounded-[10px] px-2.5 py-2 text-subhead text-label-2 transition-colors hover:bg-white-titanium/60 hover:text-label",
+                collapsed && "justify-center",
+              )}
+            >
+              <Icon name="help" className="size-[18px] shrink-0 text-label-3" />
+              {!collapsed && "Help"}
+            </a>
           )}
           <div
             className={cn(

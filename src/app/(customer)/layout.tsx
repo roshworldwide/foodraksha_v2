@@ -15,7 +15,7 @@ export default async function CustomerLayout({
       role="CUSTOMER"
       userName={session.user.name}
       userSubtitle={session.user.mobile}
-      accountHref="/account"
+      accountHref="/profile"
     >
       {children}
     </AppShell>

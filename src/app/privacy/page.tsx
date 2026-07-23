@@ -88,10 +88,10 @@ export default function PrivacyPage() {
             You can see and correct your data any time from your dashboard. You
             can ask us to erase it from your{" "}
             <Link
-              href="/account"
+              href="/profile"
               className="font-semibold text-label underline"
             >
-              account page
+              profile page
             </Link>
             — this removes your account, application and documents. You may also
             withdraw consent by writing to us; we will then stop processing your
