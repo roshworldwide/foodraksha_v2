@@ -108,7 +108,7 @@ export function LoginSwitcher({
                   onClick={() => setRole("customer")}
                   className="cursor-pointer font-semibold text-label underline"
                 >
-                  Customer sign-in
+                  FR-Member sign-in
                 </button>
               </>
             )}
@@ -156,7 +156,7 @@ function RoleToggle({
               : "text-label-2 hover:text-label",
           )}
         >
-          {value === "customer" ? "I'm a customer" : "I'm staff"}
+          {value === "customer" ? "I'm an FR-Member" : "I'm staff"}
         </button>
       ))}
     </div>

@@ -70,10 +70,11 @@ export default async function FormsPage() {
               <ListRow
                 key={form.id}
                 href={form.href}
+                external
                 chevron
                 icon={<ListIcon tone="done">↓</ListIcon>}
                 title={form.name}
-                subtitle={`Prepared ${formatDate(form.generatedAt)}`}
+                subtitle={`Prepared ${formatDate(form.generatedAt)} · opens the PDF`}
               />
             ))}
           </List>

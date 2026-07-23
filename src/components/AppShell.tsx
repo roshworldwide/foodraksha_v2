@@ -417,11 +417,6 @@ function TopBar({
           label="Help"
           href="mailto:support@foodraksha.in"
         />
-        <IconButton name="bell" label="Notifications" />
-        {/* Theme control is a placeholder: the product is single-theme
-            Titanium today. TODO(theme): wire a dark palette if the client
-            wants one. */}
-        <IconButton name="theme" label="Theme (coming soon)" disabled />
         {accountHref ? (
           <Link href={accountHref} aria-label="Account" className="ml-1">
             <Avatar name={userName} />

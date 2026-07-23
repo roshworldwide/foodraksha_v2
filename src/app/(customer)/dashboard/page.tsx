@@ -179,10 +179,11 @@ export default async function CustomerDashboardPage({
           {licenceHref && (
             <ListRow
               href={licenceHref}
+              external
               chevron
               icon={<ListIcon tone="done">↓</ListIcon>}
               title="FSSAI licence"
-              subtitle="Issued · download"
+              subtitle="Issued · opens the PDF"
             />
           )}
           {documents.map((document) => {
@@ -191,6 +192,7 @@ export default async function CustomerDashboardPage({
               <ListRow
                 key={document.id}
                 href={document.href ?? undefined}
+                external={Boolean(document.href)}
                 chevron={Boolean(document.href)}
                 icon={
                   <ListIcon

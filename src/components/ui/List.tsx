@@ -94,6 +94,8 @@ export interface ListRowProps {
   /** 15px title instead of 17px — for dense contexts like the slide-over. */
   compact?: boolean;
   href?: string;
+  /** Open the href in a new tab — for file downloads that must not replace the page. */
+  external?: boolean;
   onClick?: () => void;
   className?: string;
 }
@@ -106,6 +108,7 @@ export function ListRow({
   chevron = false,
   compact = false,
   href,
+  external = false,
   onClick,
   className,
 }: ListRowProps) {
@@ -149,7 +152,11 @@ export function ListRow({
 
   return (
     <li className="border-b-[0.5px] border-separator last:border-b-0">
-      {href ? (
+      {href && external ? (
+        <a href={href} target="_blank" rel="noreferrer" className={rowClass}>
+          {inner}
+        </a>
+      ) : href ? (
         <Link href={href} className={rowClass}>
           {inner}
         </Link>
