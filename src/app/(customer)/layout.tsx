@@ -11,7 +11,11 @@ export default async function CustomerLayout({
   const session = await requireCustomer();
 
   return (
-    <PortalShell brand="FoodRaksha" userName={session.user.name}>
+    <PortalShell
+      brand="FoodRaksha"
+      userName={session.user.name}
+      accountHref="/account"
+    >
       {children}
     </PortalShell>
   );

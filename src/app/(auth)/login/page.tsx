@@ -13,12 +13,12 @@ export const metadata: Metadata = {
 export default async function CustomerLoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; deleted?: string }>;
 }) {
   const session = await getSession();
   if (session) redirect(portalHomeFor(session.user.role));
 
-  const { next } = await searchParams;
+  const { next, deleted } = await searchParams;
 
   return (
     <>
@@ -28,6 +28,15 @@ export default async function CustomerLoginPage({
           Continue your FSSAI application.
         </p>
       </header>
+
+      {deleted === "1" && (
+        <Card className="mb-4 border-l-[3px] border-ok">
+          <p className="text-body">
+            Your account and data have been deleted. Thank you for using
+            FoodRaksha.
+          </p>
+        </Card>
+      )}
 
       <Card>
         <LoginForm

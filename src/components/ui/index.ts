@@ -29,3 +29,4 @@ export { Toggle } from "./Toggle";
 export type { ToggleProps } from "./Toggle";
 export { Timeline } from "./Timeline";
 export type { TimelineItem } from "./Timeline";
+export { Skeleton, SkeletonCard } from "./Skeleton";

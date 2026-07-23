@@ -241,17 +241,145 @@ on it.
 
 ## Scripts
 
-| Command              | What it does                                          |
-| -------------------- | ----------------------------------------------------- |
-| `npm run dev`        | Development server                                    |
-| `npm run build`      | Production build — must pass before any stage is done |
-| `npm run typecheck`  | `tsc --noEmit`                                        |
-| `npm run lint`       | ESLint                                                |
-| `npm run format`     | Prettier                                              |
-| `npm run db:migrate` | Create and apply a migration                          |
-| `npm run db:seed`    | Seed categories, form sections, demo customers        |
-| `npm run db:reset`   | Drop, re-migrate and re-seed                          |
-| `npm run db:studio`  | Prisma Studio                                         |
+| Command                    | What it does                                          |
+| -------------------------- | ----------------------------------------------------- |
+| `npm run dev`              | Development server                                    |
+| `npm run build`            | Production build — must pass before any stage is done |
+| `npm run typecheck`        | `tsc --noEmit`                                        |
+| `npm run lint`             | ESLint                                                |
+| `npm run format`           | Prettier                                              |
+| `npm run db:migrate`       | Create and apply a migration                          |
+| `npm run db:seed`          | Seed categories, form sections, demo customers        |
+| `npm run db:reset`         | Drop, re-migrate and re-seed                          |
+| `npm run db:studio`        | Prisma Studio                                         |
+| `npm test`                 | Unit tests (no database needed)                       |
+| `npm run test:integration` | Integration & e2e tests (needs a database)            |
+| `npm run dev:storage`      | Development-only in-memory object store               |
+
+## Environment variables
+
+Copy `.env.example` to `.env` and fill it in. Every variable is documented
+there; `src/lib/env.ts` validates them at startup, so a bad value fails fast
+rather than at the first request.
+
+| Variable                                                                            | Required    | What it is                                                                                  |
+| ----------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                                                      | yes         | PostgreSQL connection string                                                                |
+| `AUTH_SECRET`                                                                       | yes         | 32+ random chars; keys session tokens. `openssl rand -base64 48`                            |
+| `NEXT_PUBLIC_APP_URL`                                                               | yes         | Absolute base URL, used in emails and links                                                 |
+| `SESSION_DURATION_DAYS`                                                             | no          | Session lifetime, default 30                                                                |
+| `LOGIN_RATE_LIMIT_*`                                                                | no          | Failed-login window and count                                                               |
+| `S3_ENDPOINT` / `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` / `S3_BUCKET_DOCUMENTS` | for uploads | Cloudflare R2 (private bucket). Without them, uploads are switched off with a clear message |
+| `S3_SIGNED_URL_TTL_SECONDS`                                                         | no          | Download-link lifetime, capped at 900 (15 min)                                              |
+| `RESEND_API_KEY` / `EMAIL_FROM`                                                     | for email   | Resend. Absent = notifications skipped                                                      |
+| `MSG91_AUTH_KEY` / `MSG91_SENDER_ID` / `MSG91_TEMPLATE_ID_*`                        | for SMS     | MSG91. Absent = notifications skipped                                                       |
+
+Delivery and storage degrade gracefully: with no keys, the app runs and says so
+rather than half-working.
+
+## Security and privacy
+
+- Every API route is authorised; none trusts a client-supplied user id.
+  Customer routes scope every query by the session user, so changing an id in a
+  URL returns 404 — there is a test for exactly this.
+- Zod validates every server boundary. Login and signup are rate limited.
+  Passwords are Argon2id and never logged; uploads are private, served only
+  through 15-minute signed URLs.
+- Security headers (CSP, HSTS, `X-Frame-Options: DENY`, `nosniff`,
+  `Referrer-Policy`, `Permissions-Policy`) are set in `next.config.ts`.
+- DPDP Act 2023: consent is captured with a timestamp at signup, there is a
+  [privacy policy](/privacy), and customers can erase their data from
+  `/account`. Deletion removes the account, application and files but keeps the
+  `Lead` row with its personal fields redacted — attribution survives, personal
+  data does not. Retention is seven years after issue or closure, then erased.
+
+## Reliability
+
+- Error boundaries on every route group, a global boundary, and a `not-found`
+  page — all in plain language with a way forward.
+- Loading skeletons (never spinners) on the dashboard, staff desk and
+  questionnaire.
+- Structured JSON logging (`src/lib/log.ts`) and a request-error hook
+  (`src/instrumentation.ts`) that is the single seam for Sentry — drop in
+  `@sentry/nextjs` and call `Sentry.captureException` inside `reportError`.
+
+## Deployment
+
+Built for **Vercel + Neon** (any managed Postgres works).
+
+1. Create a Neon project; copy its pooled connection string.
+2. On Vercel, set the environment variables above for **Production** and
+   **Preview** (use a separate Neon branch for Preview so previews never touch
+   production data). Local uses `.env`.
+3. Set the Vercel **Build Command** to `npm run vercel-build` — it runs
+   `prisma migrate deploy` before `next build`, so pending migrations apply on
+   every deploy. `postinstall` runs `prisma generate`.
+4. Point `S3_*` at a private Cloudflare R2 bucket with a CORS rule allowing
+   `PUT` from your app origin (see `.env.example`).
+
+**Migrations never drop data.** Production uses `prisma migrate deploy`, which
+only applies committed migrations forward — never `migrate reset` or `db push`.
+Every schema change is a new migration reviewed in a PR. For a destructive
+change, expand first (add the new column, backfill, ship), then contract in a
+later migration once nothing reads the old shape.
+
+**Backups.** Enable Neon's point-in-time restore (automatic daily backups with
+a retention window) in the project settings. For a belt-and-braces copy, a
+scheduled `pg_dump` to object storage works; document the schedule with the
+client.
+
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every pull request and push to `main`:
+
+- **quality** — `npm ci`, typecheck, lint, unit tests, build.
+- **integration** — spins up a Postgres service, runs `prisma migrate deploy`,
+  seeds, and runs the integration and e2e tests.
+
+CI must be green to merge.
+
+## Extending the system
+
+### Add or change a questionnaire section
+
+Sections and their fields are **data**, not code — this is the core of the
+design. You do not touch a component to add a question.
+
+1. Edit `prisma/seed-data.ts`: add a section to `SECTIONS`, or a field to an
+   existing section's `fields`. A field is `{ key, label, type, required }`
+   plus optional `options`, `validation`, `helpText`, `width: "half"`, or (for
+   a repeatable group) `itemFields`. Field types: `text`, `multiline`,
+   `number`, `date`, `select`, `multiselect`, `radio`, `checkbox`, `group`,
+   `tel`, `email`, `file`, `signature`.
+2. Use a **canonical field key** from `src/lib/fields.ts`. If the field is new,
+   add its key there first — never rename a key already in use; deprecate and
+   add.
+3. Run `npm run db:seed`. The questionnaire, autosave, validation, review page,
+   staff editor and document checklist all pick it up with no code change. To
+   show a field in a category only, add the section key to that category's
+   `extraSections`.
+
+Once the staff section editor ships (a later phase), staff do this in the
+database directly — the seed is just today's editing surface.
+
+### Add a new PDF annexure template
+
+Annexures are React components rendered server-side, **not** coordinate-placed
+onto a blank form.
+
+1. Create the template in `src/components/pdf/` (copy `FormIX.tsx` — use the
+   shared `styles`, `Letterhead` and `SignatureLine` from `shared.tsx`; A4 with
+   20mm margins; missing values render as a blank line via `orBlank`).
+2. Register it: add a key to `ANNEXURE_KEYS` and a title in `ANNEXURE_TITLES`
+   in `src/lib/annexures/applicability.ts`, decide when it applies in
+   `applicableAnnexures` (with a test), and add it to the `TEMPLATES` map in
+   `src/lib/annexures/generate.ts`.
+3. If it needs data not already assembled, add it to `AnnexureContext` in
+   `src/lib/annexures/data.ts`.
+
+The generator stores it, records a `GeneratedPdf`, and surfaces it in the staff
+slide-over and the filing tray automatically. There is no coordinate mapping to
+maintain — that is deliberate (`CLAUDE.md`).
 
 ## Design reference
 
