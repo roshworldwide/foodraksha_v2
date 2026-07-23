@@ -2,7 +2,10 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { getSession } from "@/lib/auth/guards";
 import { auditIp, writeAudit } from "@/lib/audit";
+import { documentSlots } from "@/lib/documents";
+import { notifyDocumentRejected } from "@/lib/notifications/customer";
 import { prisma } from "@/lib/prisma";
+import { loadQuestionnaireById } from "@/lib/questionnaire/application";
 
 /**
  * Approve a document, or reject it with a reason the customer will read on
@@ -90,6 +93,46 @@ export async function POST(
 
     return updated;
   });
+
+  // Tell the customer their document needs re-uploading. Best effort — the
+  // rejection is already committed, and delivery must never undo it.
+  if (!approve && review.action === "reject") {
+    const [application, context] = await Promise.all([
+      prisma.application.findUnique({
+        where: { id: document.applicationId },
+        select: {
+          applicationNo: true,
+          customer: {
+            select: {
+              user: { select: { name: true, mobile: true, email: true } },
+            },
+          },
+        },
+      }),
+      loadQuestionnaireById(document.applicationId),
+    ]);
+
+    if (application) {
+      const label =
+        context?.sections &&
+        documentSlots(context.sections).find(
+          (slot) => slot.key === document.docType,
+        )?.label;
+
+      await notifyDocumentRejected(
+        {
+          name: application.customer.user.name,
+          mobile: application.customer.user.mobile,
+          email: application.customer.user.email,
+        },
+        {
+          applicationNo: application.applicationNo,
+          documentLabel: label ?? document.docType,
+          reason: review.reason,
+        },
+      );
+    }
+  }
 
   return NextResponse.json({ document });
 }

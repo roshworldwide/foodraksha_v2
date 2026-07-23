@@ -21,6 +21,7 @@ import {
 } from "@/components/ui";
 import { DOC_STATUS, APP_STATUS, LICENCE_TYPE } from "@/lib/status";
 import type { StaffDetail } from "@/lib/staff/detail";
+import { nextStatuses } from "@/lib/status-machine";
 
 type View =
   | { mode: "overview" }
@@ -253,17 +254,21 @@ function Overview({
         </Card>
       </ListGroup>
 
+      <ListGroup>
+        <ListGroupHeader>Status</ListGroupHeader>
+        <StatusControl
+          applicationId={detail.application.id}
+          status={detail.application.status}
+          onChanged={onChanged}
+        />
+      </ListGroup>
+
       {detail.openQueries.length > 0 && (
         <ListGroup>
           <ListGroupHeader>Open queries</ListGroupHeader>
           <List>
             {detail.openQueries.map((query) => (
-              <ListRow
-                key={query.id}
-                compact
-                title={query.message}
-                subtitle={`Raised ${timeAgo(query.raisedAt)}`}
-              />
+              <QueryRow key={query.id} query={query} onResolved={onChanged} />
             ))}
           </List>
         </ListGroup>
@@ -879,5 +884,311 @@ function Letterhead({
         </Card>
       )}
     </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────── status control */
+
+const STATUS_LABEL: Record<string, string> = {
+  DRAFT: "Draft",
+  SUBMITTED: "Awaiting review",
+  UNDER_REVIEW: "Under review",
+  QUERY_RAISED: "Query raised",
+  READY_TO_FILE: "Ready to file",
+  FILED: "Filed with FSSAI",
+  FSSAI_QUERY: "FSSAI query",
+  ISSUED: "Licence issued",
+  REJECTED: "Rejected",
+  CLOSED: "Closed",
+};
+
+/**
+ * The status control. Shows the current status and only the transitions the
+ * machine allows from here — never an illegal move. Filing and licence issue
+ * have their own richer flows, so they are pointed at rather than done inline.
+ */
+function StatusControl({
+  applicationId,
+  status,
+  onChanged,
+}: {
+  applicationId: string;
+  status: StaffDetail["application"]["status"];
+  onChanged: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [note, setNote] = useState("");
+  const [pending, setPending] = useState<string | null>(null);
+
+  const allowed = nextStatuses(status);
+
+  async function change(to: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `/api/staff/applications/${applicationId}/status`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ to, note: note.trim() || undefined }),
+        },
+      );
+      if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        setError(body.error ?? "That change was not allowed.");
+        return;
+      }
+      setNote("");
+      setPending(null);
+      onChanged();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Card>
+      <div className="mb-3 flex items-center gap-2">
+        <StatusPill tone={APP_STATUS[status].tone}>
+          {APP_STATUS[status].label}
+        </StatusPill>
+      </div>
+
+      {allowed.length === 0 ? (
+        <p className="text-footnote text-label-2">
+          This is a final status — nothing moves from here.
+        </p>
+      ) : (
+        <>
+          {status === "FILED" && (
+            <p className="mb-3 text-footnote text-label-2">
+              To issue the licence, use “Issue licence” below.
+            </p>
+          )}
+
+          <label
+            htmlFor="status-note"
+            className="mb-1.5 block text-footnote font-semibold text-label-2"
+          >
+            Note (optional)
+          </label>
+          <Textarea
+            id="status-note"
+            rows={2}
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            placeholder="Recorded on the status change and shown in the history."
+            className="mb-3"
+          />
+
+          {error && (
+            <p
+              role="alert"
+              className="mb-3 text-footnote font-medium text-stop"
+            >
+              {error}
+            </p>
+          )}
+
+          <div className="flex flex-wrap gap-2">
+            {allowed.map((to) =>
+              pending === to ? (
+                <span key={to} className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="quiet"
+                    disabled={busy}
+                    onClick={() => setPending(null)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    disabled={busy}
+                    onClick={() => void change(to)}
+                  >
+                    Confirm {STATUS_LABEL[to]}
+                  </Button>
+                </span>
+              ) : (
+                <Button
+                  key={to}
+                  size="sm"
+                  variant={to === "REJECTED" ? "quiet" : "secondary"}
+                  disabled={busy}
+                  onClick={() => setPending(to)}
+                >
+                  {STATUS_LABEL[to]}
+                </Button>
+              ),
+            )}
+          </div>
+        </>
+      )}
+
+      {status === "FILED" && (
+        <div className="mt-4 border-t-[0.5px] border-separator pt-4">
+          <IssueLicence applicationId={applicationId} onIssued={onChanged} />
+        </div>
+      )}
+    </Card>
+  );
+}
+
+/* ──────────────────────────────────────────────────── issue licence */
+
+function IssueLicence({
+  applicationId,
+  onIssued,
+}: {
+  applicationId: string;
+  onIssued: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [licenceNo, setLicenceNo] = useState("");
+  const [expiresAt, setExpiresAt] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit() {
+    if (!file) {
+      setError("Attach the licence PDF from FSSAI.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const form = new FormData();
+      form.set("licenceNo", licenceNo.trim());
+      form.set("expiresAt", expiresAt);
+      form.set("file", file);
+      const response = await fetch(
+        `/api/staff/applications/${applicationId}/licence`,
+        { method: "POST", body: form },
+      );
+      if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        setError(body.error ?? "That did not save.");
+        return;
+      }
+      onIssued();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <Button size="sm" variant="primary" onClick={() => setOpen(true)}>
+        Issue licence
+      </Button>
+    );
+  }
+
+  return (
+    <div>
+      <h4 className="mb-3 text-headline">Issue the licence</h4>
+      <Field htmlFor="lic-no" label="Licence number">
+        <Input
+          id="lic-no"
+          value={licenceNo}
+          onChange={(event) => setLicenceNo(event.target.value)}
+          placeholder="e.g. 10826002000123"
+        />
+      </Field>
+      <Field htmlFor="lic-exp" label="Valid until">
+        <Input
+          id="lic-exp"
+          type="date"
+          value={expiresAt}
+          onChange={(event) => setExpiresAt(event.target.value)}
+        />
+      </Field>
+      <Field htmlFor="lic-file" label="Licence PDF from FSSAI">
+        <input
+          id="lic-file"
+          type="file"
+          accept="application/pdf"
+          onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+          className="text-footnote"
+        />
+      </Field>
+
+      {error && (
+        <p role="alert" className="mb-3 text-footnote font-medium text-stop">
+          {error}
+        </p>
+      )}
+
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          variant="quiet"
+          disabled={busy}
+          onClick={() => setOpen(false)}
+        >
+          Cancel
+        </Button>
+        <Button
+          size="sm"
+          disabled={busy || licenceNo.trim().length < 3 || !expiresAt || !file}
+          onClick={() => void submit()}
+        >
+          {busy ? "Issuing…" : "Confirm issued"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────── query row */
+
+function QueryRow({
+  query,
+  onResolved,
+}: {
+  query: { id: string; message: string; raisedAt: string };
+  onResolved: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  async function resolve() {
+    setBusy(true);
+    try {
+      const response = await fetch(`/api/staff/queries/${query.id}/resolve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      if (response.ok) onResolved();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <li className="border-b-[0.5px] border-separator p-4 last:border-b-0">
+      <p className="text-[15px] tracking-[-0.008em]">{query.message}</p>
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <span className="text-footnote text-label-2">
+          Raised {timeAgo(query.raisedAt)}
+        </span>
+        <Button
+          size="xs"
+          variant="secondary"
+          disabled={busy}
+          onClick={() => void resolve()}
+        >
+          {busy ? "…" : "Mark resolved"}
+        </Button>
+      </div>
+    </li>
   );
 }

@@ -202,6 +202,43 @@ Values are reshaped for the portal where it helps — the licence tenure drops
 its "years" suffix to match the dropdown, and the premises address is offered
 as one pasteable block.
 
+## Status pipeline
+
+The application moves through one state machine, defined and enforced in
+[`status-machine.ts`](./src/lib/status-machine.ts):
+
+```
+DRAFT → SUBMITTED → UNDER_REVIEW → (QUERY_RAISED ⇄) → READY_TO_FILE →
+FILED → (FSSAI_QUERY ⇄) → ISSUED → CLOSED
+```
+
+- Legal transitions live in one place; an illegal move is refused with the list
+  of what _is_ allowed. `transition()` guards on the current status and writes
+  the change and its `StatusEvent` in the same transaction — they can never
+  come apart.
+- Staff change status from the slide-over, seeing only the transitions the
+  machine permits, each with an optional note. Filing and licence issue have
+  their own richer flows.
+- **Queries** are raised against a section or document with a message; the
+  application moves to `QUERY_RAISED` and the customer sees it on their
+  dashboard with a direct link to the thing to fix. Resolving the last open
+  query returns it to `UNDER_REVIEW` — or the customer resubmitting does the
+  same.
+- **Licence issued**: staff enter the licence number and expiry and upload the
+  FSSAI PDF; it stores on the application and the customer downloads it through
+  a 15-minute signed URL.
+
+**Notifications** — query raised, document rejected, filed, licence issued —
+go by email and SMS through the same adapter interface as signup
+([`notifications/customer.ts`](./src/lib/notifications/customer.ts)). Every one
+is best effort: a provider being down is logged, never allowed to undo the
+action that triggered it.
+
+The **customer timeline** shows only the five milestones a customer
+recognises — account created, submitted, under review, filed, issued. The
+internal sub-states (`READY_TO_FILE`, and the query round-trips) never appear
+on it.
+
 ## Scripts
 
 | Command              | What it does                                          |

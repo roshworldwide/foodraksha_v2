@@ -2,8 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { getSession } from "@/lib/auth/guards";
 import { auditIp, writeAudit } from "@/lib/audit";
-import { notifyFiled } from "@/lib/filing/notify";
+import { notifyFiled } from "@/lib/notifications/customer";
 import { prisma } from "@/lib/prisma";
+import { InvalidTransitionError, transition } from "@/lib/status-machine";
 
 /**
  * Record that an application was filed with FoSCoS.
@@ -70,49 +71,72 @@ export async function POST(
     : new Date();
   const ipAddress = await auditIp();
 
-  await prisma.$transaction(async (tx) => {
-    await tx.application.update({
-      where: { id: applicationId },
-      data: {
-        status: "FILED",
-        filedAt,
-        // FoSCoS reference is not a schema column; it lives in the audit trail
-        // and the StatusEvent note, which is where "what reference?" is asked.
-      },
-    });
+  try {
+    await prisma.$transaction(async (tx) => {
+      // READY_TO_FILE is the pipeline's "internally approved" step before
+      // FILED. Recording a filing implies approval, so advance through it in
+      // one go rather than making staff click twice.
+      if (application.status === "UNDER_REVIEW") {
+        await transition(tx, {
+          applicationId,
+          from: "UNDER_REVIEW",
+          to: "READY_TO_FILE",
+          byUserId: session.user.id,
+          note: "Approved for filing.",
+        });
+      }
 
-    await tx.statusEvent.create({
-      data: {
+      const from =
+        application.status === "UNDER_REVIEW"
+          ? "READY_TO_FILE"
+          : application.status;
+
+      await transition(tx, {
         applicationId,
-        fromStatus: application.status,
-        toStatus: "FILED",
-        note: `Filed with FSSAI. Reference ${parsed.data.referenceNo}.`,
+        from,
+        to: "FILED",
         byUserId: session.user.id,
-      },
-    });
+        // FoSCoS reference is not a schema column; it lives in the StatusEvent
+        // note and the audit trail, which is where "what reference?" is asked.
+        note: `Filed with FSSAI. Reference ${parsed.data.referenceNo}.`,
+        data: { filedAt },
+      });
 
-    await writeAudit(tx, {
-      userId: session.user.id,
-      entity: "Application",
-      entityId: applicationId,
-      action: "status_change",
-      before: { status: application.status },
-      after: {
-        status: "FILED",
-        referenceNo: parsed.data.referenceNo,
-        filedAt: filedAt.toISOString(),
-      },
-      ipAddress,
+      await writeAudit(tx, {
+        userId: session.user.id,
+        entity: "Application",
+        entityId: applicationId,
+        action: "status_change",
+        before: { status: application.status },
+        after: {
+          status: "FILED",
+          referenceNo: parsed.data.referenceNo,
+          filedAt: filedAt.toISOString(),
+        },
+        ipAddress,
+      });
     });
-  });
+  } catch (error) {
+    if (error instanceof InvalidTransitionError) {
+      return NextResponse.json(
+        { error: "An application can only be filed once it is ready to file." },
+        { status: 409 },
+      );
+    }
+    throw error;
+  }
 
-  await notifyFiled({
-    name: application.customer.user.name,
-    mobile: application.customer.user.mobile,
-    email: application.customer.user.email,
-    applicationNo: application.applicationNo,
-    referenceNo: parsed.data.referenceNo,
-  });
+  await notifyFiled(
+    {
+      name: application.customer.user.name,
+      mobile: application.customer.user.mobile,
+      email: application.customer.user.email,
+    },
+    {
+      applicationNo: application.applicationNo,
+      referenceNo: parsed.data.referenceNo,
+    },
+  );
 
   return NextResponse.json({ ok: true, filedAt: filedAt.toISOString() });
 }

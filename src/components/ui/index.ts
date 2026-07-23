@@ -27,3 +27,5 @@ export { Textarea } from "./Textarea";
 export type { TextareaProps } from "./Textarea";
 export { Toggle } from "./Toggle";
 export type { ToggleProps } from "./Toggle";
+export { Timeline } from "./Timeline";
+export type { TimelineItem } from "./Timeline";

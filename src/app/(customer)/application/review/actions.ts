@@ -7,15 +7,20 @@ import {
   loadQuestionnaire,
   sectionStates,
 } from "@/lib/questionnaire/application";
+import { InvalidTransitionError, transition } from "@/lib/status-machine";
 
 export interface SubmitState {
   error?: string;
 }
 
 /**
- * Submitting hands the application to staff: status, timestamp and a
- * StatusEvent, in one transaction. Everything is re-validated here — the
- * client's opinion of "complete" is never the deciding one.
+ * Submitting hands the application to staff. Everything is re-validated here —
+ * the client's opinion of "complete" is never the deciding one — and the status
+ * change goes through the machine, atomic with its StatusEvent.
+ *
+ * From DRAFT this is the first submission (-> SUBMITTED). From QUERY_RAISED the
+ * customer is answering a query, so it resolves their open queries and returns
+ * the file to review (-> UNDER_REVIEW).
  */
 export async function submitApplication(
   _previous: SubmitState,
@@ -43,31 +48,42 @@ export async function submitApplication(
     };
   }
 
-  await prisma.$transaction(async (tx) => {
-    const current = await tx.application.findUniqueOrThrow({
-      where: { id: context.application.id },
-      select: { status: true },
-    });
+  const from = context.application.status;
+  const answeringQuery = from === "QUERY_RAISED";
+  const to = answeringQuery ? "UNDER_REVIEW" : "SUBMITTED";
 
-    await tx.application.update({
-      where: { id: context.application.id },
-      data: {
-        status: "SUBMITTED",
-        submittedAt: new Date(),
-        completedSections: states.map((state) => state.key),
-      },
-    });
+  try {
+    await prisma.$transaction(async (tx) => {
+      if (answeringQuery) {
+        await tx.query.updateMany({
+          where: { applicationId: context.application.id, resolvedAt: null },
+          data: {
+            resolvedAt: new Date(),
+            resolutionNote: "Customer updated the application.",
+          },
+        });
+      }
 
-    await tx.statusEvent.create({
-      data: {
+      await transition(tx, {
         applicationId: context.application.id,
-        fromStatus: current.status,
-        toStatus: "SUBMITTED",
-        note: "Submitted by the customer from the questionnaire.",
+        from,
+        to,
         byUserId: session.user.id,
-      },
+        note: answeringQuery
+          ? "Customer responded to the query."
+          : "Submitted by the customer from the questionnaire.",
+        data: {
+          completedSections: states.map((state) => state.key),
+          ...(answeringQuery ? {} : { submittedAt: new Date() }),
+        },
+      });
     });
-  });
+  } catch (error) {
+    if (error instanceof InvalidTransitionError) {
+      return { error: "This application can no longer be submitted." };
+    }
+    throw error;
+  }
 
-  redirect("/dashboard?submitted=1");
+  redirect(answeringQuery ? "/dashboard?resolved=1" : "/dashboard?submitted=1");
 }
