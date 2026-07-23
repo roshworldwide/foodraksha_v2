@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import type { Role } from "@prisma/client";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
-import { loginSchema } from "@/lib/validation";
+import { mobileSchema } from "@/lib/validation";
 import { CUSTOMER_ROLES, STAFF_ROLES, getSession } from "./guards";
 import { fakeVerify, verifyPassword } from "./password";
 import {
@@ -28,7 +28,7 @@ import {
  * deactivated account, wrong portal. Nothing here tells an attacker whether
  * an account exists.
  */
-const GENERIC_ERROR = "Mobile number or password is incorrect.";
+const GENERIC_ERROR = "Those sign-in details are incorrect.";
 
 export interface LoginState {
   error?: string;
@@ -64,14 +64,57 @@ function safeNextPath(raw: FormDataEntryValue | null, role: Role): string {
   return raw;
 }
 
+/**
+ * Resolve the login identifier to a single user.
+ *
+ * Staff sign in with their work email; the same field also accepts a mobile
+ * number as a fallback, so nothing breaks for staff who only know their
+ * number. Customers always use mobile. Email is not unique in the schema, so a
+ * staff email lookup is scoped to the allowed roles and fails closed unless it
+ * matches exactly one account.
+ */
+async function resolveLogin(
+  raw: string,
+  allowedRoles: Role[],
+  allowEmail: boolean,
+): Promise<{
+  user: Awaited<ReturnType<typeof prisma.user.findUnique>>;
+  key: string;
+} | null> {
+  const value = raw.trim();
+
+  if (allowEmail && value.includes("@")) {
+    const email = value.toLowerCase();
+    const matches = await prisma.user.findMany({
+      where: {
+        email: { equals: email, mode: "insensitive" },
+        role: { in: allowedRoles },
+      },
+    });
+    return {
+      user: matches.length === 1 ? matches[0] : null,
+      key: `login:email:${email}`,
+    };
+  }
+
+  const parsedMobile = mobileSchema.safeParse(value);
+  if (!parsedMobile.success) return null;
+  const mobile = parsedMobile.data;
+  return {
+    user: await prisma.user.findUnique({ where: { mobile } }),
+    key: `login:mobile:${mobile}`,
+  };
+}
+
 async function attemptLogin(
   formData: FormData,
   allowedRoles: Role[],
+  allowEmail: boolean,
 ): Promise<{ state: LoginState } | { redirectTo: string }> {
-  const parsed = loginSchema.safeParse({
-    mobile: formData.get("mobile"),
-    password: formData.get("password"),
-  });
+  const identifier = String(
+    formData.get("identifier") ?? formData.get("mobile") ?? "",
+  );
+  const password = String(formData.get("password") ?? "");
 
   const { ip, userAgent } = await requestMeta();
 
@@ -81,15 +124,20 @@ async function attemptLogin(
     ? [{ key: `login:ip:${ip}`, limit, windowMs }]
     : [];
 
-  // A malformed mobile still costs an attempt against the IP.
-  if (!parsed.success) {
+  // A malformed identifier or password still costs an attempt against the IP.
+  if (!identifier.trim() || !password) {
     recordHit(ipRules);
     return { state: { error: GENERIC_ERROR } };
   }
 
-  const { mobile, password } = parsed.data;
-  const mobileKey = `login:mobile:${mobile}`;
-  const rules: RateRule[] = [{ key: mobileKey, limit, windowMs }, ...ipRules];
+  const resolved = await resolveLogin(identifier, allowedRoles, allowEmail);
+  if (!resolved) {
+    recordHit(ipRules);
+    return { state: { error: GENERIC_ERROR } };
+  }
+
+  const { user, key } = resolved;
+  const rules: RateRule[] = [{ key, limit, windowMs }, ...ipRules];
 
   const verdict = checkRateLimit(rules);
   if (!verdict.allowed) {
@@ -101,8 +149,6 @@ async function attemptLogin(
       },
     };
   }
-
-  const user = await prisma.user.findUnique({ where: { mobile } });
 
   if (!user) {
     await fakeVerify(password); // keep unknown-account timing indistinguishable
@@ -117,7 +163,7 @@ async function attemptLogin(
     return { state: { error: GENERIC_ERROR } };
   }
 
-  clearRateLimit([mobileKey]);
+  clearRateLimit([key]);
 
   const { token, expiresAt } = await createSession(user.id, {
     ipAddress: ip,
@@ -136,7 +182,7 @@ export async function loginCustomer(
   _prev: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
-  const result = await attemptLogin(formData, CUSTOMER_ROLES);
+  const result = await attemptLogin(formData, CUSTOMER_ROLES, false);
   if ("redirectTo" in result) redirect(result.redirectTo);
   return result.state;
 }
@@ -145,7 +191,7 @@ export async function loginStaff(
   _prev: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
-  const result = await attemptLogin(formData, STAFF_ROLES);
+  const result = await attemptLogin(formData, STAFF_ROLES, true);
   if ("redirectTo" in result) redirect(result.redirectTo);
   return result.state;
 }

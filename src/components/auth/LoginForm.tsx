@@ -4,14 +4,30 @@ import { useActionState } from "react";
 import { Button, Field, Input } from "@/components/ui";
 import type { LoginState } from "@/lib/auth/actions";
 
+export interface IdentifierField {
+  name: string;
+  label: string;
+  hint: string;
+  type: string;
+  inputMode?: "numeric" | "email" | "text";
+  autoComplete: string;
+  placeholder: string;
+}
+
 export interface LoginFormProps {
   action: (state: LoginState, formData: FormData) => Promise<LoginState>;
   submitLabel: string;
+  identifier: IdentifierField;
   /** Path the visitor was trying to reach before being sent here. */
   nextPath?: string;
 }
 
-export function LoginForm({ action, submitLabel, nextPath }: LoginFormProps) {
+export function LoginForm({
+  action,
+  submitLabel,
+  identifier,
+  nextPath,
+}: LoginFormProps) {
   const [state, formAction, pending] = useActionState<LoginState, FormData>(
     action,
     {},
@@ -21,18 +37,18 @@ export function LoginForm({ action, submitLabel, nextPath }: LoginFormProps) {
     <form action={formAction} noValidate>
       {nextPath && <input type="hidden" name="next" value={nextPath} />}
       <Field
-        htmlFor="mobile"
-        label="Mobile number"
-        hint="The number you registered with, 10 digits."
+        htmlFor={identifier.name}
+        label={identifier.label}
+        hint={identifier.hint}
       >
         <Input
-          id="mobile"
-          name="mobile"
-          type="tel"
-          inputMode="numeric"
-          autoComplete="username"
-          placeholder="98450 21764"
-          aria-describedby="mobile-hint"
+          id={identifier.name}
+          name={identifier.name}
+          type={identifier.type}
+          inputMode={identifier.inputMode}
+          autoComplete={identifier.autoComplete}
+          placeholder={identifier.placeholder}
+          aria-describedby={`${identifier.name}-hint`}
           required
         />
       </Field>

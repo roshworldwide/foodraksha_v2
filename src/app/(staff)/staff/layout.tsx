@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { PortalShell } from "@/components/PortalShell";
+import { AppShell } from "@/components/AppShell";
 import { requireStaff } from "@/lib/auth/guards";
 
 /** Every route in this group requires a STAFF or ADMIN session. */
@@ -11,11 +11,12 @@ export default async function StaffLayout({
   const session = await requireStaff();
 
   return (
-    <PortalShell
-      brand="FoodRaksha Staff"
-      userName={`${session.user.name} · ${session.user.role.toLowerCase()}`}
+    <AppShell
+      role="STAFF"
+      userName={session.user.name}
+      userSubtitle={session.user.role === "ADMIN" ? "Administrator" : "Staff"}
     >
       {children}
-    </PortalShell>
+    </AppShell>
   );
 }

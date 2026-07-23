@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { LoginLockup } from "@/components/auth/LoginLockup";
 import { Card } from "@/components/ui";
 import { loginStaff } from "@/lib/auth/actions";
 import { getSession, portalHomeFor } from "@/lib/auth/guards";
@@ -21,25 +22,35 @@ export default async function StaffLoginPage({
   const { next } = await searchParams;
 
   return (
-    <>
-      <header className="mb-6">
-        <h1 className="text-title-1">Staff sign in</h1>
-        <p className="mt-1.5 text-body text-label-2">
-          FoodRaksha employees only.
-        </p>
-      </header>
-
+    <LoginLockup
+      badge="Staff"
+      title="CRM Workspace"
+      subtitle="for the Food Raksha team"
+      footer={
+        <>
+          Not a team member?{" "}
+          <Link href="/login" className="font-semibold text-label underline">
+            → Customer login
+          </Link>
+        </>
+      }
+    >
       <Card>
-        <LoginForm action={loginStaff} submitLabel="Sign in" nextPath={next} />
+        <LoginForm
+          action={loginStaff}
+          submitLabel="Sign in"
+          nextPath={next}
+          identifier={{
+            name: "identifier",
+            label: "Work email",
+            hint: "Your FoodRaksha email. Your mobile number works too.",
+            type: "text",
+            inputMode: "email",
+            autoComplete: "username",
+            placeholder: "you@foodraksha.in",
+          }}
+        />
       </Card>
-
-      <p className="mt-6 text-center text-footnote text-label-2">
-        Customer?{" "}
-        <Link href="/login" className="font-semibold text-label underline">
-          Sign in here
-        </Link>
-        .
-      </p>
-    </>
+    </LoginLockup>
   );
 }

@@ -26,6 +26,33 @@ interface Message {
   smsText: string;
 }
 
+/**
+ * Wrap the plain-text lines in a simple branded HTML email.
+ *
+ * The mark is an inline SVG (blue/green) so it needs no hosted asset; clients
+ * that strip SVG fall back to the alt text and the plain-text part.
+ * TODO(brand): if broad email-client support matters, host a PNG of the mark
+ * at NEXT_PUBLIC_APP_URL/brand and reference it here instead.
+ */
+function brandedHtml(lines: string[]): string {
+  const body = lines
+    .map((line) =>
+      line.trim() === ""
+        ? '<div style="height:10px"></div>'
+        : `<p style="margin:0 0 10px;font-size:15px;line-height:1.5;color:#1D1D1F">${line}</p>`,
+    )
+    .join("");
+  const mark = `<svg width="22" height="22" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FoodRaksha"><path d="M24 3.2l16.2 5.6a1.6 1.6 0 0 1 1.1 1.5v11.9c0 9.9-6.9 18.5-16.7 21.5a2 2 0 0 1-1.2 0C13.6 40.7 6.7 32.1 6.7 22.2V10.3a1.6 1.6 0 0 1 1.1-1.5z" fill="#1E4FA8"/><path d="M24 13.2c5.9 0 10.7 4.4 10.7 10.6 0 5.2-3.6 9.8-9.4 11.2a1 1 0 0 1-1.2-.8c-1-5.6.4-10.9 4.6-15.1a.6.6 0 0 0-.8-.9c-4.2 2.9-6.6 6.8-7.4 11.6-1.9-2-3.2-4.7-3.2-7.9 0-6.2 4.8-9.8 6.1-9.8z" fill="#43A57A"/></svg>`;
+  return `<!doctype html><html><body style="margin:0;background:#EFEDE8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<div style="max-width:520px;margin:0 auto;padding:24px">
+  <div style="display:flex;align-items:center;gap:8px;padding-bottom:14px;border-bottom:1px solid rgba(60,60,67,.16)">
+    ${mark}<span style="font-size:18px;font-weight:700;color:#1D1D1F">FoodRaksha</span>
+  </div>
+  <div style="background:#fff;border-radius:14px;padding:24px;margin-top:16px">${body}</div>
+  <p style="margin:16px 0 0;font-size:12px;color:rgba(60,60,67,.6);text-align:center">FSSAI licensing, handled.</p>
+</div></body></html>`;
+}
+
 async function deliver(
   recipient: Recipient,
   message: Message,
@@ -42,6 +69,7 @@ async function deliver(
           to: recipient.email,
           subject: message.subject,
           text: message.lines.join("\n"),
+          html: brandedHtml(message.lines),
         });
       } catch (error) {
         console.error(

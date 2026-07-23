@@ -1,5 +1,13 @@
 import path from "node:path";
-import { Font, Image, StyleSheet, Text, View } from "@react-pdf/renderer";
+import {
+  Font,
+  Image,
+  Path,
+  StyleSheet,
+  Svg,
+  Text,
+  View,
+} from "@react-pdf/renderer";
 import type { AnnexureLetterhead } from "@/lib/annexures/data";
 
 /**
@@ -141,6 +149,48 @@ export function SignatureLine({
       <View style={{ width: 170, borderTop: "1pt solid #000", paddingTop: 3 }}>
         <Text style={styles.small}>{caption}</Text>
       </View>
+    </View>
+  );
+}
+
+/**
+ * The FoodRaksha mark, drawn as vector so it stays crisp at any size and needs
+ * no image asset. Keeps its blue/green — the only colour on the page.
+ * TODO(brand): align with the official mark when the vector is supplied.
+ */
+export function FoodRakshaMark({ size = 10 }: { size?: number }) {
+  return (
+    <Svg viewBox="0 0 48 48" width={size} height={size}>
+      <Path
+        d="M24 3.2l16.2 5.6a1.6 1.6 0 0 1 1.1 1.5v11.9c0 9.9-6.9 18.5-16.7 21.5a2 2 0 0 1-1.2 0C13.6 40.7 6.7 32.1 6.7 22.2V10.3a1.6 1.6 0 0 1 1.1-1.5z"
+        fill="#1E4FA8"
+      />
+      <Path
+        d="M24 13.2c5.9 0 10.7 4.4 10.7 10.6 0 5.2-3.6 9.8-9.4 11.2a1 1 0 0 1-1.2-.8c-1-5.6.4-10.9 4.6-15.1a.6.6 0 0 0-.8-.9c-4.2 2.9-6.6 6.8-7.4 11.6-1.9-2-3.2-4.7-3.2-7.9 0-6.2 4.8-9.8 6.1-9.8z"
+        fill="#43A57A"
+      />
+    </Svg>
+  );
+}
+
+/** A fixed footer with the FoodRaksha mark and a caption line. */
+export function PdfFooter({ children }: { children: React.ReactNode }) {
+  return (
+    <View
+      fixed
+      style={{
+        position: "absolute",
+        bottom: 10,
+        left: A4_MARGIN,
+        right: A4_MARGIN,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 4,
+      }}
+    >
+      <FoodRakshaMark size={9} />
+      <Text style={{ fontSize: 7.5, color: "#555555" }}>{children}</Text>
     </View>
   );
 }

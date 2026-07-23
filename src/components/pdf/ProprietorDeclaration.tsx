@@ -1,6 +1,6 @@
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 import { BLANK, type AnnexureContext } from "@/lib/annexures/data";
-import { Letterhead, SignatureLine, styles } from "./shared";
+import { Letterhead, SignatureLine, styles, PdfFooter } from "./shared";
 
 /**
  * Self-Declaration for Proprietorship.
@@ -115,10 +115,10 @@ export function ProprietorDeclaration({ data }: { data: AnnexureContext }) {
           </View>
         </View>
 
-        <Text style={styles.footerNote} fixed>
+        <PdfFooter>
           {data.applicationNo} · Self-Declaration for Proprietorship · generated
           by FoodRaksha
-        </Text>
+        </PdfFooter>
       </Page>
     </Document>
   );

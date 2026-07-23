@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { PortalShell } from "@/components/PortalShell";
+import { AppShell } from "@/components/AppShell";
 import { requireCustomer } from "@/lib/auth/guards";
 
 /** Every route in this group requires a CUSTOMER session. */
@@ -11,12 +11,13 @@ export default async function CustomerLayout({
   const session = await requireCustomer();
 
   return (
-    <PortalShell
-      brand="FoodRaksha"
+    <AppShell
+      role="CUSTOMER"
       userName={session.user.name}
+      userSubtitle={session.user.mobile}
       accountHref="/account"
     >
       {children}
-    </PortalShell>
+    </AppShell>
   );
 }
