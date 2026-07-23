@@ -43,31 +43,69 @@ const NAV: Record<Role, NavGroup[]> = {
   ],
   STAFF: [
     {
-      heading: "Applications",
+      heading: "Sales",
+      items: [
+        { label: "Dashboard", href: "/staff", icon: "home", exact: true },
+        { label: "Leads", href: "/staff/leads", icon: "spark" },
+        { label: "Pipeline", href: "/staff/pipeline", icon: "board" },
+        {
+          label: "Website Enquiries",
+          href: "/staff/enquiries",
+          icon: "inbox",
+        },
+      ],
+    },
+    {
+      heading: "Clients & Compliance",
+      items: [
+        { label: "Clients / FBOs", href: "/staff/clients", icon: "building" },
+        { label: "Compliance", href: "/staff/compliance", icon: "shield" },
+      ],
+    },
+    {
+      heading: "Licensing",
       items: [
         {
-          label: "All applications",
-          href: "/staff",
-          icon: "list",
+          label: "New Application",
+          href: "/staff/new-application",
+          icon: "plus",
+        },
+        { label: "Application Form B", href: "/staff/form-b", icon: "doc" },
+        { label: "Modification", href: "/staff/modifications", icon: "edit" },
+        { label: "Renewals", href: "/staff/renewals", icon: "refresh" },
+      ],
+    },
+    {
+      heading: "Annual Returns",
+      items: [
+        {
+          label: "Return Information",
+          href: "/staff/annual-returns",
+          icon: "calendar",
           exact: true,
         },
         {
-          label: "Not logged in",
-          href: "/staff?filter=not_logged_in",
-          icon: "clock",
+          label: "Return Submission",
+          href: "/staff/annual-returns/submissions",
+          icon: "upload",
+        },
+      ],
+    },
+    {
+      heading: "Registrations",
+      items: [
+        {
+          label: "FBO Registration",
+          href: "/staff/registrations",
+          icon: "badge",
         },
         {
-          label: "Awaiting review",
-          href: "/staff?filter=awaiting_review",
-          icon: "inbox",
+          label: "Product Specification",
+          href: "/staff/product-specs",
+          icon: "tag",
         },
-        {
-          label: "Query raised",
-          href: "/staff?filter=query_raised",
-          icon: "flag",
-        },
-        { label: "Filed", href: "/staff?filter=filed", icon: "check" },
-        { label: "Issued", href: "/staff?filter=issued", icon: "award" },
+        { label: "NOC / Address", href: "/staff/noc", icon: "folder" },
+        { label: "Form IX", href: "/staff/form-ix", icon: "award" },
       ],
     },
   ],
@@ -76,7 +114,22 @@ const NAV: Record<Role, NavGroup[]> = {
 /** Page title per route prefix, longest match wins. */
 const TITLES: [string, string][] = [
   ["/staff/applications", "Filing workspace"],
-  ["/staff", "Desk"],
+  ["/staff/leads", "Leads"],
+  ["/staff/pipeline", "Pipeline"],
+  ["/staff/enquiries", "Website enquiries"],
+  ["/staff/clients", "Clients / FBOs"],
+  ["/staff/compliance", "Compliance"],
+  ["/staff/new-application", "New application"],
+  ["/staff/form-b", "Application Form B"],
+  ["/staff/modifications", "Modifications"],
+  ["/staff/renewals", "Renewals (legacy licences)"],
+  ["/staff/annual-returns/submissions", "Annual return submission"],
+  ["/staff/annual-returns", "Annual return information"],
+  ["/staff/registrations", "FBO regulatory registration"],
+  ["/staff/product-specs", "Product specification"],
+  ["/staff/noc", "NOC / address ownership"],
+  ["/staff/form-ix", "Form IX"],
+  ["/staff", "Dashboard"],
   ["/application/review", "Review & submit"],
   ["/application", "Your application"],
   ["/dashboard", "Dashboard"],
@@ -226,8 +279,24 @@ export function AppShell({
           ))}
         </nav>
 
-        {/* ── User block + logout */}
+        {/* ── Footer: back to website (staff), user block, logout */}
         <div className="border-t-[0.5px] border-separator p-2.5">
+          {role === "STAFF" && (
+            <Link
+              href="/"
+              title="Back to website"
+              className={cn(
+                "mb-1 flex items-center gap-2.5 rounded-[10px] px-2.5 py-2 text-subhead text-label-2 transition-colors hover:bg-white-titanium/60 hover:text-label",
+                collapsed && "justify-center",
+              )}
+            >
+              <Icon
+                name="globe"
+                className="size-[18px] shrink-0 text-label-3"
+              />
+              {!collapsed && "Back to website"}
+            </Link>
+          )}
           <div
             className={cn(
               "flex items-center gap-2.5 rounded-[10px] px-2 py-2",
@@ -414,8 +483,24 @@ const ICONS = {
   award: "M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12ZM9 14l-1 7 4-2 4 2-1-7",
   logout: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9",
   menu: "M3 6h18M3 12h18M3 18h18",
+  globe:
+    "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM3 12h18M12 3c2.5 2.7 3.9 6.3 4 9.9-.1 3.6-1.5 7.2-4 9.9-2.5-2.7-3.9-6.3-4-9.9.1-3.6 1.5-7.2 4-9.9z",
   help: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM9.5 9a2.5 2.5 0 0 1 4.5 1.5c0 2-2.5 2-2.5 4M12 17h.01",
   bell: "M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0",
+  spark:
+    "M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.8 2.8M14.9 14.9l2.8 2.8M17.7 6.3l-2.8 2.8M9.1 14.9l-2.8 2.8",
+  board: "M4 4h16v16H4zM9 4v16M15 4v16",
+  building:
+    "M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16M15 9h4a1 1 0 0 1 1 1v11M8 8h.01M8 12h.01M11 8h.01M11 12h.01M8 16h4",
+  shield: "M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4",
+  plus: "M12 5v14M5 12h14",
+  edit: "M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z",
+  refresh:
+    "M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5",
+  calendar: "M4 5h16v16H4zM4 9h16M8 3v4M16 3v4",
+  upload: "M12 15V3M8 7l4-4 4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2",
+  badge: "M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM12 15v6l-3-2-3 2v-8M18 13v8l-3-2",
+  tag: "M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0l-7.2-7.2a2 2 0 0 1-.6-1.4V4a1 1 0 0 1 1-1h8a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.6zM7.5 7.5h.01",
   theme:
     "M12 3v2M12 19v2M5 12H3M21 12h-2M6 6 4.5 4.5M19.5 19.5 18 18M18 6l1.5-1.5M4.5 19.5 6 18M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z",
 } as const;

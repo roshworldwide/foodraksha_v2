@@ -194,6 +194,136 @@ export async function createAccount(
   }
 }
 
+/**
+ * Convert an existing lead into a full account. Same rows as createAccount, but
+ * it links the lead that already exists rather than creating a new one, and it
+ * is initiated by a staff member — so it writes an AuditLog row.
+ *
+ * Reuses createAccount's transaction shape; the category is resolved by the
+ * lead's businessType, which may be a code or a human label.
+ */
+export async function convertLead(
+  leadId: string,
+  staffUserId: string,
+): Promise<SignupAccount> {
+  const lead = await prisma.lead.findUnique({
+    where: { id: leadId },
+    select: {
+      id: true,
+      name: true,
+      mobile: true,
+      email: true,
+      businessType: true,
+      city: true,
+      convertedUserId: true,
+    },
+  });
+  if (!lead)
+    throw new SignupError("UNKNOWN_CATEGORY", "That lead no longer exists.");
+  if (lead.convertedUserId) {
+    throw new SignupError(
+      "DUPLICATE_MOBILE",
+      "This lead has already been converted to an account.",
+    );
+  }
+
+  const password = generatePassword();
+  const passwordHash = await hashPassword(password);
+  const { writeAudit } = await import("@/lib/audit");
+
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const existing = await tx.user.findUnique({
+          where: { mobile: lead.mobile },
+          select: { id: true },
+        });
+        if (existing) {
+          throw new SignupError("DUPLICATE_MOBILE", DUPLICATE_MESSAGE);
+        }
+
+        // The lead's businessType may be a code ("RESTAURANT") or a label
+        // ("Restaurant"); resolve either.
+        const category = await tx.businessCategory.findFirst({
+          where: {
+            isActive: true,
+            OR: [
+              { code: lead.businessType ?? "" },
+              { name: lead.businessType ?? "" },
+            ],
+          },
+          select: { id: true },
+        });
+        if (!category) {
+          throw new SignupError(
+            "UNKNOWN_CATEGORY",
+            "This lead's business type does not match a category. Set it before converting.",
+          );
+        }
+
+        const user = await tx.user.create({
+          data: {
+            role: "CUSTOMER",
+            name: lead.name,
+            mobile: lead.mobile,
+            email: lead.email,
+            passwordHash,
+            customer: {
+              create: { businessName: lead.name, city: lead.city },
+            },
+          },
+          select: { id: true, customer: { select: { id: true } } },
+        });
+        if (!user.customer)
+          throw new Error("Customer row missing after create");
+
+        const application = await tx.application.create({
+          data: {
+            applicationNo: await nextApplicationNo(tx),
+            customerId: user.customer.id,
+            categoryId: category.id,
+            licenceType: "STATE",
+            status: "DRAFT",
+          },
+          select: { applicationNo: true },
+        });
+
+        await tx.lead.update({
+          where: { id: lead.id },
+          data: { convertedUserId: user.id },
+        });
+
+        await writeAudit(tx, {
+          userId: staffUserId,
+          entity: "Application",
+          entityId: user.id,
+          action: "status_change",
+          after: {
+            event: "lead_converted",
+            leadId: lead.id,
+            applicationNo: application.applicationNo,
+          },
+        });
+
+        return {
+          username: lead.mobile,
+          password,
+          applicationNo: application.applicationNo,
+          userId: user.id,
+          name: lead.name,
+          email: lead.email ?? "",
+        } satisfies SignupAccount;
+      });
+    } catch (error) {
+      if (isUniqueViolation(error, "mobile")) {
+        throw new SignupError("DUPLICATE_MOBILE", DUPLICATE_MESSAGE);
+      }
+      if (isUniqueViolation(error, "applicationNo") && attempt < 4) continue;
+      throw error;
+    }
+  }
+}
+
 /* ────────────────────────────────────────── credential delivery */
 
 function credentialEmail(account: SignupAccount) {

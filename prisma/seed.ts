@@ -365,13 +365,17 @@ async function main() {
   // ── Desk volume: enough customers to exercise filters, sorting and paging
   const bulk = await seedDeskFixtures();
 
+  // ── Leads: website enquiries (some converted), plus staff/partner sources
+  const leadCount = await seedLeads();
+
   console.log("\nSeeded:");
   console.log(`  ${CATEGORIES.length} business categories`);
   console.log(
     `  ${SECTIONS.length} form sections (${SECTIONS.filter((s) => s.isCore).length} core)`,
   );
   console.log(`  3 demo customers with applications`);
-  console.log(`  ${bulk} more customers for the staff desk\n`);
+  console.log(`  ${bulk} more customers for the staff desk`);
+  console.log(`  ${leadCount} leads (website enquiries + converted)\n`);
   console.log("Sign in with:");
   for (const entry of credentials) {
     console.log(`  ${entry.who}`);
@@ -559,6 +563,80 @@ async function seedDeskFixtures(): Promise<number> {
   `;
 
   return COUNT;
+}
+
+/**
+ * Leads for the Sales screens. Website enquiries not yet converted are the
+ * "Website Enquiries" queue; converted ones (linked to a desk-fixture user)
+ * populate the Leads list. Deterministic and idempotent — keyed on a marker in
+ * the referrer field so re-running the seed updates rather than duplicates.
+ */
+async function seedLeads(): Promise<number> {
+  const SOURCES: { source: string; count: number; convert: boolean }[] = [
+    { source: "website", count: 9, convert: false },
+    { source: "website", count: 6, convert: true },
+    { source: "staff", count: 3, convert: false },
+    { source: "partner", count: 2, convert: false },
+  ];
+  const UTM = [
+    { s: "google", m: "cpc", c: "fssai-mumbai" },
+    { s: "instagram", m: "social", c: "reels-jan" },
+    { s: "referral", m: "word-of-mouth", c: null },
+    { s: "google", m: "organic", c: null },
+  ];
+
+  // A pool of existing customers to attach converted leads to.
+  const converts = await prisma.user.findMany({
+    where: { role: "CUSTOMER", mobile: { startsWith: "+9176" } },
+    select: { id: true },
+    take: 6,
+  });
+
+  let index = 0;
+  let total = 0;
+  for (const spec of SOURCES) {
+    for (let i = 0; i < spec.count; i += 1, index += 1) {
+      const first = FIRST_NAMES[index % FIRST_NAMES.length];
+      const last = LAST_NAMES[(index * 3) % LAST_NAMES.length];
+      const [city, state] = CITIES[(index * 2) % CITIES.length];
+      const utm = UTM[index % UTM.length];
+      const marker = `seed-lead-${index}`;
+      const converted =
+        spec.convert && converts[total % Math.max(1, converts.length)];
+
+      await prisma.lead.upsert({
+        // referrer carries a stable marker so the upsert is idempotent.
+        where: { id: marker },
+        update: {},
+        create: {
+          id: marker,
+          name: `${first} ${last}`,
+          mobile: `+9170${String(20000000 + index * 53).slice(0, 8)}`,
+          email: `${first.toLowerCase()}.${last.toLowerCase()}@example.in`,
+          businessType: [
+            "Restaurant",
+            "Manufacturer",
+            "Cloud Kitchen",
+            "Trader",
+            "Retailer",
+          ][index % 5],
+          city,
+          source: spec.source,
+          utmSource: spec.source === "website" ? utm.s : null,
+          utmMedium: spec.source === "website" ? utm.m : null,
+          utmCampaign: spec.source === "website" ? utm.c : null,
+          referrer: marker,
+          consentAt: spec.source === "website" ? new Date() : null,
+          convertedUserId: converted ? converted.id : null,
+          createdAt: new Date(Date.now() - index * 8 * 3_600_000),
+          ...(state ? {} : {}),
+        },
+      });
+      total += 1;
+    }
+  }
+
+  return total;
 }
 
 main()
