@@ -26,15 +26,16 @@ export default async function CustomerLoginPage({
       badge="Customer"
       title="Welcome back"
       subtitle="Track your FSSAI licence application"
+      panelHeadline="Your FSSAI licence, from application to certificate — in one place."
+      highlights={[
+        "See exactly where your application stands, at any time",
+        "Upload documents once — we prepare every form for you",
+        "Get told the moment we need anything from you",
+      ]}
       footer={
         <>
-          New here?{" "}
-          <Link
-            href="/get-started"
-            className="font-semibold text-label underline"
-          >
-            Start your application →
-          </Link>
+          Don&rsquo;t have an account yet? Your FoodRaksha agent sets it up for
+          you and sends your sign-in details.
           <span className="mt-2 block">
             FoodRaksha team?{" "}
             <Link

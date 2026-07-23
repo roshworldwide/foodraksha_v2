@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { SectionForm } from "@/components/questionnaire/SectionForm";
 import {
   Button,
@@ -15,7 +15,6 @@ import {
   ListIcon,
   ListRow,
   Progress,
-  SlideOver,
   StatusPill,
   Textarea,
 } from "@/components/ui";
@@ -29,11 +28,6 @@ type View =
   | { mode: "query" }
   | { mode: "annexures" };
 
-export interface CustomerSlideOverProps {
-  applicationId: string | null;
-  onClose: () => void;
-}
-
 function timeAgo(iso: string): string {
   const minutes = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
   if (minutes < 1) return "just now";
@@ -44,52 +38,51 @@ function timeAgo(iso: string): string {
 }
 
 /**
- * Opening a customer fetches their detail; it never navigates. That is what
- * keeps the list underneath exactly where staff left it — scroll position,
- * filter chip, search term, sort and page all survive untouched.
+ * A client's whole file, on its own page. Clicking a row on the desk brings a
+ * staff member here — every section they filled in, every document, the status
+ * history and the actions (raise a query, generate the forms, issue the
+ * licence) all in one place, with room to work rather than a cramped panel.
  */
-export function CustomerSlideOver({
-  applicationId,
-  onClose,
-}: CustomerSlideOverProps) {
-  const router = useRouter();
+export function CustomerDetail({ applicationId }: { applicationId: string }) {
   const [detail, setDetail] = useState<StaffDetail | null>(null);
-  // View and "something changed" are held against the customer they belong to,
-  // so opening a different row starts clean without an effect resetting state.
-  const [viewState, setViewState] = useState<{ id: string | null; view: View }>(
-    { id: null, view: { mode: "overview" } },
-  );
-  const [changedFor, setChangedFor] = useState<string | null>(null);
+  const [view, setView] = useState<View>({ mode: "overview" });
+  const [notFound, setNotFound] = useState(false);
 
   const loaded = detail?.application.id === applicationId;
-  const view: View =
-    viewState.id === applicationId ? viewState.view : { mode: "overview" };
-  const changed = changedFor !== null && changedFor === applicationId;
-
-  function setView(next: View) {
-    setViewState({ id: applicationId, view: next });
-  }
 
   const reload = useCallback((id: string) => {
     return fetch(`/api/staff/applications/${id}`, { cache: "no-store" })
-      .then(async (response) =>
-        response.ok ? ((await response.json()) as StaffDetail) : null,
-      )
-      .then((next) => setDetail(next))
-      .catch(() => setDetail(null));
+      .then(async (response) => {
+        if (response.status === 404) {
+          setNotFound(true);
+          return null;
+        }
+        return response.ok ? ((await response.json()) as StaffDetail) : null;
+      })
+      .then((next) => {
+        if (next) setDetail(next);
+      })
+      .catch(() => setNotFound(true));
   }, []);
 
   useEffect(() => {
-    if (!applicationId) return;
-    // Every state update happens in the promise continuation, not in the
-    // effect body — one render when the data lands, not a cascade.
     void reload(applicationId);
   }, [applicationId, reload]);
 
-  function handleClose() {
-    onClose();
-    // Only once the panel is closed, and only if something actually moved.
-    if (changed) router.refresh();
+  const onChanged = useCallback(() => {
+    void reload(applicationId);
+  }, [applicationId, reload]);
+
+  if (notFound) {
+    return (
+      <div className="mx-auto max-w-[1180px] px-6 py-16 text-center">
+        <h1 className="text-title-2">This client file could not be found.</h1>
+        <p className="mt-2 text-body text-label-2">It may have been deleted.</p>
+        <ButtonLink href="/staff/clients" variant="secondary" className="mt-6">
+          Back to clients
+        </ButtonLink>
+      </div>
+    );
   }
 
   const section =
@@ -98,122 +91,140 @@ export function CustomerSlideOver({
       : undefined;
 
   return (
-    <SlideOver
-      open={applicationId !== null}
-      onClose={handleClose}
-      title={loaded ? (detail?.customer.name ?? "") : "Loading…"}
-      subtitle={
-        detail && loaded
-          ? `${detail.customer.businessName} · ${detail.application.categoryName}`
-          : undefined
-      }
-      meta={
-        detail && loaded ? (
-          <>
-            <StatusPill tone={APP_STATUS[detail.application.status].tone}>
-              {APP_STATUS[detail.application.status].label}
-            </StatusPill>
-            <StatusPill tone="idle">
-              {detail.application.applicationNo}
-            </StatusPill>
-            {detail.customer.lastLoginAt === null && (
-              <StatusPill tone="idle">Never signed in</StatusPill>
+    <div className="mx-auto max-w-[1180px] px-6 py-6">
+      {/* ── Breadcrumb + header */}
+      <Link
+        href="/staff/clients"
+        className="text-footnote font-semibold text-label-2 hover:text-label"
+      >
+        ‹ All clients
+      </Link>
+
+      {!loaded ? (
+        <p className="mt-6 text-body text-label-2">Loading…</p>
+      ) : (
+        <>
+          <header className="mt-3 flex flex-wrap items-start justify-between gap-4 border-b-[0.5px] border-separator pb-6">
+            <div className="min-w-0">
+              <h1 className="text-large-title">{detail.customer.name}</h1>
+              <p className="mt-1 text-body text-label-2">
+                {detail.customer.businessName} ·{" "}
+                {detail.application.categoryName}
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <StatusPill tone={APP_STATUS[detail.application.status].tone}>
+                  {APP_STATUS[detail.application.status].label}
+                </StatusPill>
+                <StatusPill tone="idle">
+                  {detail.application.applicationNo}
+                </StatusPill>
+                {detail.customer.lastLoginAt === null && (
+                  <StatusPill tone="idle">Never signed in</StatusPill>
+                )}
+              </div>
+            </div>
+
+            <div className="flex shrink-0 flex-wrap gap-2">
+              <ButtonLink
+                href={`/staff/applications/${detail.application.id}/filing`}
+                variant="secondary"
+                size="sm"
+              >
+                Filing workspace
+              </ButtonLink>
+              <Button
+                variant="quiet"
+                size="sm"
+                onClick={() => setView({ mode: "query" })}
+              >
+                Raise query
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setView({ mode: "annexures" })}
+              >
+                Generate PDFs
+              </Button>
+            </div>
+          </header>
+
+          <div className="mt-6">
+            {view.mode === "overview" && (
+              <Overview
+                detail={detail}
+                onOpenSection={(key) => setView({ mode: "section", key })}
+                onChanged={onChanged}
+              />
             )}
-          </>
-        ) : undefined
-      }
-      footer={
-        detail && loaded && view.mode === "overview" ? (
-          <>
-            <Button
-              variant="quiet"
-              className="flex-1"
-              onClick={() => setView({ mode: "query" })}
-            >
-              Raise Query
-            </Button>
-            <Button
-              variant="primary"
-              className="flex-[1.4]"
-              onClick={() => setView({ mode: "annexures" })}
-            >
-              Generate PDFs
-            </Button>
-          </>
-        ) : undefined
-      }
+
+            {view.mode === "section" && section && (
+              <div className="mx-auto max-w-[720px]">
+                <BackLink onClick={() => setView({ mode: "overview" })} />
+                <h2 className="text-title-2">{section.title}</h2>
+                {section.lastEdit && (
+                  <p className="mt-1 mb-5 text-footnote text-label-2">
+                    Last edited by {section.lastEdit.by},{" "}
+                    {timeAgo(section.lastEdit.at)}
+                  </p>
+                )}
+                <SectionForm
+                  key={section.key}
+                  applicationId={detail.application.id}
+                  sectionKey={section.key}
+                  endpoint={`/api/staff/applications/${detail.application.id}/section`}
+                  mode="embedded"
+                  fields={section.fields}
+                  mirrors={section.mirrors}
+                  answers={detail.answers}
+                  disabled={false}
+                  previousHref={null}
+                  nextHref="#"
+                  nextLabel="Save"
+                  onSaved={() => onChanged()}
+                />
+              </div>
+            )}
+
+            {view.mode === "annexures" && (
+              <div className="mx-auto max-w-[720px]">
+                <BackLink onClick={() => setView({ mode: "overview" })} />
+                <Annexures
+                  applicationId={detail.application.id}
+                  onGenerated={onChanged}
+                />
+              </div>
+            )}
+
+            {view.mode === "query" && (
+              <div className="mx-auto max-w-[720px]">
+                <BackLink onClick={() => setView({ mode: "overview" })} />
+                <RaiseQuery
+                  applicationId={detail.application.id}
+                  onCancel={() => setView({ mode: "overview" })}
+                  onRaised={() => {
+                    setView({ mode: "overview" });
+                    onChanged();
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function BackLink({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="mb-4 cursor-pointer text-subhead text-label-2 hover:text-label"
     >
-      {!loaded && <p className="text-body text-label-2">Loading…</p>}
-
-      {detail && loaded && view.mode === "overview" && (
-        <Overview
-          detail={detail}
-          onOpenSection={(key) => setView({ mode: "section", key })}
-          onChanged={() => {
-            setChangedFor(applicationId);
-            if (applicationId) void reload(applicationId);
-          }}
-        />
-      )}
-
-      {detail && loaded && view.mode === "section" && section && (
-        <div>
-          <button
-            type="button"
-            onClick={() => setView({ mode: "overview" })}
-            className="mb-4 cursor-pointer text-subhead text-label-2 hover:text-label"
-          >
-            ‹ Back to customer
-          </button>
-
-          <h3 className="text-title-3">{section.title}</h3>
-          {section.lastEdit && (
-            <p className="mt-1 mb-4 text-footnote text-label-2">
-              Last edited by {section.lastEdit.by},{" "}
-              {timeAgo(section.lastEdit.at)}
-            </p>
-          )}
-
-          <SectionForm
-            key={section.key}
-            applicationId={detail.application.id}
-            sectionKey={section.key}
-            endpoint={`/api/staff/applications/${detail.application.id}/section`}
-            mode="embedded"
-            fields={section.fields}
-            mirrors={section.mirrors}
-            answers={detail.answers}
-            disabled={false}
-            previousHref={null}
-            nextHref="#"
-            nextLabel="Save"
-            onSaved={(info) => {
-              if (info.editedBy) setChangedFor(applicationId);
-            }}
-          />
-        </div>
-      )}
-
-      {detail && loaded && view.mode === "annexures" && (
-        <Annexures
-          applicationId={detail.application.id}
-          onBack={() => setView({ mode: "overview" })}
-          onGenerated={() => setChangedFor(applicationId)}
-        />
-      )}
-
-      {detail && loaded && view.mode === "query" && (
-        <RaiseQuery
-          applicationId={detail.application.id}
-          onCancel={() => setView({ mode: "overview" })}
-          onRaised={() => {
-            setChangedFor(applicationId);
-            setView({ mode: "overview" });
-            void reload(detail.application.id);
-          }}
-        />
-      )}
-    </SlideOver>
+      ‹ Back to client file
+    </button>
   );
 }
 
@@ -229,127 +240,129 @@ function Overview({
   onChanged: () => void;
 }) {
   return (
-    <>
-      <ButtonLink
-        href={`/staff/applications/${detail.application.id}/filing`}
-        variant="secondary"
-        fullWidth
-        className="mb-[26px]"
-      >
-        Open filing workspace
-      </ButtonLink>
-
-      <ListGroup>
-        <ListGroupHeader>Progress</ListGroupHeader>
-        <Card>
-          <div className="mb-3 flex items-baseline justify-between">
-            <span className="text-subhead text-label-2">Sections complete</span>
-            <span className="text-title-3">{detail.progress.percent}%</span>
-          </div>
-          <Progress value={detail.progress.percent} label="Sections complete" />
-          <p className="mt-2.5 text-footnote text-label-2">
-            {detail.progress.complete} of {detail.progress.total} ·{" "}
-            {LICENCE_TYPE[detail.application.licenceType]}
-          </p>
-        </Card>
-      </ListGroup>
-
-      <ListGroup>
-        <ListGroupHeader>Status</ListGroupHeader>
-        <StatusControl
-          applicationId={detail.application.id}
-          status={detail.application.status}
-          onChanged={onChanged}
-        />
-      </ListGroup>
-
-      {detail.openQueries.length > 0 && (
+    <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+      {/* ── Main column: the forms and materials */}
+      <div className="min-w-0">
         <ListGroup>
-          <ListGroupHeader>Open queries</ListGroupHeader>
+          <ListGroupHeader>Sections — click to view or edit</ListGroupHeader>
           <List>
-            {detail.openQueries.map((query) => (
-              <QueryRow key={query.id} query={query} onResolved={onChanged} />
-            ))}
-          </List>
-        </ListGroup>
-      )}
-
-      <ListGroup>
-        <ListGroupHeader>Contact</ListGroupHeader>
-        <List>
-          <ListRow compact subtitle="Mobile" title={detail.customer.mobile} />
-          <ListRow
-            compact
-            subtitle="Email"
-            title={detail.customer.email ?? "—"}
-          />
-          <ListRow
-            compact
-            subtitle="Location"
-            title={
-              [detail.customer.city, detail.customer.state]
-                .filter(Boolean)
-                .join(", ") || "—"
-            }
-          />
-          <ListRow
-            compact
-            subtitle="Last signed in"
-            title={
-              detail.customer.lastLoginAt
-                ? timeAgo(detail.customer.lastLoginAt)
-                : "Never"
-            }
-          />
-        </List>
-      </ListGroup>
-
-      <ListGroup>
-        <ListGroupHeader>Sections — click to view or edit</ListGroupHeader>
-        <List>
-          {detail.sections.map((section, index) => (
-            <ListRow
-              key={section.key}
-              compact
-              chevron
-              onClick={() => onOpenSection(section.key)}
-              icon={
-                <ListIcon tone={section.isComplete ? "done" : "pending"}>
-                  {section.isComplete ? "✓" : index + 1}
-                </ListIcon>
-              }
-              title={section.title}
-              subtitle={
-                section.lastEdit
-                  ? `Last edited by ${section.lastEdit.by}, ${timeAgo(section.lastEdit.at)}`
-                  : section.isComplete
-                    ? "Complete"
-                    : "Incomplete"
-              }
-            />
-          ))}
-        </List>
-      </ListGroup>
-
-      <ListGroup className="mb-0">
-        <ListGroupHeader>Documents</ListGroupHeader>
-        {detail.documents.length === 0 ? (
-          <Card>
-            <p className="text-subhead text-label-2">Nothing uploaded yet.</p>
-          </Card>
-        ) : (
-          <List>
-            {detail.documents.map((document) => (
-              <DocumentReviewRow
-                key={document.id}
-                document={document}
-                onChanged={onChanged}
+            {detail.sections.map((section, index) => (
+              <ListRow
+                key={section.key}
+                compact
+                chevron
+                onClick={() => onOpenSection(section.key)}
+                icon={
+                  <ListIcon tone={section.isComplete ? "done" : "pending"}>
+                    {section.isComplete ? "✓" : index + 1}
+                  </ListIcon>
+                }
+                title={section.title}
+                subtitle={
+                  section.lastEdit
+                    ? `Last edited by ${section.lastEdit.by}, ${timeAgo(section.lastEdit.at)}`
+                    : section.isComplete
+                      ? "Complete"
+                      : "Incomplete"
+                }
               />
             ))}
           </List>
+        </ListGroup>
+
+        <ListGroup className="mb-0">
+          <ListGroupHeader>Documents</ListGroupHeader>
+          {detail.documents.length === 0 ? (
+            <Card>
+              <p className="text-subhead text-label-2">Nothing uploaded yet.</p>
+            </Card>
+          ) : (
+            <List>
+              {detail.documents.map((document) => (
+                <DocumentReviewRow
+                  key={document.id}
+                  document={document}
+                  onChanged={onChanged}
+                />
+              ))}
+            </List>
+          )}
+        </ListGroup>
+      </div>
+
+      {/* ── Side column: state and contact */}
+      <div className="min-w-0">
+        <ListGroup>
+          <ListGroupHeader>Progress</ListGroupHeader>
+          <Card>
+            <div className="mb-3 flex items-baseline justify-between">
+              <span className="text-subhead text-label-2">
+                Sections complete
+              </span>
+              <span className="text-title-3">{detail.progress.percent}%</span>
+            </div>
+            <Progress
+              value={detail.progress.percent}
+              label="Sections complete"
+            />
+            <p className="mt-2.5 text-footnote text-label-2">
+              {detail.progress.complete} of {detail.progress.total} ·{" "}
+              {LICENCE_TYPE[detail.application.licenceType]}
+            </p>
+          </Card>
+        </ListGroup>
+
+        <ListGroup>
+          <ListGroupHeader>Status</ListGroupHeader>
+          <StatusControl
+            applicationId={detail.application.id}
+            status={detail.application.status}
+            onChanged={onChanged}
+          />
+        </ListGroup>
+
+        {detail.openQueries.length > 0 && (
+          <ListGroup>
+            <ListGroupHeader>Open queries</ListGroupHeader>
+            <List>
+              {detail.openQueries.map((query) => (
+                <QueryRow key={query.id} query={query} onResolved={onChanged} />
+              ))}
+            </List>
+          </ListGroup>
         )}
-      </ListGroup>
-    </>
+
+        <ListGroup className="mb-0">
+          <ListGroupHeader>Contact</ListGroupHeader>
+          <List>
+            <ListRow compact subtitle="Mobile" title={detail.customer.mobile} />
+            <ListRow
+              compact
+              subtitle="Email"
+              title={detail.customer.email ?? "—"}
+            />
+            <ListRow
+              compact
+              subtitle="Location"
+              title={
+                [detail.customer.city, detail.customer.state]
+                  .filter(Boolean)
+                  .join(", ") || "—"
+              }
+            />
+            <ListRow
+              compact
+              subtitle="Last signed in"
+              title={
+                detail.customer.lastLoginAt
+                  ? timeAgo(detail.customer.lastLoginAt)
+                  : "Never"
+              }
+            />
+          </List>
+        </ListGroup>
+      </div>
+    </div>
   );
 }
 
@@ -545,15 +558,7 @@ function RaiseQuery({
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={onCancel}
-        className="mb-4 cursor-pointer text-subhead text-label-2 hover:text-label"
-      >
-        ‹ Back to customer
-      </button>
-
-      <h3 className="text-title-3">Raise a query</h3>
+      <h2 className="text-title-2">Raise a query</h2>
       <p className="mt-1 mb-4 text-subhead text-label-2">
         The application goes back to the customer to edit, and they are told
         what you need.
@@ -612,11 +617,9 @@ interface Outcome {
  */
 function Annexures({
   applicationId,
-  onBack,
   onGenerated,
 }: {
   applicationId: string;
-  onBack: () => void;
   onGenerated: () => void;
 }) {
   const [rows, setRows] = useState<AnnexureRow[] | null>(null);
@@ -668,17 +671,9 @@ function Annexures({
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={onBack}
-        className="mb-4 cursor-pointer text-subhead text-label-2 hover:text-label"
-      >
-        ‹ Back to customer
-      </button>
-
       <Letterhead applicationId={applicationId} onSaved={onGenerated} />
 
-      <h3 className="text-title-3">Annexures</h3>
+      <h2 className="text-title-2">Annexures</h2>
       <p className="mt-1 mb-4 text-subhead text-label-2">
         The supporting documents that get attached to the FoSCoS application.
         Which ones appear depends on the constitution and the kind of business.

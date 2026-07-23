@@ -18,14 +18,19 @@ export default function Home() {
       </Card>
 
       <Card className="mt-[18px]">
-        <h2 className="text-title-3">Create an account</h2>
+        <h2 className="text-title-3">Sign in</h2>
         <p className="mt-1.5 mb-5 text-subhead text-label-2">
-          Temporary internal caller for POST /api/public/signup. The marketing
-          website replaces this page in phase 2.
+          Two portals: customers track their application, staff run the desk.
+          Account creation lives on the marketing website (phase 2).
         </p>
-        <ButtonLink href="/get-started" variant="secondary">
-          Open get started
-        </ButtonLink>
+        <div className="flex flex-wrap gap-2">
+          <ButtonLink href="/login" variant="secondary">
+            Customer login
+          </ButtonLink>
+          <ButtonLink href="/staff/login" variant="secondary">
+            Staff login
+          </ButtonLink>
+        </div>
       </Card>
     </main>
   );

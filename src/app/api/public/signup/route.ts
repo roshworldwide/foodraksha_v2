@@ -14,8 +14,8 @@ import { signupSchema } from "@/lib/validation";
  * POST /api/public/signup — the single entry point for account creation.
  *
  * Unauthenticated and public. The marketing website (phase 2) will call this
- * exact endpoint; /get-started is a temporary internal caller. This logic must
- * never be duplicated into a page.
+ * exact endpoint — it is the one and only entry point for account creation, so
+ * this logic must never be duplicated into a page.
  */
 
 const IP_LIMIT: Omit<RateRule, "key"> = { limit: 5, windowMs: HOUR };

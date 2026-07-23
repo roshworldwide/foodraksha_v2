@@ -25,7 +25,13 @@ export default async function StaffLoginPage({
     <LoginLockup
       badge="Staff"
       title="CRM Workspace"
-      subtitle="for the Food Raksha team"
+      subtitle="for the FoodRaksha team"
+      panelHeadline="Every client, every application, every form — one workspace."
+      highlights={[
+        "The whole book of business, searchable in one desk",
+        "Review documents, raise queries and generate forms in place",
+        "Every change is logged — who touched what is always answerable",
+      ]}
       footer={
         <>
           Not a team member?{" "}

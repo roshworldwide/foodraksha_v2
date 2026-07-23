@@ -117,7 +117,7 @@ const NAV: Record<Role, NavGroup[]> = {
 
 /** Page title per route prefix, longest match wins. */
 const TITLES: [string, string][] = [
-  ["/staff/applications", "Filing workspace"],
+  ["/staff/applications", "Client file"],
   ["/staff/leads", "Leads"],
   ["/staff/pipeline", "Pipeline"],
   ["/staff/enquiries", "Website enquiries"],

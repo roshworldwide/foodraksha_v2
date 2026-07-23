@@ -50,11 +50,6 @@ export default async function CustomerDashboardPage({
             Your FoodRaksha agent will start one for you. You will get an SMS
             the moment it is ready to fill in.
           </p>
-          <div className="mt-5">
-            <ButtonLink href="/get-started" variant="secondary">
-              Start one now
-            </ButtonLink>
-          </div>
         </Card>
       </main>
     );

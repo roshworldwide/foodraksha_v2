@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 
-/** Centred, unauthenticated shell for the two login screens. */
+/**
+ * Unauthenticated shell for the sign-in screens. The pages own their own
+ * full-screen layout (a two-panel split on desktop), so this just sets the
+ * ground.
+ */
 export default function AuthLayout({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex min-h-screen items-center justify-center px-6 py-14">
-      {children}
-    </div>
-  );
+  return <div className="min-h-screen bg-bg">{children}</div>;
 }
