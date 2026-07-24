@@ -4,11 +4,20 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
+  // Vercel's Lambda runtime is RHEL with OpenSSL 3.0. Without this target the
+  // query engine binary is missing and every function fails at cold start.
+  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
+  provider = "postgresql"
+  // Supabase transaction pooler (port 6543). Serverless functions open a lot
+  // of short-lived connections; the pooler is what the running app must use.
+  url      = env("DATABASE_URL")
+  // Supabase direct connection (port 5432). Migrations and `prisma db seed`
+  // need a real session — the transaction pooler cannot run DDL or advisory
+  // locks — so Prisma uses this one for them.
+  directUrl = env("DIRECT_URL")
   // Trigram matching: the staff desk searches with ILIKE %term%, which no
   // btree index can serve. Added in the staff-desk stage, not in
   // docs/DATA-MODEL.md.

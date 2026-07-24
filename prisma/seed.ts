@@ -1,6 +1,16 @@
 /**
- * Seed — every stage must be testable straight after `npm run db:seed`.
- * Idempotent: safe to re-run. Passwords are regenerated and printed each time.
+ * Seed.
+ *
+ * Always creates: reference data (business categories, form sections) and
+ * exactly one ADMIN user. Every write is an upsert on a unique key, so this is
+ * idempotent — safe to run against a live database, and safe to run twice.
+ *
+ * Demo customers, applications and leads are created ONLY when SEED_DEMO is
+ * "true". Production runs the seed without that flag, so no fake data ever
+ * reaches the client's database.
+ *
+ * Passwords are regenerated on each run and printed once; only the Argon2id
+ * hash is stored.
  */
 import { randomBytes } from "node:crypto";
 import { PrismaClient, type AppStatus, type Prisma } from "@prisma/client";
@@ -136,7 +146,8 @@ async function main() {
     },
   });
   credentials.push({
-    who: "ADMIN staff",
+    // Email is the sign-in identifier for both portals; the mobile still works.
+    who: `ADMIN staff — ${admin.email ?? "no email"}`,
     mobile: admin.mobile,
     password: adminPassword,
   });
@@ -171,6 +182,23 @@ async function main() {
         fields: section.fields as unknown as Prisma.InputJsonValue,
       },
     });
+  }
+
+  // ── Everything above is safe for a live database: reference rows upserted
+  // on their unique keys, plus exactly one admin. Everything below is demo
+  // content and only runs when explicitly asked for, so production never gets
+  // fake customers.
+  if (process.env.SEED_DEMO !== "true") {
+    console.log("\nSeeded (reference data + admin only):");
+    console.log(`  ${CATEGORIES.length} business categories`);
+    console.log(
+      `  ${SECTIONS.length} form sections (${SECTIONS.filter((s) => s.isCore).length} core)`,
+    );
+    printCredentials(credentials);
+    console.log(
+      "  No demo customers were created. Set SEED_DEMO=true to include them.\n",
+    );
+    return;
   }
 
   const restaurant = await prisma.businessCategory.findUniqueOrThrow({
@@ -368,22 +396,32 @@ async function main() {
   // ── Leads: website enquiries (some converted), plus staff/partner sources
   const leadCount = await seedLeads();
 
-  console.log("\nSeeded:");
+  console.log("\nSeeded (with SEED_DEMO demo content):");
   console.log(`  ${CATEGORIES.length} business categories`);
   console.log(
     `  ${SECTIONS.length} form sections (${SECTIONS.filter((s) => s.isCore).length} core)`,
   );
   console.log(`  3 demo customers with applications`);
   console.log(`  ${bulk} more customers for the staff desk`);
-  console.log(`  ${leadCount} leads (website enquiries + converted)\n`);
-  console.log("Sign in with:");
+  console.log(`  ${leadCount} leads (website enquiries + converted)`);
+  printCredentials(credentials);
+}
+
+/**
+ * The one moment these passwords exist in readable form. Printed once; only
+ * the Argon2id hash is stored.
+ */
+function printCredentials(
+  credentials: { who: string; mobile: string; password: string }[],
+): void {
+  console.log("\nSign in with:");
   for (const entry of credentials) {
     console.log(`  ${entry.who}`);
     console.log(`    mobile:   ${entry.mobile}`);
     console.log(`    password: ${entry.password}`);
   }
   console.log(
-    "\nStaff sign in at /staff/login · customers at /login." +
+    "\nSign in at /login — use the staff toggle for the admin account." +
       "\nPasswords are printed once and stored only as Argon2id hashes.\n",
   );
 }

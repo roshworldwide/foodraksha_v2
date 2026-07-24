@@ -11,48 +11,66 @@ const optional = z
   .optional()
   .transform((value) => (value?.trim() ? value.trim() : undefined));
 
-const schema = z.object({
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
-  AUTH_SECRET: z
-    .string()
-    .min(
-      32,
-      "AUTH_SECRET must be at least 32 characters — openssl rand -base64 48",
-    ),
-  SESSION_DURATION_DAYS: z.coerce.number().int().positive().default(30),
-  LOGIN_RATE_LIMIT_ATTEMPTS: z.coerce.number().int().positive().default(5),
-  LOGIN_RATE_LIMIT_WINDOW_MINUTES: z.coerce
-    .number()
-    .int()
-    .positive()
-    .default(15),
-  NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+const schema = z
+  .object({
+    // Supabase transaction pooler (6543) — the connection the running app uses.
+    DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+    // Supabase direct connection (5432) — migrations and seed only. Optional
+    // locally (a single Postgres serves both); required in production, where
+    // running migrations through the pooler would fail.
+    DIRECT_URL: optional,
+    AUTH_SECRET: z
+      .string()
+      .min(
+        32,
+        "AUTH_SECRET must be at least 32 characters — openssl rand -base64 48",
+      ),
+    SESSION_DURATION_DAYS: z.coerce.number().int().positive().default(30),
+    LOGIN_RATE_LIMIT_ATTEMPTS: z.coerce.number().int().positive().default(5),
+    LOGIN_RATE_LIMIT_WINDOW_MINUTES: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(15),
+    NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
 
-  // Object storage. Absent means uploads are switched off with a clear
-  // message rather than half-working.
-  S3_ENDPOINT: optional,
-  S3_REGION: optional,
-  S3_ACCESS_KEY_ID: optional,
-  S3_SECRET_ACCESS_KEY: optional,
-  S3_BUCKET_DOCUMENTS: optional,
-  // Never longer than 15 minutes, whatever the environment says.
-  S3_SIGNED_URL_TTL_SECONDS: z.coerce
-    .number()
-    .int()
-    .positive()
-    .max(900)
-    .default(900),
+    // Object storage. Absent means uploads are switched off with a clear
+    // message rather than half-working.
+    S3_ENDPOINT: optional,
+    S3_REGION: optional,
+    S3_ACCESS_KEY_ID: optional,
+    S3_SECRET_ACCESS_KEY: optional,
+    S3_BUCKET_DOCUMENTS: optional,
+    // Never longer than 15 minutes, whatever the environment says.
+    S3_SIGNED_URL_TTL_SECONDS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .max(900)
+      .default(900),
 
-  // Delivery providers. Absent means "not configured yet" — credential
-  // delivery is then reported as skipped, never as a signup failure.
-  RESEND_API_KEY: optional,
-  EMAIL_FROM: optional,
-  EMAIL_REPLY_TO: optional,
-  MSG91_AUTH_KEY: optional,
-  MSG91_SENDER_ID: optional,
-  MSG91_TEMPLATE_ID_CREDENTIALS: optional,
-  MSG91_TEMPLATE_ID_STATUS_UPDATE: optional,
-});
+    // Delivery providers. Absent means "not configured yet" — credential
+    // delivery is then reported as skipped, never as a signup failure.
+    RESEND_API_KEY: optional,
+    EMAIL_FROM: optional,
+    EMAIL_REPLY_TO: optional,
+    MSG91_AUTH_KEY: optional,
+    MSG91_SENDER_ID: optional,
+    MSG91_TEMPLATE_ID_CREDENTIALS: optional,
+    MSG91_TEMPLATE_ID_STATUS_UPDATE: optional,
+  })
+  .superRefine((value, ctx) => {
+    // Prisma reads DIRECT_URL straight from the environment for migrations, so
+    // a missing one only shows up as a failed deploy. Fail here instead.
+    if (process.env.NODE_ENV === "production" && !value.DIRECT_URL) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["DIRECT_URL"],
+        message:
+          "DIRECT_URL is required in production — the Supabase direct connection (port 5432) used for migrations and seeding",
+      });
+    }
+  });
 
 const parsed = schema.safeParse(process.env);
 

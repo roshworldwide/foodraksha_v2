@@ -9,12 +9,18 @@ import { randomUUID } from "node:crypto";
 import { env } from "@/lib/env";
 
 /**
- * S3-compatible object storage (Cloudflare R2). Buckets are private: nothing
- * is ever served from a public URL, only through short-lived signed URLs.
+ * S3-compatible object storage. Provider-neutral: everything is driven by
+ * S3_ENDPOINT with path-style addressing, so Supabase Storage, Cloudflare R2
+ * and MinIO all work by changing environment variables alone. Buckets are
+ * private — nothing is ever served from a public URL, only through
+ * short-lived signed URLs.
  *
- * R2 does not support presigned POST — its S3 API presigns GET, HEAD, PUT and
- * DELETE only — so browser uploads use a presigned PUT.
- * https://developers.cloudflare.com/r2/api/s3/presigned-urls/
+ * Browser uploads use a presigned PUT rather than a presigned POST form,
+ * which these providers do not all support.
+ *
+ * Region: R2 accepts the literal "auto"; Supabase requires the project's real
+ * region (e.g. ap-south-1) and rejects "auto". Set S3_REGION accordingly —
+ * the "auto" fallback below only suits R2 and the local dev stub.
  */
 
 /** How long a browser has to finish an upload it has been authorised for. */
