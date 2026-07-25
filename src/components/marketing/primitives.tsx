@@ -149,6 +149,106 @@ export function SectionHeading({
   );
 }
 
+/* ────────────────────────────────────────────────────── TrustBar */
+
+/** A single reassurance chip: green dot + label. */
+export function Chip({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-2 text-[14px] font-medium text-fr-ink-2">
+      <span
+        aria-hidden="true"
+        className="size-[7px] rounded-full bg-fr-green"
+      />
+      {children}
+    </span>
+  );
+}
+
+function Stars({ value }: { value: number }) {
+  const rounded = Math.round(value);
+  return (
+    <span
+      aria-label={`${value} out of 5 stars`}
+      className="text-[15px] tracking-[1px] text-fr-green"
+    >
+      {"★".repeat(rounded)}
+      <span className="text-fr-ink-3">{"★".repeat(5 - rounded)}</span>
+    </span>
+  );
+}
+
+/**
+ * The hero trust bar: an optional star rating (only when a real one exists)
+ * followed by the reassurance chips. Never renders a fabricated rating.
+ */
+export function TrustBar({
+  rating,
+  reviewCount,
+  reviewSource,
+  chips,
+  className,
+}: {
+  rating?: number | null;
+  reviewCount?: number | null;
+  reviewSource?: string | null;
+  chips: string[];
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex flex-wrap items-center justify-center gap-x-6 gap-y-3",
+        className,
+      )}
+    >
+      {rating != null && (
+        <span className="flex items-center gap-2 text-[14px] font-medium text-fr-ink-2">
+          <Stars value={rating} />
+          <b className="font-bold text-fr-ink">{rating.toFixed(1)}</b>
+          {reviewCount != null && (
+            <span>
+              from {reviewCount.toLocaleString("en-IN")}+ reviews
+              {reviewSource ? ` on ${reviewSource}` : ""}
+            </span>
+          )}
+        </span>
+      )}
+      {chips.map((chip) => (
+        <Chip key={chip}>{chip}</Chip>
+      ))}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────── Testimonial */
+
+export function TestimonialCard({
+  quote,
+  name,
+  title,
+  company,
+}: {
+  quote: string;
+  name: string;
+  title: string;
+  company: string;
+}) {
+  return (
+    <figure className="flex flex-col rounded-fr-card border-[0.5px] border-fr-sep bg-fr-bg p-6 shadow-fr-soft">
+      <blockquote className="text-[16px] leading-relaxed text-fr-ink">
+        &ldquo;{quote}&rdquo;
+      </blockquote>
+      <figcaption className="mt-4 text-[14px]">
+        <span className="font-semibold text-fr-ink">{name}</span>
+        <span className="block text-fr-ink-2">
+          {title}
+          {company ? `, ${company}` : ""}
+        </span>
+      </figcaption>
+    </figure>
+  );
+}
+
 /* ────────────────────────────────────────────────────────── TrustRow */
 
 /** A row of proof points — a number and a label each. */

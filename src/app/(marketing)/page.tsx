@@ -7,9 +7,14 @@ import {
   CTABand,
   LinkArrow,
   LogoStrip,
+  Placeholder,
   SectionHeading,
+  TestimonialCard,
+  TrustBar,
+  TrustRow,
 } from "@/components/marketing/primitives";
 import { TierCard } from "@/components/marketing/TierCard";
+import { TRUST } from "@/content/trust";
 import { PLANS } from "@/lib/marketing/qualifier";
 import { pageMeta } from "@/lib/marketing/seo";
 
@@ -45,47 +50,68 @@ const ACTIONS = [
 export default function MarketingHome() {
   return (
     <>
-      {/* ── Hero */}
-      <header className="bg-[radial-gradient(120%_80%_at_50%_-10%,var(--color-fr-blue-050),transparent_60%)] px-6 pt-20 pb-6 text-center">
-        <div className="mx-auto max-w-[900px]">
-          <p className="text-[13px] font-semibold tracking-[0.02em] text-fr-blue uppercase">
-            FSSAI Licensing, Done Right
-          </p>
-          <h1 className="mx-auto mt-3.5 max-w-[900px] text-[40px] leading-[1.05] font-bold tracking-[-0.03em] text-balance text-fr-ink sm:text-[60px]">
-            Your food licence, <span className="text-fr-blue">without</span> the{" "}
-            <span className="text-fr-green">headache</span>.
-          </h1>
-          <p className="mx-auto mt-5 max-w-[640px] text-[19px] leading-relaxed tracking-[-0.01em] text-fr-ink-2 sm:text-[21px]">
-            Tell us about your business — our experts identify the right
-            licence, prepare every document, and file it for you. Fair prices,
-            no runaround.
-          </p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
-            <ButtonLink href="/book" variant="blue" size="lg">
-              Book a free consultation
-            </ButtonLink>
-            <LinkArrow href="#pricing">See pricing</LinkArrow>
+      {/* ── 1 · HERO */}
+      <header className="bg-[radial-gradient(120%_90%_at_75%_-10%,var(--color-fr-blue-050),transparent_55%)]">
+        <div className="mx-auto grid max-w-[1120px] items-center gap-12 px-6 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
+          <div>
+            <p className="text-[13px] font-semibold tracking-[0.02em] text-fr-blue uppercase">
+              FSSAI Licensing, Done Right
+            </p>
+            <h1 className="mt-3.5 text-[40px] leading-[1.05] font-bold tracking-[-0.03em] text-balance text-fr-ink sm:text-[54px]">
+              FSSAI licensing you can be{" "}
+              <span className="text-fr-green">sure</span> about.
+            </h1>
+            <p className="mt-5 max-w-[520px] text-[19px] leading-relaxed tracking-[-0.01em] text-fr-ink-2">
+              Tell us about your business — our experts identify the right
+              licence, prepare every document, and file it for you. Fair prices,
+              no runaround.
+            </p>
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <ButtonLink href="#qualifier" variant="blue" size="lg">
+                Book a free consultation
+              </ButtonLink>
+              <ButtonLink href="/get-started" variant="ghost" size="lg">
+                Start your application
+              </ButtonLink>
+            </div>
+            <TrustBar
+              rating={TRUST.rating}
+              reviewCount={TRUST.reviewCount}
+              reviewSource={TRUST.reviewSource}
+              chips={TRUST.chips}
+              className="mt-8 justify-start"
+            />
           </div>
-          <div className="mx-auto mt-9 flex max-w-[720px] flex-wrap items-center justify-center gap-x-7 gap-y-3">
-            {[
-              ["35+ years", "experience"],
-              ["120+", "experts"],
-              ["24 hours", "typical filing"],
-              ["100%", "confidential"],
-            ].map(([value, label]) => (
-              <span
-                key={label}
-                className="flex items-center gap-2 text-[14px] font-medium text-fr-ink-2"
+
+          {/* Hero image slot — the client supplies a warm real photo. Kept as a
+              fixed-ratio placeholder so there is no layout shift; when the photo
+              lands, replace the inner panel with:
+              <Image src="/marketing/hero.jpg" alt="A food business owner"
+                     fill priority sizes="(max-width:1024px) 100vw, 45vw"
+                     className="object-cover" /> */}
+          <div className="relative mx-auto aspect-[4/5] w-full max-w-[440px]">
+            <div className="flex h-full items-center justify-center overflow-hidden rounded-[28px] border-[0.5px] border-fr-sep bg-gradient-to-br from-fr-blue-050 to-fr-green-050">
+              <Placeholder>Hero photo — client to supply</Placeholder>
+            </div>
+            {TRUST.heroFloatingChips.slice(0, 2).map((chip, index) => (
+              <div
+                key={chip}
+                className={
+                  "absolute flex items-center gap-2 rounded-pill bg-fr-bg px-4 py-2.5 text-[14px] font-semibold text-fr-ink shadow-fr-lift " +
+                  (index === 0 ? "top-6 -left-3" : "bottom-8 -right-3")
+                }
               >
-                <span className="size-[7px] rounded-full bg-fr-green" />
-                <b className="font-bold text-fr-ink">{value}</b> {label}
-              </span>
+                <span aria-hidden="true" className="text-fr-green">
+                  ✓
+                </span>
+                {chip}
+              </div>
             ))}
           </div>
         </div>
       </header>
 
-      {/* ── Action cards */}
+      {/* ── 2 · ACTION CARDS */}
       <section className="mx-auto max-w-[1120px] px-6 py-16">
         <SectionHeading
           title="What do you need today?"
@@ -113,15 +139,18 @@ export default function MarketingHome() {
                 {action.body}
               </p>
               <div className="mt-4">
-                <LinkArrow href="/book">{action.cta}</LinkArrow>
+                <LinkArrow href="#qualifier">{action.cta}</LinkArrow>
               </div>
             </Card>
           ))}
         </div>
       </section>
 
-      {/* ── Qualifier / lead */}
-      <section className="mx-auto max-w-[1120px] px-6 pb-16">
+      {/* ── 3 · QUALIFIER + LEAD */}
+      <section
+        id="qualifier"
+        className="mx-auto max-w-[1120px] scroll-mt-20 px-6 pb-16"
+      >
         <div className="grid items-center gap-9 rounded-[28px] bg-gradient-to-br from-fr-blue to-fr-blue-deep p-8 text-white sm:p-11 lg:grid-cols-[1.1fr_1fr]">
           <div>
             <p className="text-[13px] font-semibold tracking-[0.02em] text-white/80 uppercase">
@@ -137,7 +166,7 @@ export default function MarketingHome() {
             </p>
           </div>
           <Suspense
-            fallback={<div className="h-[440px] rounded-[20px] bg-white/10" />}
+            fallback={<div className="h-[520px] rounded-[20px] bg-white/10" />}
           >
             <LeadForm
               compact
@@ -148,7 +177,7 @@ export default function MarketingHome() {
         </div>
       </section>
 
-      {/* ── Pricing */}
+      {/* ── 4 · PRICING */}
       <section id="pricing" className="scroll-mt-20 bg-fr-panel py-20">
         <div className="mx-auto max-w-[1120px] px-6">
           <SectionHeading
@@ -163,6 +192,7 @@ export default function MarketingHome() {
               <TierCard
                 key={plan.id}
                 plan={plan}
+                ctaHref="#qualifier"
                 ctaLabel={`Choose ${plan.name}`}
               />
             ))}
@@ -170,35 +200,63 @@ export default function MarketingHome() {
         </div>
       </section>
 
-      {/* ── Clients */}
-      <section className="mx-auto max-w-[1120px] px-6 py-16">
+      {/* ── 5 · TRUST STACK */}
+      <section className="mx-auto max-w-[1120px] px-6 py-20">
         <SectionHeading
           title="Trusted by growing food businesses"
           accent="growing"
           accentColor="green"
           align="center"
-          className="mb-10"
+          className="mb-12"
         />
-        <LogoStrip
-          logos={[
-            "Dr Agarwals",
-            "Karim's",
-            "Marine Lifesciences",
-            "Criticam",
-            "Vinati Organics",
-            "Smayan",
-          ]}
-        />
+
+        {TRUST.stats.length > 0 && (
+          <TrustRow
+            items={TRUST.stats}
+            className="mx-auto max-w-[820px] text-center"
+          />
+        )}
+
+        {TRUST.clientLogos.length > 0 && (
+          <LogoStrip
+            label="Our clients"
+            logos={TRUST.clientLogos}
+            className="mt-14"
+          />
+        )}
+
+        {/* Hidden until real testimonials are supplied — never fabricated. */}
+        {TRUST.testimonials.length > 0 && (
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+            {TRUST.testimonials.map((t) => (
+              <TestimonialCard key={t.name} {...t} />
+            ))}
+          </div>
+        )}
+
+        {/* Hidden until real ISO / press badges are supplied. */}
+        {TRUST.badges.length > 0 && (
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 opacity-70">
+            {TRUST.badges.map((badge) => (
+              <span
+                key={badge}
+                className="text-[15px] font-semibold text-fr-ink-2"
+              >
+                {badge}
+              </span>
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* ── CTA band */}
+      {/* ── 6 · CTA BAND */}
       <div className="mx-auto max-w-[1120px] px-6 pb-16">
         <CTABand
           title="Ready to get licensed?"
           lede="Talk to a compliance specialist today. Clear guidance on your category, documents and timeline — free."
           tone="ink"
         >
-          <ButtonLink href="/book" variant="green" size="lg">
+          <ButtonLink href="#qualifier" variant="green" size="lg">
             Book your free consultation
           </ButtonLink>
         </CTABand>

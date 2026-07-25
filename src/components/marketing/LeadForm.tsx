@@ -68,6 +68,7 @@ export function LeadForm({
       turnover: turnover || undefined,
       serviceInterest,
       city: String(form.get("city") ?? "") || undefined,
+      whatsappOptIn: form.get("whatsapp") === "on",
       message: String(form.get("message") ?? "") || undefined,
       consent: form.get("consent") === "on",
       utmSource: params.get("utm_source") ?? undefined,
@@ -219,29 +220,38 @@ export function LeadForm({
           </Field>
         </div>
 
+        <Field htmlFor="city" label="City (optional)" error={errors.city}>
+          <Input
+            id="city"
+            name="city"
+            autoComplete="address-level2"
+            placeholder="City"
+          />
+        </Field>
+
         {!compact && (
-          <>
-            <Field htmlFor="city" label="City (optional)" error={errors.city}>
-              <Input
-                id="city"
-                name="city"
-                autoComplete="address-level2"
-                placeholder="City"
-              />
-            </Field>
-            <Field
-              htmlFor="message"
-              label="Anything else? (optional)"
-              error={errors.message}
-            >
-              <Textarea
-                id="message"
-                name="message"
-                placeholder="Tell us briefly about your business or what you need."
-              />
-            </Field>
-          </>
+          <Field
+            htmlFor="message"
+            label="Anything else? (optional)"
+            error={errors.message}
+          >
+            <Textarea
+              id="message"
+              name="message"
+              placeholder="Tell us briefly about your business or what you need."
+            />
+          </Field>
         )}
+
+        <label className="flex items-center gap-2.5 text-[14px] text-fr-ink-2">
+          <input
+            type="checkbox"
+            name="whatsapp"
+            defaultChecked
+            className="size-[18px] shrink-0 accent-fr-green"
+          />
+          <span>Send me updates on WhatsApp</span>
+        </label>
 
         <label className="flex items-start gap-2.5 text-[13px] text-fr-ink-2">
           <input

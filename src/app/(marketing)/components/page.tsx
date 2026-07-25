@@ -9,8 +9,11 @@ import {
   LinkArrow,
   LogoStrip,
   SectionHeading,
+  TestimonialCard,
+  TrustBar,
   TrustRow,
 } from "@/components/marketing/primitives";
+import { TRUST } from "@/content/trust";
 import { TierCard } from "@/components/marketing/TierCard";
 import { CONTACT_IS_PLACEHOLDER } from "@/lib/marketing/contact";
 import { PLANS } from "@/lib/marketing/qualifier";
@@ -151,15 +154,29 @@ export default function ComponentsPreview() {
         </div>
       </Section>
 
-      <Section title="Trust row">
-        <TrustRow
-          items={[
-            { value: "2,000+", label: "Licences filed" },
-            { value: "4.9★", label: "Rating" },
-            { value: "17", label: "Forms" },
-            { value: "100%", label: "Online" },
-          ]}
+      <Section title="Trust bar (rating hidden until real)">
+        <TrustBar
+          rating={TRUST.rating}
+          reviewCount={TRUST.reviewCount}
+          reviewSource={TRUST.reviewSource}
+          chips={TRUST.chips}
+          className="justify-start"
         />
+      </Section>
+
+      <Section title="Trust row (stats)">
+        <TrustRow items={TRUST.stats} />
+      </Section>
+
+      <Section title="Testimonial card">
+        <div className="max-w-[360px]">
+          <TestimonialCard
+            quote="They sorted our State Licence in a week with zero fuss. Worth every rupee."
+            name="Sample Name"
+            title="Owner"
+            company="Sample Foods"
+          />
+        </div>
       </Section>
 
       <Section title="Logo strip">

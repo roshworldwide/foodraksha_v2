@@ -34,6 +34,8 @@ export const leadSchema = z.object({
   turnover: z.enum(turnoverValues).optional(),
   serviceInterest: z.string().trim().max(80).optional(),
   city: z.string().trim().max(80).optional(),
+  /** WhatsApp updates opt-in — huge in India (Vakilsearch/CliniExperts pattern). */
+  whatsappOptIn: z.boolean().optional(),
   message: z
     .string()
     .trim()
@@ -69,6 +71,7 @@ function composeNote(input: LeadInput): string | null {
   }
   if (input.serviceInterest)
     parts.push(`Interested in: ${input.serviceInterest}`);
+  if (input.whatsappOptIn) parts.push("WhatsApp updates: yes");
   if (input.message) parts.push(`Message: ${input.message}`);
   if (input.referrer) parts.push(`Page: ${input.referrer}`);
   const note = parts.join(" · ");
