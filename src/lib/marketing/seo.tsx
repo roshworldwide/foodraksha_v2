@@ -97,7 +97,7 @@ export function organizationJsonLd(): Record<string, unknown> {
     "@type": ["Organization", "LocalBusiness"],
     name: SITE_NAME,
     url: siteUrl("/"),
-    logo: siteUrl("/brand/foodraksha-logo.svg"),
+    logo: siteUrl("/brand/foodraksha-logo.png"),
     description: DEFAULT_DESCRIPTION,
     knowsAbout: KNOWS_ABOUT,
   };

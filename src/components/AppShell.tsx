@@ -233,7 +233,7 @@ export function AppShell({
         <div className="flex h-16 items-center px-4">
           <Link
             href={role === "CUSTOMER" ? "/dashboard" : "/staff"}
-            aria-label="FoodRaksha home"
+            aria-label="Food Raksha home"
           >
             <Logo
               variant={collapsed ? "mark" : "lockup"}

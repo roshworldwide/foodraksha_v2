@@ -26,7 +26,7 @@ export function Nav() {
         aria-label="Primary"
         className="mx-auto flex h-[60px] max-w-[1200px] items-center gap-6 px-6"
       >
-        <Link href="/" aria-label="FoodRaksha home" className="shrink-0">
+        <Link href="/" aria-label="Food Raksha home" className="shrink-0">
           <Logo variant="lockup" height={24} />
         </Link>
 

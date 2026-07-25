@@ -27,7 +27,7 @@ export function LoginLockup({
       <div className="w-full max-w-[400px]">
         <div className="rounded-[22px] border-[0.5px] border-separator bg-surface p-8 shadow-3 sm:p-10">
           <div className="flex flex-col items-center text-center">
-            <Link href="/" aria-label="FoodRaksha home">
+            <Link href="/" aria-label="Food Raksha home">
               <Logo variant="mark" height={54} />
             </Link>
             <h1 className="mt-5 text-title-1">{title}</h1>
