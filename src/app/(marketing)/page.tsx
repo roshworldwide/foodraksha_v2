@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ButtonLink } from "@/components/marketing/Button";
+import { ClientMarquee } from "@/components/marketing/ClientMarquee";
+import { FssaiCalculator } from "@/components/marketing/FssaiCalculator";
 import { LeadForm } from "@/components/marketing/LeadForm";
 import {
   Card,
   CTABand,
   LinkArrow,
-  LogoStrip,
-  Placeholder,
   SectionHeading,
   TestimonialCard,
   TrustBar,
   TrustRow,
 } from "@/components/marketing/primitives";
+import { ServicePanel } from "@/components/marketing/ServicePanel";
 import { TierCard } from "@/components/marketing/TierCard";
+import { CLIENTS } from "@/content/clients";
 import { TRUST } from "@/content/trust";
 import { PLANS } from "@/lib/marketing/qualifier";
 import { pageMeta } from "@/lib/marketing/seo";
@@ -83,30 +85,17 @@ export default function MarketingHome() {
             />
           </div>
 
-          {/* Hero image slot — the client supplies a warm real photo. Kept as a
-              fixed-ratio placeholder so there is no layout shift; when the photo
-              lands, replace the inner panel with:
-              <Image src="/marketing/hero.jpg" alt="A food business owner"
-                     fill priority sizes="(max-width:1024px) 100vw, 45vw"
-                     className="object-cover" /> */}
-          <div className="relative mx-auto aspect-[4/5] w-full max-w-[440px]">
-            <div className="flex h-full items-center justify-center overflow-hidden rounded-[28px] border-[0.5px] border-fr-sep bg-gradient-to-br from-fr-blue-050 to-fr-green-050">
-              <Placeholder>Hero photo — client to supply</Placeholder>
-            </div>
-            {TRUST.heroFloatingChips.slice(0, 2).map((chip, index) => (
-              <div
-                key={chip}
-                className={
-                  "absolute flex items-center gap-2 rounded-pill bg-fr-bg px-4 py-2.5 text-[14px] font-semibold text-fr-ink shadow-fr-lift " +
-                  (index === 0 ? "top-6 -left-3" : "bottom-8 -right-3")
-                }
-              >
-                <span aria-hidden="true" className="text-fr-green">
-                  ✓
-                </span>
-                {chip}
-              </div>
-            ))}
+          {/* Hero right column — the FSSAI Fee Calculator, the page's primary
+              lead source. It replaced the "client to supply" photo placeholder.
+              The widget is a client component but renders its full markup on the
+              server (no useSearchParams, no effect-gated content), so there is
+              nothing to shift on hydration.
+
+              The photo's two floating trust chips are gone with it: chips
+              overlapping a form would sit on top of its inputs and its bottom
+              link. The same claims are in the TrustBar under the headline. */}
+          <div className="mx-auto w-full max-w-[468px]">
+            <FssaiCalculator title="FSSAI Fee Calculator" />
           </div>
         </div>
       </header>
@@ -146,7 +135,22 @@ export default function MarketingHome() {
         </div>
       </section>
 
-      {/* ── 3 · QUALIFIER + LEAD */}
+      {/* ── 3 · FOOD LICENCE SERVICE PANEL
+             Section 5 of docs/Website-Structure-Teardown.md — the offer, its
+             price, and the Overview / Process & Documents tabs. */}
+      <section className="bg-fr-panel py-18">
+        <div className="mx-auto max-w-[1120px] px-6">
+          <ServicePanel />
+        </div>
+      </section>
+
+      {/* ── 4 · CONSULTATION + LEAD
+             The licence question is answered by the calculator in the hero, on
+             the full official matrix. This band deliberately does NOT repeat it:
+             two qualifiers on one page competed for the same job, and the
+             turnover-band one contradicted the hero for caterers, hotels and
+             importers. So `qualifier` is off here and this is purely "talk to a
+             specialist". */}
       <section
         id="qualifier"
         className="mx-auto max-w-[1120px] scroll-mt-20 px-6 pb-16"
@@ -154,15 +158,25 @@ export default function MarketingHome() {
         <div className="grid items-center gap-9 rounded-[28px] bg-gradient-to-br from-fr-blue to-fr-blue-deep p-8 text-white sm:p-11 lg:grid-cols-[1.1fr_1fr]">
           <div>
             <p className="text-[13px] font-semibold tracking-[0.02em] text-white/80 uppercase">
-              Not sure which licence?
+              Talk to a specialist
             </p>
             <h2 className="mt-3 text-title-1 tracking-[-0.02em] sm:text-large-title">
-              Find out in 10 seconds.
+              Get a free callback.
             </h2>
             <p className="mt-3 max-w-[440px] text-[17px] leading-relaxed text-white/85">
-              Answer two questions and we&rsquo;ll tell you exactly which FSSAI
-              licence you need, what it costs, and how fast we can file it —
-              then a specialist calls you back.
+              Know your licence from the calculator, or still weighing it up —
+              either way, leave your number and a licensing specialist will call
+              you back with your documents, timeline and a fixed quote.
+            </p>
+            <p className="mt-4 text-[15px] text-white/75">
+              Not sure which licence you need?{" "}
+              <a
+                href="/fssai-calculator"
+                className="font-semibold text-white underline decoration-white/40 underline-offset-2 hover:decoration-white"
+              >
+                Use the fee calculator
+              </a>
+              .
             </p>
           </div>
           <Suspense
@@ -170,6 +184,7 @@ export default function MarketingHome() {
           >
             <LeadForm
               compact
+              qualifier={false}
               submitVariant="blue"
               serviceInterest="New FSSAI licence"
             />
@@ -200,31 +215,33 @@ export default function MarketingHome() {
         </div>
       </section>
 
-      {/* ── 5 · TRUST STACK */}
-      <section className="mx-auto max-w-[1120px] px-6 py-20">
-        <SectionHeading
-          title="Trusted by growing food businesses"
-          accent="growing"
-          accentColor="green"
-          align="center"
-          className="mb-12"
-        />
-
-        {TRUST.stats.length > 0 && (
-          <TrustRow
-            items={TRUST.stats}
-            className="mx-auto max-w-[820px] text-center"
+      {/* ── 6 · TRUST STACK
+             The marquee sits outside the 1120px container so it runs the full
+             width of the viewport; its own overflow-hidden keeps that from
+             adding a horizontal scrollbar. */}
+      <section className="py-20">
+        <div className="mx-auto max-w-[1120px] px-6">
+          <SectionHeading
+            title="Trusted by growing food businesses"
+            accent="growing"
+            accentColor="green"
+            align="center"
+            className="mb-12"
           />
+
+          {TRUST.stats.length > 0 && (
+            <TrustRow
+              items={TRUST.stats}
+              className="mx-auto max-w-[820px] text-center"
+            />
+          )}
+        </div>
+
+        {CLIENTS.length > 0 && (
+          <ClientMarquee label="Our clients" logos={CLIENTS} className="mt-14" />
         )}
 
-        {TRUST.clientLogos.length > 0 && (
-          <LogoStrip
-            label="Our clients"
-            logos={TRUST.clientLogos}
-            className="mt-14"
-          />
-        )}
-
+        <div className="mx-auto max-w-[1120px] px-6">
         {/* Hidden until real testimonials are supplied — never fabricated. */}
         {TRUST.testimonials.length > 0 && (
           <div className="mt-14 grid gap-6 md:grid-cols-3">
@@ -247,9 +264,10 @@ export default function MarketingHome() {
             ))}
           </div>
         )}
+        </div>
       </section>
 
-      {/* ── 6 · CTA BAND */}
+      {/* ── 7 · CTA BAND */}
       <div className="mx-auto max-w-[1120px] px-6 pb-16">
         <CTABand
           title="Ready to get licensed?"
