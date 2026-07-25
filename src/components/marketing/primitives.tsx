@@ -256,6 +256,18 @@ export function TestimonialCard({
 
 /* ────────────────────────────────────────────────────────── TrustRow */
 
+/**
+ * Column count follows the item count, so a row whose unconfirmed figures have
+ * been filtered out stays centred instead of hugging the left of a 4-column
+ * grid. Whole class strings, not interpolated, so Tailwind's scanner sees them.
+ */
+const TRUST_ROW_COLS: Record<number, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-2 sm:grid-cols-3",
+  4: "grid-cols-2 sm:grid-cols-4",
+};
+
 /** A row of proof points — a number and a label each. */
 export function TrustRow({
   items,
@@ -264,13 +276,10 @@ export function TrustRow({
   items: { value: string; label: string }[];
   className?: string;
 }) {
+  const cols = TRUST_ROW_COLS[Math.min(items.length, 4)] ?? TRUST_ROW_COLS[4];
+
   return (
-    <dl
-      className={cn(
-        "grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-4",
-        className,
-      )}
-    >
+    <dl className={cn("grid gap-x-6 gap-y-6", cols, className)}>
       {items.map((item) => (
         <div key={item.label}>
           <dt className="text-title-1 font-bold tracking-[-0.02em] text-fr-ink tabular-nums">

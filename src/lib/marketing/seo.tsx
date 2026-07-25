@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FOUNDED_YEAR, KNOWS_ABOUT } from "@/content/about";
 import { env } from "@/lib/env";
 import { CONTACT, CONTACT_IS_PLACEHOLDER } from "./contact";
 
@@ -82,6 +83,13 @@ export function articleMeta({
  * Organization + LocalBusiness JSON-LD. While contact details are placeholders
  * we emit only what is real (name, url, logo) and omit the address and phone —
  * never seed structured data with invented contact facts.
+ *
+ * Emitted once, from the marketing layout, so every page carries the same
+ * single Organization entity. /about therefore does NOT emit its own — a second
+ * node would describe the same company twice. Its `foundingDate` and
+ * `knowsAbout` come from @/content/about and follow the same rule as the rest:
+ * foundingDate is omitted entirely until the client confirms a year, because
+ * "35+ years" is a floor, not a date.
  */
 export function organizationJsonLd(): Record<string, unknown> {
   const base: Record<string, unknown> = {
@@ -91,7 +99,10 @@ export function organizationJsonLd(): Record<string, unknown> {
     url: siteUrl("/"),
     logo: siteUrl("/brand/foodraksha-logo.svg"),
     description: DEFAULT_DESCRIPTION,
+    knowsAbout: KNOWS_ABOUT,
   };
+
+  if (FOUNDED_YEAR !== null) base.foundingDate = String(FOUNDED_YEAR);
 
   if (!CONTACT_IS_PLACEHOLDER) {
     base.email = CONTACT.email;
