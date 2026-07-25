@@ -8,13 +8,15 @@ import { ButtonLink } from "./Button";
  * whole bar stays a Server Component — only the LeadForm ships JS.
  */
 
+// About / Services / Membership / Enrollment / Explore are Stage-2 content
+// pages — the links point at their final paths and 404 until those are built.
 const LINKS = [
   { label: "Home", href: "/" },
-  { label: "About", href: "/#about" },
-  { label: "Services", href: "/#services" },
-  { label: "Membership", href: "/#membership" },
-  { label: "Enrollment", href: "/#enrollment" },
-  { label: "Explore", href: "/#explore" },
+  { label: "About", href: "/about" },
+  { label: "Services", href: "/services" },
+  { label: "Membership", href: "/membership" },
+  { label: "Enrollment", href: "/enrollment" },
+  { label: "Explore", href: "/explore" },
 ];
 
 export function Nav() {

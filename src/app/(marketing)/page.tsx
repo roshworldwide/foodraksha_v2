@@ -8,14 +8,9 @@ import {
   LinkArrow,
   LogoStrip,
   SectionHeading,
-  TrustRow,
 } from "@/components/marketing/primitives";
 import { TierCard } from "@/components/marketing/TierCard";
-import {
-  formatPriceFrom,
-  LICENCE_INFO,
-  type LicenceKind,
-} from "@/lib/marketing/qualifier";
+import { PLANS } from "@/lib/marketing/qualifier";
 import { pageMeta } from "@/lib/marketing/seo";
 
 export const metadata: Metadata = pageMeta({
@@ -23,217 +18,188 @@ export const metadata: Metadata = pageMeta({
   path: "/",
 });
 
-const TIER_ORDER: LicenceKind[] = ["BASIC", "STATE", "CENTRAL"];
+const ACTIONS = [
+  {
+    icon: "✎",
+    tone: "blue" as const,
+    title: "New Application",
+    body: "Get your FSSAI licence done. We handle the paperwork and get it processed — fair prices, no runaround.",
+    cta: "Get started",
+  },
+  {
+    icon: "⟳",
+    tone: "green" as const,
+    title: "Modification",
+    body: "Need to change something on your licence? We handle modifications and get it sorted quickly.",
+    cta: "Modify licence",
+  },
+  {
+    icon: "↻",
+    tone: "blue" as const,
+    title: "Renewal",
+    body: "Licence renewal coming up? We take care of it so you stay compliant, hassle-free.",
+    cta: "Renew now",
+  },
+];
 
-/** Placeholder home — enough to prove the shell + primitives + lead engine. */
 export default function MarketingHome() {
   return (
     <>
       {/* ── Hero */}
-      <section className="border-b-[0.5px] border-fr-sep">
-        <div className="mx-auto grid max-w-[1200px] items-center gap-12 px-6 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-pill bg-fr-green-050 px-3 py-1.5 text-[13px] font-semibold text-fr-green-deep">
-              <span className="size-1.5 rounded-full bg-fr-green" />
-              Trusted FSSAI licensing consultancy
-            </span>
-            <h1 className="mt-5 text-large-title text-balance text-fr-ink sm:text-[52px] sm:leading-[1.05] sm:tracking-[-0.03em]">
-              Your FSSAI licence, <span className="text-fr-blue">handled</span>{" "}
-              for you.
-            </h1>
-            <p className="mt-5 max-w-[520px] text-[19px] leading-relaxed tracking-[-0.01em] text-fr-ink-2">
-              Answer a few questions once — we prepare and file every government
-              form, from Basic Registration to Central Licence, and keep you
-              posted the whole way.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <ButtonLink href="/book" variant="green" size="lg">
-                Book a free consultation
-              </ButtonLink>
-              <ButtonLink href="#pricing" variant="ghost" size="lg">
-                See pricing
-              </ButtonLink>
-            </div>
-            <div className="mt-10">
-              <TrustRow
-                items={[
-                  { value: "2,000+", label: "Licences filed" },
-                  { value: "4.9★", label: "Client rating" },
-                  { value: "17", label: "Forms, one answer set" },
-                  { value: "100%", label: "Online process" },
-                ]}
-              />
-            </div>
+      <header className="bg-[radial-gradient(120%_80%_at_50%_-10%,var(--color-fr-blue-050),transparent_60%)] px-6 pt-20 pb-6 text-center">
+        <div className="mx-auto max-w-[900px]">
+          <p className="text-[13px] font-semibold tracking-[0.02em] text-fr-blue uppercase">
+            FSSAI Licensing, Done Right
+          </p>
+          <h1 className="mx-auto mt-3.5 max-w-[900px] text-[40px] leading-[1.05] font-bold tracking-[-0.03em] text-balance text-fr-ink sm:text-[60px]">
+            Your food licence, <span className="text-fr-blue">without</span> the{" "}
+            <span className="text-fr-green">headache</span>.
+          </h1>
+          <p className="mx-auto mt-5 max-w-[640px] text-[19px] leading-relaxed tracking-[-0.01em] text-fr-ink-2 sm:text-[21px]">
+            Tell us about your business — our experts identify the right
+            licence, prepare every document, and file it for you. Fair prices,
+            no runaround.
+          </p>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
+            <ButtonLink href="/book" variant="blue" size="lg">
+              Book a free consultation
+            </ButtonLink>
+            <LinkArrow href="#pricing">See pricing</LinkArrow>
           </div>
+          <div className="mx-auto mt-9 flex max-w-[720px] flex-wrap items-center justify-center gap-x-7 gap-y-3">
+            {[
+              ["35+ years", "experience"],
+              ["120+", "experts"],
+              ["24 hours", "typical filing"],
+              ["100%", "confidential"],
+            ].map(([value, label]) => (
+              <span
+                key={label}
+                className="flex items-center gap-2 text-[14px] font-medium text-fr-ink-2"
+              >
+                <span className="size-[7px] rounded-full bg-fr-green" />
+                <b className="font-bold text-fr-ink">{value}</b> {label}
+              </span>
+            ))}
+          </div>
+        </div>
+      </header>
 
-          {/* Qualifier */}
-          <div>
-            <Suspense
-              fallback={
-                <div className="h-[520px] rounded-fr-card border-[0.5px] border-fr-sep bg-fr-panel" />
-              }
-            >
-              <LeadForm
-                title="Which licence do you need?"
-                serviceInterest="New FSSAI licence"
-              />
-            </Suspense>
-          </div>
+      {/* ── Action cards */}
+      <section className="mx-auto max-w-[1120px] px-6 py-16">
+        <SectionHeading
+          title="What do you need today?"
+          accent="today"
+          lede="Three ways we help — pick yours and we'll take it from there."
+          align="center"
+          className="mb-11"
+        />
+        <div className="grid gap-5 md:grid-cols-3">
+          {ACTIONS.map((action) => (
+            <Card key={action.title} hover>
+              <span
+                className={
+                  "flex size-[52px] items-center justify-center rounded-[15px] text-[24px] " +
+                  (action.tone === "green"
+                    ? "bg-fr-green-050 text-fr-green-deep"
+                    : "bg-fr-blue-050 text-fr-blue")
+                }
+                aria-hidden="true"
+              >
+                {action.icon}
+              </span>
+              <h3 className="mt-4 text-title-3 text-fr-ink">{action.title}</h3>
+              <p className="mt-2 text-[15px] leading-relaxed text-fr-ink-2">
+                {action.body}
+              </p>
+              <div className="mt-4">
+                <LinkArrow href="/book">{action.cta}</LinkArrow>
+              </div>
+            </Card>
+          ))}
         </div>
       </section>
 
-      {/* ── Logo strip */}
-      <div className="mx-auto max-w-[1200px] px-6 py-12">
-        <LogoStrip
-          label="Food businesses across India trust FoodRaksha"
-          logos={[
-            "Restaurants",
-            "Cloud kitchens",
-            "Manufacturers",
-            "Traders",
-            "Importers",
-          ]}
-        />
-      </div>
+      {/* ── Qualifier / lead */}
+      <section className="mx-auto max-w-[1120px] px-6 pb-16">
+        <div className="grid items-center gap-9 rounded-[28px] bg-gradient-to-br from-fr-blue to-fr-blue-deep p-8 text-white sm:p-11 lg:grid-cols-[1.1fr_1fr]">
+          <div>
+            <p className="text-[13px] font-semibold tracking-[0.02em] text-white/80 uppercase">
+              Not sure which licence?
+            </p>
+            <h2 className="mt-3 text-title-1 tracking-[-0.02em] sm:text-large-title">
+              Find out in 10 seconds.
+            </h2>
+            <p className="mt-3 max-w-[440px] text-[17px] leading-relaxed text-white/85">
+              Answer two questions and we&rsquo;ll tell you exactly which FSSAI
+              licence you need, what it costs, and how fast we can file it —
+              then a specialist calls you back.
+            </p>
+          </div>
+          <Suspense
+            fallback={<div className="h-[440px] rounded-[20px] bg-white/10" />}
+          >
+            <LeadForm
+              compact
+              submitVariant="blue"
+              serviceInterest="New FSSAI licence"
+            />
+          </Suspense>
+        </div>
+      </section>
 
-      {/* ── Services (anchor) */}
-      <section id="services" className="scroll-mt-24 bg-fr-panel py-20">
-        <div className="mx-auto max-w-[1200px] px-6">
+      {/* ── Pricing */}
+      <section id="pricing" className="scroll-mt-20 bg-fr-panel py-20">
+        <div className="mx-auto max-w-[1120px] px-6">
           <SectionHeading
-            eyebrow="What we do"
-            title="Every FSSAI need, in one place"
-            accent="one place"
-            lede="From your first registration to renewals, modifications and annual returns — we handle the paperwork so you don't have to."
+            title="The right plan for your food licence"
+            accent="food licence"
+            lede="Transparent pricing. Government fee shown separately. EMI available."
+            align="center"
+            className="mb-12"
           />
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              [
-                "New licence",
-                "We work out the right licence and file it end to end.",
-              ],
-              [
-                "Renewals",
-                "Never miss a deadline — we track and renew for you.",
-              ],
-              [
-                "Modifications",
-                "Change of address, category or capacity, handled.",
-              ],
-              [
-                "Annual returns",
-                "Form D filings prepared and submitted on time.",
-              ],
-              [
-                "Product approvals",
-                "Guidance on categories, labels and specifications.",
-              ],
-              [
-                "Compliance support",
-                "Ongoing help so you stay on the right side of FSSAI.",
-              ],
-            ].map(([title, body]) => (
-              <Card key={title} hover>
-                <h3 className="text-title-3 text-fr-ink">{title}</h3>
-                <p className="mt-2 text-[15px] leading-relaxed text-fr-ink-2">
-                  {body}
-                </p>
-                <div className="mt-4">
-                  <LinkArrow href="/book">Get started</LinkArrow>
-                </div>
-              </Card>
+          <div className="grid items-start gap-6 md:grid-cols-3">
+            {PLANS.map((plan) => (
+              <TierCard
+                key={plan.id}
+                plan={plan}
+                ctaLabel={`Choose ${plan.name}`}
+              />
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Pricing (real qualifier data) */}
-      <section id="pricing" className="scroll-mt-24 py-20">
-        <div className="mx-auto max-w-[1200px] px-6">
-          <SectionHeading
-            eyebrow="Pricing"
-            title="Simple, transparent pricing"
-            accent="transparent"
-            accentColor="green"
-            align="center"
-            lede="Your turnover decides your licence. Professional fees below — government fees are separate and shown before you pay."
-          />
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
-            {TIER_ORDER.map((kind) => {
-              const info = LICENCE_INFO[kind];
-              return (
-                <TierCard
-                  key={kind}
-                  name={info.name}
-                  priceFrom={formatPriceFrom(kind)}
-                  timeline={info.timeline}
-                  summary={info.summary}
-                  featured={kind === "STATE"}
-                  ctaLabel="Book a consultation"
-                />
-              );
-            })}
-          </div>
-          <p className="mt-6 text-center text-[13px] text-fr-ink-3">
-            Indicative professional fees. Final quote confirmed after a free
-            consultation.
-          </p>
-        </div>
+      {/* ── Clients */}
+      <section className="mx-auto max-w-[1120px] px-6 py-16">
+        <SectionHeading
+          title="Trusted by growing food businesses"
+          accent="growing"
+          accentColor="green"
+          align="center"
+          className="mb-10"
+        />
+        <LogoStrip
+          logos={[
+            "Dr Agarwals",
+            "Karim's",
+            "Marine Lifesciences",
+            "Criticam",
+            "Vinati Organics",
+            "Smayan",
+          ]}
+        />
       </section>
 
-      {/* ── Placeholder anchored sections (content is Stage 2) */}
-      {[
-        [
-          "about",
-          "About FoodRaksha",
-          "Who we are and why food businesses trust us with their licensing.",
-        ],
-        [
-          "membership",
-          "Membership",
-          "Ongoing compliance cover — renewals, returns and support on a simple plan.",
-        ],
-        [
-          "enrollment",
-          "Enrollment",
-          "How to get started and what to expect once you sign up.",
-        ],
-        [
-          "explore",
-          "Explore",
-          "Guides and resources on FSSAI licensing for food businesses.",
-        ],
-      ].map(([id, title, lede]) => (
-        <section
-          key={id}
-          id={id}
-          className="scroll-mt-24 border-t-[0.5px] border-fr-sep py-16"
-        >
-          <div className="mx-auto max-w-[1200px] px-6">
-            <SectionHeading eyebrow="Coming soon" title={title} lede={lede} />
-            <p className="mt-4 text-[14px] text-fr-ink-3">
-              This section is part of the website content build (Stage 2).
-            </p>
-          </div>
-        </section>
-      ))}
-
       {/* ── CTA band */}
-      <div className="mx-auto max-w-[1200px] px-6 py-16">
+      <div className="mx-auto max-w-[1120px] px-6 pb-16">
         <CTABand
-          title="Ready to get your FSSAI licence?"
-          lede="Book a free consultation. No payment now — an adviser will call you back."
-          tone="blue"
+          title="Ready to get licensed?"
+          lede="Talk to a compliance specialist today. Clear guidance on your category, documents and timeline — free."
+          tone="ink"
         >
           <ButtonLink href="/book" variant="green" size="lg">
-            Book now
-          </ButtonLink>
-          <ButtonLink
-            href="/login"
-            variant="ghost"
-            size="lg"
-            className="!text-white !ring-white/40 hover:!bg-white/10"
-          >
-            Track my application
+            Book your free consultation
           </ButtonLink>
         </CTABand>
       </div>

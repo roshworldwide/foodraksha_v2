@@ -11,17 +11,16 @@ export type FrButtonVariant = "blue" | "green" | "soft" | "ghost";
 export type FrButtonSize = "lg" | "base" | "sm";
 
 const VARIANT: Record<FrButtonVariant, string> = {
-  blue: "bg-fr-blue text-white hover:bg-fr-blue-deep shadow-fr-blue",
-  green: "bg-fr-green text-white hover:bg-fr-green-deep shadow-fr-green",
-  soft: "bg-fr-panel text-fr-ink hover:bg-fr-sep/60",
-  ghost:
-    "bg-transparent text-fr-ink ring-[1.5px] ring-inset ring-fr-sep hover:bg-fr-panel",
+  blue: "bg-fr-blue text-white hover:bg-fr-blue-deep",
+  green: "bg-fr-green text-white hover:bg-fr-green-deep",
+  soft: "bg-fr-blue-050 text-fr-blue-deep hover:bg-fr-blue-100",
+  ghost: "bg-fr-sep/50 text-fr-ink hover:bg-fr-sep",
 };
 
 const SIZE: Record<FrButtonSize, string> = {
-  lg: "min-h-[52px] px-7 text-[17px]",
-  base: "min-h-[46px] px-6 text-[15px]",
-  sm: "min-h-[38px] px-[18px] text-[14px]",
+  lg: "min-h-[54px] px-[30px] text-[17px]",
+  base: "min-h-[48px] px-6 text-[16px]",
+  sm: "min-h-[38px] px-4 text-[14px]",
 };
 
 interface StyleProps {

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Food Raksha — Website Prototype</title>
+<style>
+:root{
+  /* Brand (from the kit) */
+  --blue:#247BC7;--blue-deep:#1C6098;--blue-050:#EAF3FB;--blue-100:#D7E8F7;
+  --green:#39A935;--green-deep:#2E8A2B;--green-050:#EBF6EA;
+  /* Apple neutrals */
+  --ink:#1D1D1F;--ink-2:rgba(60,60,67,.62);--ink-3:rgba(60,60,67,.30);
+  --sep:rgba(60,60,67,.12);
+  --bg:#FFFFFF;--panel:#F5F5F7;--panel-2:#FBFBFD;
+  --r-card:20px;--r-sm:14px;--pill:980px;
+  --sh:0 2px 10px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04);
+  --sh-lift:0 18px 44px rgba(16,60,110,.14),0 4px 12px rgba(0,0,0,.05);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+/* type */
+h1,h2,h3{letter-spacing:-.022em;line-height:1.08}
+.kicker{font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--blue);text-transform:uppercase}
+.dim{color:var(--ink-2)}
+
+/* buttons — Apple capsule */
+.btn{font-family:var(--font);font-weight:600;font-size:16px;letter-spacing:-.01em;border:0;border-radius:var(--pill);min-height:48px;padding:0 24px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:transform .2s cubic-bezier(.32,.72,0,1),background .2s,opacity .2s}
+.btn:active{transform:scale(.965)}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:var(--blue-deep)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:var(--green-deep)}
+.btn-soft{background:var(--blue-050);color:var(--blue-deep)}.btn-soft:hover{background:var(--blue-100)}
+.btn-ghost{background:rgba(60,60,67,.06);color:var(--ink)}
+.btn-lg{min-height:54px;font-size:17px;padding:0 30px}
+.btn-sm{min-height:38px;font-size:14px;padding:0 16px}
+.link-arrow{color:var(--blue);font-weight:600;font-size:16px;display:inline-flex;align-items:center;gap:4px}
+.link-arrow:hover{text-decoration:underline}
+
+/* utility + nav */
+.util{border-bottom:.5px solid var(--sep);background:var(--panel-2)}
+.util .wrap{display:flex;gap:18px;align-items:center;height:38px;font-size:13px;color:var(--ink-2)}
+.util .sp{margin-left:auto;display:flex;gap:14px}
+.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.72);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--sep)}
+.nav .wrap{display:flex;align-items:center;gap:24px;height:60px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:17px;letter-spacing:-.01em}
+.logo .wm{color:var(--blue)}
+.menu{display:flex;gap:26px;margin-left:12px}
+.menu a{font-size:14.5px;font-weight:500;color:var(--ink);opacity:.82}
+.menu a:hover{opacity:1;color:var(--blue)}
+.nav-cta{margin-left:auto;display:flex;gap:10px;align-items:center}
+
+/* hero */
+.hero{text-align:center;padding:78px 0 20px;background:radial-gradient(120% 80% at 50% -10%,var(--blue-050),transparent 60%)}
+.hero h1{font-size:60px;font-weight:700;letter-spacing:-.03em;max-width:900px;margin:14px auto 0}
+.hero h1 .g{color:var(--green)}.hero h1 .b{color:var(--blue)}
+.hero p{font-size:21px;color:var(--ink-2);max-width:640px;margin:20px auto 0;line-height:1.45;letter-spacing:-.01em}
+.hero .cta{display:flex;gap:14px;justify-content:center;margin-top:30px}
+.trust{display:flex;gap:26px;justify-content:center;margin-top:34px;flex-wrap:wrap}
+.trust .t{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink-2);font-weight:500}
+.trust .t b{color:var(--ink);font-weight:700}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+
+/* section */
+.sec{padding:72px 0}
+.sec.alt{background:var(--panel)}
+.sec-h{text-align:center;max-width:640px;margin:0 auto 44px}
+.sec-h h2{font-size:40px;font-weight:700;letter-spacing:-.026em}
+.sec-h h2 .b{color:var(--blue)}.sec-h h2 .g{color:var(--green)}
+.sec-h p{font-size:18px;color:var(--ink-2);margin-top:12px;line-height:1.5}
+
+/* action cards */
+.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.acard{background:var(--bg);border:.5px solid var(--sep);border-radius:var(--r-card);padding:28px;box-shadow:var(--sh);transition:transform .3s cubic-bezier(.32,.72,0,1),box-shadow .3s}
+.acard:hover{transform:translateY(-4px);box-shadow:var(--sh-lift)}
+.acard .ico{width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:18px}
+.i-blue{background:var(--blue-050);color:var(--blue)}.i-green{background:var(--green-050);color:var(--green-deep)}
+.acard h3{font-size:22px;font-weight:650;margin-bottom:8px}
+.acard p{font-size:15px;color:var(--ink-2);line-height:1.5;margin-bottom:18px}
+
+/* qualifier */
+.qual{background:linear-gradient(135deg,var(--blue),var(--blue-deep));border-radius:28px;padding:44px;color:#fff;display:grid;grid-template-columns:1.1fr 1fr;gap:36px;align-items:center}
+.qual h2{font-size:34px;font-weight:700;letter-spacing:-.02em}
+.qual p{font-size:17px;opacity:.85;margin-top:12px;line-height:1.5}
+.qbox{background:#fff;border-radius:20px;padding:24px;color:var(--ink);box-shadow:var(--sh-lift)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.inp{width:100%;font-family:var(--font);font-size:16px;padding:13px 15px;border:1px solid var(--sep);border-radius:12px;outline:none;transition:.16s;background:#fff}
+.inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-050)}
+select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%23247BC7' stroke-width='1.8' fill='none' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 15px center}
+.qresult{background:var(--green-050);border:1px solid #CDE9CB;border-radius:12px;padding:12px 14px;font-size:14px;color:var(--green-deep);margin-bottom:14px;font-weight:600}
+
+/* pricing */
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:start}
+.tier{background:var(--bg);border:1px solid var(--sep);border-radius:var(--r-card);padding:28px;position:relative}
+.tier.reco{border:2px solid var(--blue);box-shadow:var(--sh-lift)}
+.badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:var(--pill)}
+.tier h3{font-size:20px;font-weight:650}
+.tier .desc{font-size:14px;color:var(--ink-2);margin:4px 0 16px;min-height:38px}
+.tier .price{font-size:38px;font-weight:750;letter-spacing:-.02em}
+.tier .price s{font-size:16px;color:var(--ink-3);font-weight:500;margin-right:6px}
+.tier .price small{font-size:14px;color:var(--ink-2);font-weight:500}
+.tier ul{list-style:none;margin:18px 0 22px}
+.tier li{font-size:14px;color:var(--ink);padding:7px 0 7px 26px;position:relative;border-top:.5px solid var(--sep)}
+.tier li:before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700}
+
+/* clients */
+.logos{display:flex;flex-wrap:wrap;gap:40px;justify-content:center;align-items:center;opacity:.55}
+.logos span{font-weight:700;font-size:18px;color:var(--ink-2);letter-spacing:-.01em}
+
+/* cta band */
+.band{background:var(--ink);color:#fff;border-radius:28px;padding:56px;text-align:center}
+.band h2{font-size:38px;font-weight:700;letter-spacing:-.02em}
+.band p{font-size:18px;opacity:.7;margin:12px auto 26px;max-width:520px}
+
+/* footer */
+footer{background:var(--panel);border-top:.5px solid var(--sep);padding:56px 0 30px;margin-top:8px}
+.fgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}
+.fcol h4{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2);margin-bottom:14px}
+.fcol a{display:block;font-size:14px;color:var(--ink-2);padding:5px 0}
+.fcol a:hover{color:var(--blue)}
+.fabout{font-size:14px;color:var(--ink-2);line-height:1.6;max-width:280px;margin-top:12px}
+.fbot{border-top:.5px solid var(--sep);margin-top:36px;padding-top:22px;display:flex;justify-content:space-between;font-size:13px;color:var(--ink-3);flex-wrap:wrap;gap:8px}
+.ph{color:#B85C00;background:#FFF4E5;padding:0 5px;border-radius:4px;font-size:.92em}
+
+.note{max-width:1120px;margin:26px auto 0;padding:0 24px}
+.note div{background:var(--blue-050);border-left:3px solid var(--blue);border-radius:0 12px 12px 0;padding:14px 18px;font-size:13.5px;color:var(--ink-2);line-height:1.55}
+.note b{color:var(--ink)}
+@media(max-width:900px){.cards3,.tiers{grid-template-columns:1fr}.qual{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr 1fr}.hero h1{font-size:40px}.sec-h h2{font-size:30px}.menu{display:none}}
+</style></head><body>
+
+<!-- utility -->
+<div class="util"><div class="wrap"><span>✉ <span class="ph">hello@foodraksha.com</span></span><span>✆ <span class="ph">+91 XXXXX XXXXX</span></span><span class="sp"><a href="#">Contact</a><a href="#">Facebook</a><a href="#">Instagram</a></span></div></div>
+
+<!-- nav -->
+<div class="nav"><div class="wrap">
+  <div class="logo">
+    <svg width="26" height="29" viewBox="0 0 120 132"><path d="M24 26 Q24 18 32 18 L88 18 Q96 18 96 26 L96 64 Q96 96 60 116 Q24 96 24 64 Z" fill="#39A935"/><path d="M33 31 Q33 25 39 25 L81 25 Q87 25 87 31 L87 63 Q87 89 60 105 Q33 89 33 63 Z" fill="#fff"/><g stroke="#247BC7" stroke-width="8" stroke-linecap="round" fill="none"><path d="M50 40 L50 84"/><path d="M50 44 Q66 36 78 40"/><path d="M50 60 Q62 54 71 57"/></g></svg>
+    <span class="wm">Food Raksha</span>
+  </div>
+  <div class="menu"><a>Home</a><a>About</a><a>Services</a><a>Membership</a><a>Enrollment</a><a>Explore</a></div>
+  <div class="nav-cta"><a class="btn btn-ghost btn-sm">Login</a><a class="btn btn-blue btn-sm">Book Now</a></div>
+</div></div>
+
+<!-- hero -->
+<header class="hero"><div class="wrap">
+  <div class="kicker">FSSAI Licensing, Done Right</div>
+  <h1>Your food licence, <span class="b">without</span> the <span class="g">headache</span>.</h1>
+  <p>Tell us about your business — our experts identify the right licence, prepare every document, and file it for you. Fair prices, no runaround.</p>
+  <div class="cta"><a class="btn btn-blue btn-lg">Book a free consultation</a><a class="link-arrow">See pricing ›</a></div>
+  <div class="trust">
+    <div class="t"><span class="dot"></span><b>35+ years</b> experience</div>
+    <div class="t"><span class="dot"></span><b>120+</b> experts</div>
+    <div class="t"><span class="dot"></span>Filed in <b>24 hours</b></div>
+    <div class="t"><span class="dot"></span><b>100%</b> confidential</div>
+  </div>
+</div></header>
+
+<!-- action cards -->
+<section class="sec"><div class="wrap">
+  <div class="sec-h"><h2>What do you need <span class="b">today</span>?</h2><p>Three ways we help — pick yours and we'll take it from there.</p></div>
+  <div class="cards3">
+    <div class="acard"><div class="ico i-blue">✎</div><h3>New Application</h3><p>Get your FSSAI licence done. We handle the paperwork and get it processed — fair prices, no runaround.</p><a class="link-arrow">Get started ›</a></div>
+    <div class="acard"><div class="ico i-green">⟳</div><h3>Modification</h3><p>Need to change something on your licence? We handle modifications and get it sorted quickly.</p><a class="link-arrow">Modify licence ›</a></div>
+    <div class="acard"><div class="ico i-blue">↻</div><h3>Renewal</h3><p>Licence renewal coming up? We take care of it so you stay compliant, hassle-free.</p><a class="link-arrow">Renew now ›</a></div>
+  </div>
+</div></section>
+
+<!-- qualifier / lead -->
+<section class="sec"><div class="wrap">
+  <div class="qual">
+    <div>
+      <div class="kicker" style="color:#fff;opacity:.8">Not sure which licence?</div>
+      <h2>Find out in 10 seconds.</h2>
+      <p>Answer two questions and we'll tell you exactly which FSSAI licence you need, what it costs, and how fast we can file it — then a specialist calls you back.</p>
+    </div>
+    <div class="qbox">
+      <div class="field"><label>Annual turnover</label><select class="inp"><option>Up to ₹1.5 crore</option><option>₹1.5 – 50 crore</option><option>Above ₹50 crore</option></select></div>
+      <div class="field"><label>Business type</label><select class="inp"><option>Restaurant / Café</option><option>Manufacturer</option><option>Trader / Retailer</option><option>Cloud kitchen</option><option>Transporter</option></select></div>
+      <div class="qresult">✓ You need a <b>State Licence</b> — from ₹2,999 + govt fee · ready in ~7 days</div>
+      <div class="field"><label>Mobile number</label><input class="inp" placeholder="Enter your 10-digit number"></div>
+      <a class="btn btn-blue" style="width:100%">Get my free callback</a>
+    </div>
+  </div>
+</div></section>
+
+<!-- pricing -->
+<section class="sec alt"><div class="wrap">
+  <div class="sec-h"><h2>The right plan for your <span class="b">food licence</span></h2><p>Transparent pricing. Government fee shown separately. EMI available.</p></div>
+  <div class="tiers">
+    <div class="tier"><h3>Starter</h3><div class="desc">Ideal for basic food licence customers.</div><div class="price">₹699 <small>+ Govt Fee</small></div><ul><li>15-min call with a licence expert</li><li>Right licence type selected for you</li><li>Application filed in 24 hours</li></ul><a class="btn btn-soft" style="width:100%">Choose Starter</a></div>
+    <div class="tier"><h3>Standard</h3><div class="desc">For businesses with compliance needs.</div><div class="price"><s>₹4,999</s>₹2,999 <small>+ Govt Fee</small></div><ul><li>Everything in Starter</li><li>99% faster approval</li><li>Priority document handling</li></ul><a class="btn btn-soft" style="width:100%">Choose Standard</a></div>
+    <div class="tier reco"><div class="badge">Recommended</div><h3>Elite</h3><div class="desc">Brand protection + faster approvals.</div><div class="price"><s>₹6,999</s>₹3,999 <small>+ Govt Fee</small></div><ul><li>Everything in Standard</li><li>GST registration + 1 year filing</li><li>Trademark registration</li></ul><a class="btn btn-blue" style="width:100%">Choose Elite</a></div>
+  </div>
+</div></section>
+
+<!-- clients -->
+<section class="sec"><div class="wrap">
+  <div class="sec-h"><h2>Trusted by <span class="g">growing</span> food businesses</h2></div>
+  <div class="logos"><span>Dr Agarwals</span><span>Karim's</span><span>Marine Lifesciences</span><span>Criticam</span><span>Vinati Organics</span><span>Smayan</span></div>
+</div></section>
+
+<!-- cta band -->
+<section class="sec"><div class="wrap">
+  <div class="band">
+    <h2>Ready to get licensed?</h2>
+    <p>Talk to a compliance specialist today. Clear guidance on your category, documents, and timeline — free.</p>
+    <a class="btn btn-green btn-lg">Book your free consultation</a>
+  </div>
+</div></section>
+
+<!-- footer -->
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div class="fcol">
+      <div class="logo"><svg width="24" height="26" viewBox="0 0 120 132"><path d="M24 26 Q24 18 32 18 L88 18 Q96 18 96 26 L96 64 Q96 96 60 116 Q24 96 24 64 Z" fill="#39A935"/><path d="M33 31 Q33 25 39 25 L81 25 Q87 25 87 31 L87 63 Q87 89 60 105 Q33 89 33 63 Z" fill="#F5F5F7"/><g stroke="#247BC7" stroke-width="8" stroke-linecap="round" fill="none"><path d="M50 40 L50 84"/><path d="M50 44 Q66 36 78 40"/><path d="M50 60 Q62 54 71 57"/></g></svg><span class="wm">Food Raksha</span></div>
+      <p class="fabout">35+ years of experience in food handler and food manager training and compliance. Good work, fair price.</p>
+    </div>
+    <div class="fcol"><h4>Services</h4><a>New Application</a><a>Modification</a><a>Renewal</a><a>Membership</a><a>FSSAI Enrollment</a></div>
+    <div class="fcol"><h4>Company</h4><a>About</a><a>Explore More</a><a>Blog</a><a>FAQ</a><a>Reviews</a></div>
+    <div class="fcol"><h4>Contact</h4><a class="ph">[Office address]</a><a class="ph">[Phone]</a><a class="ph">[Email]</a><a>Mon–Sat, 9 AM – 6 PM IST</a></div>
+  </div>
+  <div class="fbot"><span>© 2026 Food Raksha. All rights reserved.</span><span>Privacy Policy · Terms</span></div>
+</div></footer>
+
+<div class="note"><div><b>Design language:</b> Apple's structure — SF Pro type, 980px capsule buttons, translucent blurred nav, soft-shadow cards that lift on hover, generous whitespace — in Food Raksha <b style="color:#247BC7">blue</b> and <b style="color:#2E8A2B">green</b>. Green signals "safe / done", blue drives the actions. The old site's rainbow condensed headings are refined into Apple-style restraint. Contact details in <span class="ph">amber</span> are placeholders awaiting your real ones. Logo is a clean interpretation — swap in the official vector.</div></div>
+
+</body></html>

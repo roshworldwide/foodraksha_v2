@@ -1,29 +1,19 @@
-import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { formatInr, type Plan } from "@/lib/marketing/qualifier";
 import { ButtonLink } from "./Button";
 
 /**
- * A pricing / licence-tier card. Used on the pricing strip and the qualifier
- * result. The featured tier gets a blue ring and a "Recommended" flag.
+ * A service-plan pricing card (Starter / Standard / Elite). The featured plan
+ * gets a blue ring and a "Recommended" badge. Prices are real; the government
+ * fee is shown as a separate suffix, never baked in.
  */
 export function TierCard({
-  name,
-  priceFrom,
-  timeline,
-  summary,
-  features,
-  featured = false,
+  plan,
   ctaLabel = "Get started",
   ctaHref = "/book",
   className,
 }: {
-  name: string;
-  /** e.g. "from ₹4,999". */
-  priceFrom: string;
-  timeline: string;
-  summary: string;
-  features?: string[];
-  featured?: boolean;
+  plan: Plan;
   ctaLabel?: string;
   ctaHref?: string;
   className?: string;
@@ -31,71 +21,61 @@ export function TierCard({
   return (
     <div
       className={cn(
-        "relative flex flex-col rounded-fr-card border bg-fr-bg p-6",
-        featured
+        "relative flex flex-col rounded-fr-card border bg-fr-bg p-7",
+        plan.featured
           ? "border-transparent shadow-fr-lift ring-2 ring-fr-blue"
           : "border-fr-sep shadow-fr-soft",
         className,
       )}
     >
-      {featured && (
-        <span className="absolute -top-3 left-6 rounded-pill bg-fr-blue px-3 py-1 text-[12px] font-semibold text-white">
+      {plan.featured && (
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-pill bg-fr-blue px-3.5 py-1 text-[12px] font-bold whitespace-nowrap text-white">
           Recommended
         </span>
       )}
-      <h3 className="text-title-3 text-fr-ink">{name}</h3>
-      <p className="mt-2 flex items-baseline gap-1.5">
-        <span className="text-title-1 font-bold tracking-[-0.02em] text-fr-ink">
-          {priceFrom}
+      <h3 className="text-title-3 text-fr-ink">{plan.name}</h3>
+      <p className="mt-1 min-h-[38px] text-[14px] text-fr-ink-2">{plan.desc}</p>
+
+      <p className="mt-1 flex items-baseline gap-1.5">
+        {plan.wasPrice && (
+          <span className="text-[16px] font-medium text-fr-ink-3 line-through">
+            {formatInr(plan.wasPrice)}
+          </span>
+        )}
+        <span className="text-[38px] font-bold tracking-[-0.02em] text-fr-ink">
+          {formatInr(plan.price)}
+        </span>
+        <span className="text-[14px] font-medium text-fr-ink-2">
+          {plan.suffix}
         </span>
       </p>
-      <p className="mt-1 text-[14px] text-fr-ink-2">{timeline}</p>
-      <p className="mt-3 text-[15px] leading-relaxed text-fr-ink-2">
-        {summary}
-      </p>
 
-      {features && features.length > 0 && (
-        <ul className="mt-5 flex flex-col gap-2.5">
-          {features.map((feature) => (
-            <li
-              key={feature}
-              className="flex items-start gap-2.5 text-[15px] text-fr-ink"
+      <ul className="mt-5 mb-6 flex flex-col">
+        {plan.features.map((feature) => (
+          <li
+            key={feature}
+            className="relative border-t-[0.5px] border-fr-sep py-2 pl-7 text-[14px] text-fr-ink"
+          >
+            <span
+              aria-hidden="true"
+              className="absolute top-2 left-0 font-bold text-fr-green"
             >
-              <CheckIcon />
-              <span>{feature}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+              ✓
+            </span>
+            {feature}
+          </li>
+        ))}
+      </ul>
 
-      <div className="mt-6 pt-2">
+      <div className="mt-auto">
         <ButtonLink
           href={ctaHref}
-          variant={featured ? "blue" : "soft"}
+          variant={plan.featured ? "blue" : "soft"}
           fullWidth
         >
           {ctaLabel}
         </ButtonLink>
       </div>
     </div>
-  );
-}
-
-function CheckIcon(): ReactNode {
-  return (
-    <svg
-      viewBox="0 0 20 20"
-      fill="none"
-      aria-hidden="true"
-      className="mt-0.5 size-[18px] shrink-0 text-fr-green"
-    >
-      <path
-        d="M4 10.5 8 14.5 16 6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

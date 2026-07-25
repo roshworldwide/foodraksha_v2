@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/cn";
 import {
-  formatPriceFrom,
+  BUSINESS_TYPES,
+  formatInr,
   licenceForBand,
-  licenceInfo,
+  recommend,
   TURNOVER_BANDS,
   type TurnoverBand,
 } from "@/lib/marketing/qualifier";
@@ -18,23 +19,30 @@ interface FieldErrors {
 }
 
 /**
- * The website's lead capture — the qualifier. Pick a turnover band and see the
- * likely licence + price instantly, then leave a mobile number for a callback.
- * Posts to /api/public/lead, which drops the enquiry into the CRM's Website
- * Enquiries inbox. No account, no credentials — the team converts these by hand.
+ * The website's lead capture — the qualifier. Pick turnover + business type and
+ * see the licence you need, the plan price and the timeline instantly, then
+ * leave a number for a callback. Posts to /api/public/lead, landing in the
+ * CRM's Website Enquiries inbox. No account, no credentials — the team converts
+ * these by hand.
  */
 export function LeadForm({
   /** Tags the lead, e.g. "New FSSAI licence" or "Renewal". */
   serviceInterest,
   /** Show the turnover → licence qualifier readout. */
   qualifier = true,
+  /** Compact = hero variant: drops the city and message fields. */
+  compact = false,
   /** Optional heading shown above the fields. */
   title,
+  /** Submit button style — the hero uses blue, standalone pages green. */
+  submitVariant = "green",
   className,
 }: {
   serviceInterest?: string;
   qualifier?: boolean;
+  compact?: boolean;
   title?: string;
+  submitVariant?: "blue" | "green";
   className?: string;
 }) {
   const params = useSearchParams();
@@ -44,7 +52,7 @@ export function LeadForm({
   const [formError, setFormError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
 
-  const licence = turnover ? licenceInfo(licenceForBand(turnover)) : null;
+  const rec = turnover ? recommend(licenceForBand(turnover)) : null;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -121,7 +129,7 @@ export function LeadForm({
         </div>
         <h3 className="mt-4 text-title-3 text-fr-ink">You&rsquo;re all set</h3>
         <p className="mx-auto mt-2 max-w-[360px] text-[15px] leading-relaxed text-fr-ink-2">
-          Thanks — we&rsquo;ve got your details and a FoodRaksha adviser will
+          Thanks — we&rsquo;ve got your details and a Food Raksha adviser will
           call you back shortly to take it from here.
         </p>
       </div>
@@ -133,7 +141,7 @@ export function LeadForm({
       onSubmit={onSubmit}
       noValidate
       className={cn(
-        "rounded-fr-card border-[0.5px] border-fr-sep bg-fr-bg p-6 shadow-fr-soft sm:p-7",
+        "rounded-[20px] border-[0.5px] border-fr-sep bg-fr-bg p-6 shadow-fr-lift sm:p-7",
         className,
       )}
     >
@@ -163,24 +171,34 @@ export function LeadForm({
           </Field>
         )}
 
-        {qualifier && licence && (
+        <Field
+          htmlFor="businessType"
+          label="Business type"
+          error={errors.businessType}
+        >
+          <Select id="businessType" name="businessType" defaultValue="">
+            <option value="" disabled>
+              Select business type…
+            </option>
+            {BUSINESS_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </Select>
+        </Field>
+
+        {qualifier && rec && (
           <div
             aria-live="polite"
-            className="rounded-input border-[0.5px] border-fr-blue/25 bg-fr-blue-050 px-4 py-3.5"
+            className="rounded-input border border-fr-green/25 bg-fr-green-050 px-4 py-3 text-[14px] font-semibold text-fr-green-deep"
           >
-            <p className="text-[13px] font-semibold tracking-[0.02em] text-fr-blue-deep uppercase">
-              You&rsquo;ll likely need
-            </p>
-            <p className="mt-1 text-[17px] font-semibold text-fr-ink">
-              {licence.name}{" "}
-              <span className="font-normal text-fr-ink-2">
-                · {formatPriceFrom(licence.kind)} · {licence.timeline}
-              </span>
-            </p>
+            ✓ You need a <span className="text-fr-ink">{rec.licence.name}</span>{" "}
+            — from {formatInr(rec.plan.price)} + govt fee · {rec.timeline}
           </div>
         )}
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className={cn("grid gap-4", !compact && "sm:grid-cols-2")}>
           <Field htmlFor="name" label="Your name" error={errors.name}>
             <Input
               id="name"
@@ -196,53 +214,43 @@ export function LeadForm({
               type="tel"
               inputMode="numeric"
               autoComplete="tel"
-              placeholder="98450 21764"
+              placeholder="Your 10-digit number"
             />
           </Field>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field
-            htmlFor="businessType"
-            label="Kind of business"
-            error={errors.businessType}
-          >
-            <Input
-              id="businessType"
-              name="businessType"
-              placeholder="Restaurant, bakery, trader…"
-            />
-          </Field>
-          <Field htmlFor="city" label="City" error={errors.city}>
-            <Input
-              id="city"
-              name="city"
-              autoComplete="address-level2"
-              placeholder="City"
-            />
-          </Field>
-        </div>
+        {!compact && (
+          <>
+            <Field htmlFor="city" label="City (optional)" error={errors.city}>
+              <Input
+                id="city"
+                name="city"
+                autoComplete="address-level2"
+                placeholder="City"
+              />
+            </Field>
+            <Field
+              htmlFor="message"
+              label="Anything else? (optional)"
+              error={errors.message}
+            >
+              <Textarea
+                id="message"
+                name="message"
+                placeholder="Tell us briefly about your business or what you need."
+              />
+            </Field>
+          </>
+        )}
 
-        <Field
-          htmlFor="message"
-          label="Anything else? (optional)"
-          error={errors.message}
-        >
-          <Textarea
-            id="message"
-            name="message"
-            placeholder="Tell us briefly about your business or what you need."
-          />
-        </Field>
-
-        <label className="flex items-start gap-2.5 text-[14px] text-fr-ink-2">
+        <label className="flex items-start gap-2.5 text-[13px] text-fr-ink-2">
           <input
             type="checkbox"
             name="consent"
             className="mt-0.5 size-[18px] shrink-0 accent-fr-blue"
           />
           <span>
-            I agree to be contacted by FoodRaksha about my enquiry, and to the{" "}
+            I agree to be contacted about my enquiry, and to the{" "}
             <a href="/privacy" className="font-semibold text-fr-blue underline">
               privacy policy
             </a>
@@ -250,10 +258,7 @@ export function LeadForm({
           </span>
         </label>
         {errors.consent && (
-          <p
-            role="alert"
-            className="text-[13px] font-medium text-fr-green-deep"
-          >
+          <p role="alert" className="text-[13px] font-medium text-fr-blue-deep">
             {errors.consent}
           </p>
         )}
@@ -261,7 +266,7 @@ export function LeadForm({
         {formError && (
           <p
             role="alert"
-            className="rounded-input bg-fr-green-050 px-4 py-3 text-[14px] font-medium text-fr-green-deep"
+            className="rounded-input bg-fr-blue-050 px-4 py-3 text-[14px] font-medium text-fr-blue-deep"
           >
             {formError}
           </p>
@@ -269,15 +274,15 @@ export function LeadForm({
 
         <Button
           type="submit"
-          variant="green"
+          variant={submitVariant}
           size="lg"
           fullWidth
           disabled={status === "submitting"}
         >
-          {status === "submitting" ? "Sending…" : "Request a callback"}
+          {status === "submitting" ? "Sending…" : "Get my free callback"}
         </Button>
         <p className="text-center text-[13px] text-fr-ink-3">
-          No payment now. A FoodRaksha adviser will call you back.
+          No payment now. A Food Raksha adviser will call you back.
         </p>
       </div>
     </form>

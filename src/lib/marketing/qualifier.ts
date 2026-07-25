@@ -1,10 +1,16 @@
 /**
- * The licence qualifier — the single source of truth that turns a business's
- * turnover into the FSSAI licence it needs, and the indicative price + timeline
- * we quote for it. Reused by the hero qualifier, the Book Appointment page and
- * every "which licence do I need?" spot. Pure and tested.
+ * The licence qualifier and the service pricing — one source of truth, reused
+ * by the hero qualifier, the pricing section, /book and every "which licence?"
+ * spot. Pure and tested.
  *
- * Turnover → licence thresholds (as briefed):
+ * Two separate things:
+ *  1. Which FSSAI LICENCE a business needs — decided by turnover (a real
+ *     government rule).
+ *  2. Which FoodRaksha SERVICE PLAN they buy — Starter / Standard / Elite,
+ *     independent of licence type. Prices are real (docs/CONTACT.md,
+ *     docs/Website-Structure-Teardown.md).
+ *
+ * Turnover → licence thresholds:
  *   ≤ ₹1.5 crore        → Basic Registration
  *   ₹1.5 crore – ₹50 cr → State Licence
  *   > ₹50 crore         → Central Licence
@@ -12,10 +18,7 @@
 
 export type LicenceKind = "BASIC" | "STATE" | "CENTRAL";
 
-/**
- * The one function. Everything else is a lookup off its result.
- * Boundaries: exactly ₹1.5cr is Basic; exactly ₹50cr is State.
- */
+/** The one licence function. Boundaries: exactly ₹1.5cr is Basic; ₹50cr is State. */
 export function licenceForTurnoverCrore(
   annualTurnoverCrore: number,
 ): LicenceKind {
@@ -28,62 +31,50 @@ export function licenceForTurnoverCrore(
 export const TURNOVER_BANDS = [
   { value: "up_to_1_5cr", label: "Up to ₹1.5 crore", crore: 1 },
   { value: "1_5cr_to_50cr", label: "₹1.5 crore – ₹50 crore", crore: 25 },
-  { value: "over_50cr", label: "Over ₹50 crore", crore: 60 },
+  { value: "over_50cr", label: "Above ₹50 crore", crore: 60 },
 ] as const;
 
 export type TurnoverBand = (typeof TURNOVER_BANDS)[number]["value"];
 
 export function licenceForBand(band: TurnoverBand | string): LicenceKind {
   const found = TURNOVER_BANDS.find((b) => b.value === band);
-  // An unknown band is treated as the safest broad default rather than throwing
-  // in a form handler; callers validate the band with Zod before this.
   return licenceForTurnoverCrore(found?.crore ?? 25);
 }
 
-/**
- * Indicative price + timeline per licence.
- *
- * ⚠️ PLACEHOLDER: the real figures come from docs/Website-Structure-Teardown.md,
- * which does not exist yet. These are indicative round numbers so the qualifier
- * has something to show; swap them and set PRICING_IS_PLACEHOLDER = false when
- * the teardown arrives. Prices are professional-fee "from" figures, exclusive
- * of government fees.
- */
-export const PRICING_IS_PLACEHOLDER = true;
+/** Business types offered in the qualifier — for context, not for the licence rule. */
+export const BUSINESS_TYPES = [
+  "Restaurant / Café",
+  "Manufacturer",
+  "Trader / Retailer",
+  "Cloud kitchen",
+  "Transporter",
+  "Importer / Exporter",
+  "Other",
+] as const;
+
+/* ─────────────────────────────────────────────────── licence info */
 
 export interface LicenceInfo {
   kind: LicenceKind;
   name: string;
-  /** Professional fee, indicative "from", in whole rupees. */
-  priceFromInr: number;
-  timeline: string;
-  summary: string;
+  whoFor: string;
 }
 
 export const LICENCE_INFO: Record<LicenceKind, LicenceInfo> = {
   BASIC: {
     kind: "BASIC",
     name: "Basic Registration",
-    priceFromInr: 1499,
-    timeline: "3–7 working days",
-    summary:
-      "For small food businesses up to ₹12 lakh turnover — the entry-level FSSAI registration.",
+    whoFor: "small food businesses, turnover up to ₹1.5 crore",
   },
   STATE: {
     kind: "STATE",
     name: "State Licence",
-    priceFromInr: 4999,
-    timeline: "20–30 working days",
-    summary:
-      "For mid-sized businesses operating within one state — restaurants, manufacturers and traders.",
+    whoFor: "businesses operating within one state, ₹1.5–50 crore",
   },
   CENTRAL: {
     kind: "CENTRAL",
     name: "Central Licence",
-    priceFromInr: 9999,
-    timeline: "30–45 working days",
-    summary:
-      "For large operations, importers, exporters and multi-state businesses.",
+    whoFor: "large, multi-state, import/export businesses over ₹50 crore",
   },
 };
 
@@ -91,21 +82,111 @@ export function licenceInfo(kind: LicenceKind): LicenceInfo {
   return LICENCE_INFO[kind];
 }
 
+/* ─────────────────────────────────────────────────── service plans */
+
+export interface Plan {
+  id: "starter" | "standard" | "elite";
+  name: string;
+  /** Whole rupees, professional fee (government fee separate). */
+  price: number;
+  /** Previous price, struck through. */
+  wasPrice?: number;
+  suffix: string;
+  desc: string;
+  features: string[];
+  featured: boolean;
+}
+
+/** Real pricing (confirmed from docs/CONTACT.md · docs/Website-Structure-Teardown.md). */
+export const PRICING_IS_PLACEHOLDER = false;
+
+export const PLANS: Plan[] = [
+  {
+    id: "starter",
+    name: "Starter",
+    price: 699,
+    suffix: "+ Govt Fee",
+    desc: "Ideal for basic food licence customers.",
+    features: [
+      "15-min call with a licence expert",
+      "Right licence type selected for you",
+      "Application filed in 24 hours",
+    ],
+    featured: false,
+  },
+  {
+    id: "standard",
+    name: "Standard",
+    price: 2999,
+    wasPrice: 4999,
+    suffix: "+ Govt Fee",
+    desc: "For businesses with compliance needs.",
+    features: [
+      "Everything in Starter",
+      "99% faster approval",
+      "Priority document handling",
+    ],
+    featured: false,
+  },
+  {
+    id: "elite",
+    name: "Elite",
+    price: 3999,
+    wasPrice: 6999,
+    suffix: "+ Govt Fee",
+    desc: "Brand protection + faster approvals.",
+    features: [
+      "Everything in Standard",
+      "GST registration + 1 year filing",
+      "Trademark registration",
+    ],
+    featured: true,
+  },
+];
+
+/** Membership plans (from the Enrollment flow — Stage 2). */
+export const MEMBERSHIP_PLANS = [
+  { name: "Gold", price: 3000 },
+  { name: "Platinum", price: 6000 },
+  { name: "Diamond", price: 9000 },
+] as const;
+
+/* ────────────────────────────────────── licence → recommendation */
+
+export interface Recommendation {
+  licence: LicenceInfo;
+  /** The entry plan we suggest for this licence. */
+  plan: Plan;
+  /** Indicative filing/approval timeline. */
+  timeline: string;
+}
+
+const RECOMMENDATION: Record<
+  LicenceKind,
+  { planId: Plan["id"]; timeline: string }
+> = {
+  BASIC: { planId: "starter", timeline: "filed in 24 hours" },
+  STATE: { planId: "standard", timeline: "ready in ~7 days" },
+  CENTRAL: { planId: "elite", timeline: "ready in ~15 days" },
+};
+
+/** Given a licence, the plan + timeline the qualifier shows. */
+export function recommend(kind: LicenceKind): Recommendation {
+  const rec = RECOMMENDATION[kind];
+  const plan = PLANS.find((p) => p.id === rec.planId);
+  if (!plan) throw new Error(`No plan for ${kind}`);
+  return { licence: LICENCE_INFO[kind], plan, timeline: rec.timeline };
+}
+
+/* ─────────────────────────────────────────────────── formatting */
+
 const INR = new Intl.NumberFormat("en-IN", {
   style: "currency",
   currency: "INR",
   maximumFractionDigits: 0,
 });
 
-/** "from ₹1,499" — the way a price is quoted on the site. */
-export function formatPriceFrom(kind: LicenceKind): string {
-  return `from ${INR.format(LICENCE_INFO[kind].priceFromInr)}`;
-}
-
-// One quiet build-time note so nobody ships placeholder pricing unknowingly.
-if (PRICING_IS_PLACEHOLDER && typeof window === "undefined") {
-  console.warn(
-    "\n⚠️  [marketing/qualifier] Using PLACEHOLDER pricing — docs/Website-Structure-Teardown.md is missing.\n" +
-      "    Update LICENCE_INFO in src/lib/marketing/qualifier.ts and set PRICING_IS_PLACEHOLDER = false before launch.\n",
-  );
+/** "₹2,999". */
+export function formatInr(amount: number): string {
+  return INR.format(amount);
 }

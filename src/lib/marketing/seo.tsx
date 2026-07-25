@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { env } from "@/lib/env";
-import { CONTACT, CONTACT_IS_PLACEHOLDER, fullAddress } from "./contact";
+import { CONTACT, CONTACT_IS_PLACEHOLDER } from "./contact";
 
-const SITE_NAME = "FoodRaksha";
+const SITE_NAME = "Food Raksha";
 const DEFAULT_DESCRIPTION =
   "FSSAI licensing made simple. FoodRaksha prepares and files every form for you — Basic Registration, State and Central Licence, renewals and annual returns.";
 
@@ -68,13 +68,10 @@ export function organizationJsonLd(): Record<string, unknown> {
     if (CONTACT.phoneHref) base.telephone = CONTACT.phoneHref;
     base.address = {
       "@type": "PostalAddress",
-      streetAddress: CONTACT.addressLine,
-      addressLocality: CONTACT.city,
-      addressRegion: CONTACT.state,
-      postalCode: CONTACT.pincode,
+      streetAddress: CONTACT.address,
       addressCountry: "IN",
     };
-    base.description = `${DEFAULT_DESCRIPTION} ${fullAddress()}`;
+    base.openingHours = CONTACT.hours;
   }
 
   return base;

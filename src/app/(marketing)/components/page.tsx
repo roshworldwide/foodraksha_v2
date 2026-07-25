@@ -13,14 +13,10 @@ import {
 } from "@/components/marketing/primitives";
 import { TierCard } from "@/components/marketing/TierCard";
 import { CONTACT_IS_PLACEHOLDER } from "@/lib/marketing/contact";
-import {
-  formatPriceFrom,
-  LICENCE_INFO,
-  PRICING_IS_PLACEHOLDER,
-} from "@/lib/marketing/qualifier";
+import { PLANS } from "@/lib/marketing/qualifier";
 
 export const metadata: Metadata = {
-  title: "Components — FoodRaksha Website",
+  title: "Components — Food Raksha Website",
   robots: { index: false, follow: false },
 };
 
@@ -35,13 +31,13 @@ export default function ComponentsPreview() {
         lede="Every marketing primitive, in the blue/green Apple theme. This page is noindex."
       />
 
-      {(CONTACT_IS_PLACEHOLDER || PRICING_IS_PLACEHOLDER) && (
-        <div className="mt-8 rounded-fr-card border-[0.5px] border-fr-blue/30 bg-fr-blue-050 p-5 text-[14px] text-fr-ink">
-          <strong className="font-semibold">Placeholder data in use.</strong>{" "}
-          {CONTACT_IS_PLACEHOLDER &&
-            "Contact details are [PLACEHOLDER] (docs/CONTACT.md missing). "}
-          {PRICING_IS_PLACEHOLDER &&
-            "Pricing is indicative placeholder (docs/Website-Structure-Teardown.md missing)."}
+      {CONTACT_IS_PLACEHOLDER && (
+        <div className="mt-8 rounded-fr-card border-[0.5px] border-[#F0C98A] bg-[#FFF4E5] p-5 text-[14px] text-fr-ink">
+          <strong className="font-semibold">
+            Placeholder contact details.
+          </strong>{" "}
+          Phone, email and address are awaiting the client&rsquo;s real values
+          (docs/CONTACT.md). Pricing is real.
         </div>
       )}
 
@@ -144,15 +140,12 @@ export default function ComponentsPreview() {
       </Section>
 
       <Section title="Tier / pricing cards">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {(["BASIC", "STATE", "CENTRAL"] as const).map((kind) => (
+        <div className="grid items-start gap-6 md:grid-cols-3">
+          {PLANS.map((plan) => (
             <TierCard
-              key={kind}
-              name={LICENCE_INFO[kind].name}
-              priceFrom={formatPriceFrom(kind)}
-              timeline={LICENCE_INFO[kind].timeline}
-              summary={LICENCE_INFO[kind].summary}
-              featured={kind === "STATE"}
+              key={plan.id}
+              plan={plan}
+              ctaLabel={`Choose ${plan.name}`}
             />
           ))}
         </div>

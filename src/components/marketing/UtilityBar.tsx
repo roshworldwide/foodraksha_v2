@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { CONTACT } from "@/lib/marketing/contact";
+import { CONTACT, isPlaceholder } from "@/lib/marketing/contact";
+import { Placeholder } from "./primitives";
 
 /** The thin top strip: contact shortcuts and social, Apple-clean and subtle. */
 export function UtilityBar() {
@@ -8,29 +9,40 @@ export function UtilityBar() {
     string,
   ][];
 
+  const emailIsPh = isPlaceholder(CONTACT.email);
+  const phoneIsPh = isPlaceholder(CONTACT.phoneDisplay);
+
   return (
     <div className="hidden border-b-[0.5px] border-fr-sep bg-fr-panel text-fr-ink-2 md:block">
-      <div className="mx-auto flex h-9 max-w-[1200px] items-center justify-between gap-6 px-6 text-[13px]">
-        <div className="flex items-center gap-5">
-          <a
-            href={`mailto:${CONTACT.email}`}
-            className="transition-colors hover:text-fr-ink"
-          >
-            {CONTACT.email}
-          </a>
-          {CONTACT.phoneHref ? (
+      <div className="mx-auto flex h-[38px] max-w-[1120px] items-center gap-[18px] px-6 text-[13px]">
+        <span className="flex items-center gap-1.5">
+          <span aria-hidden="true">✉</span>
+          {emailIsPh ? (
+            <Placeholder>{CONTACT.email}</Placeholder>
+          ) : (
+            <a
+              href={`mailto:${CONTACT.email}`}
+              className="transition-colors hover:text-fr-ink"
+            >
+              {CONTACT.email}
+            </a>
+          )}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span aria-hidden="true">✆</span>
+          {phoneIsPh || !CONTACT.phoneHref ? (
+            <Placeholder>{CONTACT.phoneDisplay}</Placeholder>
+          ) : (
             <a
               href={`tel:${CONTACT.phoneHref}`}
               className="transition-colors hover:text-fr-ink"
             >
               {CONTACT.phoneDisplay}
             </a>
-          ) : (
-            <span>{CONTACT.phoneDisplay}</span>
           )}
-        </div>
-        <div className="flex items-center gap-5">
-          <Link href="/contact" className="transition-colors hover:text-fr-ink">
+        </span>
+        <div className="ml-auto flex items-center gap-3.5">
+          <Link href="/book" className="transition-colors hover:text-fr-ink">
             Contact
           </Link>
           {socials.map(([name, href]) => (

@@ -1,75 +1,67 @@
 /**
- * Real contact details for the marketing website.
+ * Contact details for the marketing website. Source of truth: docs/CONTACT.md.
  *
- * These are the client's real values and must come from docs/CONTACT.md. That
- * file does not exist yet, so every value below is a clearly-marked
- * [PLACEHOLDER] and the build prints a warning. We never invent a phone number
- * or an address — a plausible-looking fake is worse than an obvious blank.
+ * That file now exists. Business name and office hours are real. Phone, email,
+ * address and social are still [PLACEHOLDER] — the client is supplying the real
+ * ones. We never invent a phone number or an address: a placeholder value is
+ * rendered in a clearly-marked amber pill, and the build prints a warning.
  *
- * When docs/CONTACT.md arrives: replace the values, set PLACEHOLDER = false,
- * and the warning goes away.
+ * Any value that begins with "[" is a placeholder (see isPlaceholder).
  */
 
-/** Flip to false once the real values from docs/CONTACT.md are filled in. */
+/** True while any critical contact value (phone/email/address) is a placeholder. */
 export const CONTACT_IS_PLACEHOLDER = true;
 
-const P = "[PLACEHOLDER]";
-
 export interface ContactDetails {
+  businessName: string;
   /** Public enquiries inbox. */
   email: string;
-  /** E.164 for tel: links. */
+  /** E.164 for tel: links; empty string while unknown. */
   phoneHref: string;
-  /** Human-readable, for display. */
+  /** Human-readable phone, for display. */
   phoneDisplay: string;
   /** wa.me number (digits only), or null. */
   whatsapp: string | null;
-  /** Street line. */
-  addressLine: string;
-  city: string;
-  state: string;
-  pincode: string;
-  /** Opening hours, one line. */
+  /** Single-line office address, for display. */
+  address: string;
+  /** Real, confirmed. */
   hours: string;
   social: {
-    instagram: string | null;
-    linkedin: string | null;
     facebook: string | null;
+    instagram: string | null;
+    x: string | null;
   };
 }
 
 export const CONTACT: ContactDetails = {
-  email: `${P} hello@foodraksha.in`,
-  phoneHref: "", // deliberately empty so tel: links are omitted until real
-  phoneDisplay: `${P} +91 00000 00000`,
+  businessName: "Food Raksha", // real
+  email: "[email — awaiting real address]",
+  phoneHref: "",
+  phoneDisplay: "[phone — awaiting real number]",
   whatsapp: null,
-  addressLine: `${P} street / building`,
-  city: `${P} city`,
-  state: `${P} state`,
-  pincode: `${P} 000000`,
-  hours: `${P} Mon–Sat, 10am–7pm`,
+  address: "[office address — Pune / Mumbai]",
+  hours: "Mon–Sat, 9 AM – 6 PM IST", // real (docs/CONTACT.md corrected the old "PST")
   social: {
-    instagram: null,
-    linkedin: null,
     facebook: null,
+    instagram: null,
+    x: null,
   },
 };
 
-/** Full postal address on one line, for footer / JSON-LD. */
-export function fullAddress(): string {
-  return [
-    CONTACT.addressLine,
-    CONTACT.city,
-    CONTACT.state,
-    CONTACT.pincode,
-  ].join(", ");
+/** A value the client still has to supply. */
+export function isPlaceholder(value: string): boolean {
+  return value.trim().startsWith("[");
 }
 
-// A single, loud build-time warning. Rendered server-side at build, so it lands
-// in the Vercel/`next build` log where whoever ships this will see it.
+/** Full postal address on one line, for footer / JSON-LD. */
+export function fullAddress(): string {
+  return CONTACT.address;
+}
+
+// One loud build-time warning while critical contact values are unset.
 if (CONTACT_IS_PLACEHOLDER && typeof window === "undefined") {
   console.warn(
-    "\n⚠️  [marketing/contact] Using PLACEHOLDER contact details — docs/CONTACT.md is missing.\n" +
-      "    Fill in src/lib/marketing/contact.ts and set CONTACT_IS_PLACEHOLDER = false before launch.\n",
+    "\n⚠️  [marketing/contact] docs/CONTACT.md is present, but phone / email / address are still PLACEHOLDERS.\n" +
+      "    Fill the real values in src/lib/marketing/contact.ts and set CONTACT_IS_PLACEHOLDER = false before launch.\n",
   );
 }

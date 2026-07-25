@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  LICENCE_INFO,
-  formatPriceFrom,
+  formatInr,
   licenceForBand,
   licenceForTurnoverCrore,
+  PLANS,
+  recommend,
   TURNOVER_BANDS,
 } from "./qualifier";
 
@@ -34,18 +35,37 @@ test("each band's representative value agrees with its declared licence", () => 
     over_50cr: "CENTRAL",
   };
   for (const band of TURNOVER_BANDS) {
-    assert.equal(
-      licenceForTurnoverCrore(band.crore),
-      expected[band.value],
-      `band ${band.value} (₹${band.crore}cr)`,
-    );
+    assert.equal(licenceForTurnoverCrore(band.crore), expected[band.value]);
   }
 });
 
-test("licence info exists for every kind and formats a price", () => {
-  for (const kind of ["BASIC", "STATE", "CENTRAL"] as const) {
-    assert.ok(LICENCE_INFO[kind].name.length > 0);
-    assert.ok(LICENCE_INFO[kind].timeline.length > 0);
-    assert.match(formatPriceFrom(kind), /^from ₹[\d,]+$/);
-  }
+test("recommend() maps each licence to its entry plan, price and timeline", () => {
+  const basic = recommend("BASIC");
+  assert.equal(basic.licence.name, "Basic Registration");
+  assert.equal(basic.plan.id, "starter");
+  assert.equal(basic.plan.price, 699);
+
+  const state = recommend("STATE");
+  assert.equal(state.plan.id, "standard");
+  assert.equal(state.plan.price, 2999);
+  assert.match(state.timeline, /days/);
+
+  const central = recommend("CENTRAL");
+  assert.equal(central.plan.id, "elite");
+  assert.equal(central.plan.price, 3999);
+});
+
+test("service plans carry the real, confirmed prices", () => {
+  const byId = Object.fromEntries(PLANS.map((p) => [p.id, p]));
+  assert.equal(byId.starter.price, 699);
+  assert.equal(byId.standard.price, 2999);
+  assert.equal(byId.standard.wasPrice, 4999);
+  assert.equal(byId.elite.price, 3999);
+  assert.equal(byId.elite.wasPrice, 6999);
+  assert.equal(byId.elite.featured, true);
+});
+
+test("formatInr renders Indian rupees without decimals", () => {
+  assert.equal(formatInr(2999), "₹2,999");
+  assert.equal(formatInr(699), "₹699");
 });

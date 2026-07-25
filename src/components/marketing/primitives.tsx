@@ -2,6 +2,21 @@ import type { ComponentPropsWithRef, ReactNode } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 
+/* ─────────────────────────────────────────────────── Placeholder */
+
+/**
+ * A clearly-marked amber pill for a value the client still has to supply
+ * (phone, address, …). Loud on purpose — a fake number is worse than an
+ * obvious blank. See lib/marketing/contact.isPlaceholder.
+ */
+export function Placeholder({ children }: { children: ReactNode }) {
+  return (
+    <span className="rounded bg-[#FFF4E5] px-1.5 py-0.5 text-[0.92em] text-[#B85C00]">
+      {children}
+    </span>
+  );
+}
+
 /* ─────────────────────────────────────────────────────── LinkArrow */
 
 /** A text link with an arrow that nudges forward on hover. */
