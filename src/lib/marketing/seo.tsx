@@ -48,6 +48,36 @@ export function pageMeta({
   };
 }
 
+/** Per-article metadata — Open Graph type "article" with dates and author. */
+export function articleMeta({
+  title,
+  description,
+  path,
+  publishedTime,
+  modifiedTime,
+  author,
+}: {
+  title: string;
+  description: string;
+  path: string;
+  publishedTime: string;
+  modifiedTime?: string;
+  author: string;
+}): Metadata {
+  const base = pageMeta({ title, description, path });
+  return {
+    ...base,
+    authors: [{ name: author }],
+    openGraph: {
+      ...base.openGraph,
+      type: "article",
+      publishedTime,
+      modifiedTime: modifiedTime ?? publishedTime,
+      authors: [author],
+    },
+  };
+}
+
 /**
  * Organization + LocalBusiness JSON-LD. While contact details are placeholders
  * we emit only what is real (name, url, logo) and omit the address and phone —

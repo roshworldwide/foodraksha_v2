@@ -97,6 +97,8 @@ export function SectionHeading({
   accentColor = "blue",
   lede,
   align = "left",
+  /** 1 renders an <h1> — use once per page, for a page hero. Default 2. */
+  level = 2,
   className,
 }: {
   eyebrow?: string;
@@ -106,6 +108,7 @@ export function SectionHeading({
   accentColor?: "blue" | "green";
   lede?: string;
   align?: "left" | "center";
+  level?: 1 | 2;
   className?: string;
 }) {
   const accentClass =
@@ -123,6 +126,8 @@ export function SectionHeading({
     );
   }
 
+  const Title = level === 1 ? "h1" : "h2";
+
   return (
     <div
       className={cn(
@@ -137,9 +142,9 @@ export function SectionHeading({
           {eyebrow}
         </p>
       )}
-      <h2 className="text-title-1 text-balance text-fr-ink sm:text-large-title">
+      <Title className="text-title-1 text-balance text-fr-ink sm:text-large-title">
         {titleNode}
-      </h2>
+      </Title>
       {lede && (
         <p className="mt-3.5 text-[18px] leading-relaxed tracking-[-0.01em] text-fr-ink-2">
           {lede}

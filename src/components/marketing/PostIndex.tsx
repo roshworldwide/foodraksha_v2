@@ -1,0 +1,102 @@
+import Link from "next/link";
+import type { PostMeta } from "@/lib/content/posts";
+import { cn } from "@/lib/cn";
+import { ArticleCard } from "./ArticleCard";
+
+/**
+ * The shared index template for the blog and FSSAI-updates engines. The
+ * category filter is link-based (?category=…), so the page stays a Server
+ * Component with no client JS.
+ */
+export function PostIndex({
+  eyebrow,
+  title,
+  accent,
+  lede,
+  posts,
+  categories,
+  base,
+  activeCategory,
+}: {
+  eyebrow: string;
+  title: string;
+  accent: string;
+  lede: string;
+  posts: PostMeta[];
+  categories: string[];
+  base: string;
+  activeCategory?: string;
+}) {
+  const [before, after] = title.split(accent);
+  const filtered = activeCategory
+    ? posts.filter((p) => p.category === activeCategory)
+    : posts;
+
+  return (
+    <div className="mx-auto max-w-[1120px] px-6 py-14">
+      <div className="max-w-[720px]">
+        <p className="text-[13px] font-semibold tracking-[0.02em] text-fr-blue uppercase">
+          {eyebrow}
+        </p>
+        <h1 className="mt-3 text-[36px] leading-[1.08] font-bold tracking-[-0.026em] text-balance text-fr-ink sm:text-[44px]">
+          {before}
+          <span className="text-fr-blue">{accent}</span>
+          {after}
+        </h1>
+        <p className="mt-4 text-[18px] leading-relaxed text-fr-ink-2">{lede}</p>
+      </div>
+
+      {categories.length > 1 && (
+        <div className="mt-8 flex flex-wrap gap-2">
+          <FilterChip href={base} active={!activeCategory}>
+            All
+          </FilterChip>
+          {categories.map((category) => (
+            <FilterChip
+              key={category}
+              href={`${base}?category=${encodeURIComponent(category)}`}
+              active={activeCategory === category}
+            >
+              {category}
+            </FilterChip>
+          ))}
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
+        <p className="mt-12 text-body text-fr-ink-2">Nothing here yet.</p>
+      ) : (
+        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((post) => (
+            <ArticleCard key={post.slug} post={post} base={base} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FilterChip({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "rounded-pill border-[0.5px] px-3.5 py-1.5 text-[14px] font-medium transition-colors",
+        active
+          ? "border-transparent bg-fr-blue text-white"
+          : "border-fr-sep bg-fr-bg text-fr-ink-2 hover:bg-fr-panel",
+      )}
+    >
+      {children}
+    </Link>
+  );
+}

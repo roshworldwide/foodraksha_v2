@@ -49,6 +49,13 @@ const nextConfig: NextConfig = {
   // so it must not be bundled.
   serverExternalPackages: ["@react-pdf/renderer"],
 
+  // The blog / FSSAI-updates MDX is read from /content at build and (for the
+  // dynamic index routes) at request time. Trace it into the server bundle so
+  // it ships to a serverless deploy.
+  outputFileTracingIncludes: {
+    "/**": ["./content/**/*.mdx"],
+  },
+
   // Do not leak the framework version.
   poweredByHeader: false,
 

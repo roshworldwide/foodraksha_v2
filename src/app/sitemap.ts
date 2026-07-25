@@ -1,12 +1,14 @@
 import type { MetadataRoute } from "next";
+import { getSlugs } from "@/lib/content/posts";
 import { siteUrl } from "@/lib/marketing/seo";
 
 /**
- * Public marketing routes only. CRM areas (/staff, /dashboard, /application),
- * the API and the noindex /components page are deliberately excluded.
+ * Public marketing routes, including every blog post and FSSAI update
+ * (enumerated from the content source). CRM areas, the API and the noindex
+ * /components page are excluded.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
-  const paths = [
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const staticPaths = [
     "/",
     "/services",
     "/membership",
@@ -14,10 +16,41 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/contact",
     "/book",
     "/get-started",
+    "/explore",
+    "/faq",
+    "/benefits",
+    "/reviews",
+    "/clients",
+    "/fsm-registration",
+    "/blog",
+    "/fssai-updates",
   ];
-  return paths.map((path) => ({
+
+  const [blogSlugs, updateSlugs] = await Promise.all([
+    getSlugs("blog"),
+    getSlugs("updates"),
+  ]);
+
+  const entries: MetadataRoute.Sitemap = staticPaths.map((path) => ({
     url: siteUrl(path),
     changeFrequency: "weekly",
-    priority: path === "/" ? 1 : 0.8,
+    priority: path === "/" ? 1 : 0.7,
   }));
+
+  for (const slug of blogSlugs) {
+    entries.push({
+      url: siteUrl(`/blog/${slug}`),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    });
+  }
+  for (const slug of updateSlugs) {
+    entries.push({
+      url: siteUrl(`/fssai-updates/${slug}`),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    });
+  }
+
+  return entries;
 }
