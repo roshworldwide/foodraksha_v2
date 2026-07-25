@@ -32,6 +32,10 @@ export function LeadForm({
   qualifier = true,
   /** Compact = hero variant: drops the city and message fields. */
   compact = false,
+  /** Show a "Preferred time" select — the Book Appointment page. */
+  preferredTime = false,
+  /** Label for the submit button. */
+  submitLabel = "Get my free callback",
   /** Optional heading shown above the fields. */
   title,
   /** Submit button style — the hero uses blue, standalone pages green. */
@@ -41,6 +45,8 @@ export function LeadForm({
   serviceInterest?: string;
   qualifier?: boolean;
   compact?: boolean;
+  preferredTime?: boolean;
+  submitLabel?: string;
   title?: string;
   submitVariant?: "blue" | "green";
   className?: string;
@@ -69,6 +75,7 @@ export function LeadForm({
       serviceInterest,
       city: String(form.get("city") ?? "") || undefined,
       whatsappOptIn: form.get("whatsapp") === "on",
+      preferredTime: String(form.get("preferredTime") ?? "") || undefined,
       message: String(form.get("message") ?? "") || undefined,
       consent: form.get("consent") === "on",
       utmSource: params.get("utm_source") ?? undefined,
@@ -229,6 +236,20 @@ export function LeadForm({
           />
         </Field>
 
+        {preferredTime && (
+          <Field
+            htmlFor="preferredTime"
+            label="Preferred callback time (optional)"
+          >
+            <Select id="preferredTime" name="preferredTime" defaultValue="">
+              <option value="">Anytime</option>
+              <option value="Morning (9am–12pm)">Morning (9am–12pm)</option>
+              <option value="Afternoon (12–4pm)">Afternoon (12–4pm)</option>
+              <option value="Evening (4–7pm)">Evening (4–7pm)</option>
+            </Select>
+          </Field>
+        )}
+
         {!compact && (
           <Field
             htmlFor="message"
@@ -289,7 +310,7 @@ export function LeadForm({
           fullWidth
           disabled={status === "submitting"}
         >
-          {status === "submitting" ? "Sending…" : "Get my free callback"}
+          {status === "submitting" ? "Sending…" : submitLabel}
         </Button>
         <p className="text-center text-[13px] text-fr-ink-3">
           No payment now. A Food Raksha adviser will call you back.

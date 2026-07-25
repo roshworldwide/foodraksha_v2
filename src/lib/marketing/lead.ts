@@ -36,6 +36,8 @@ export const leadSchema = z.object({
   city: z.string().trim().max(80).optional(),
   /** WhatsApp updates opt-in — huge in India (Vakilsearch/CliniExperts pattern). */
   whatsappOptIn: z.boolean().optional(),
+  /** Preferred callback time, e.g. "Morning" — used by the Book page. */
+  preferredTime: z.string().trim().max(40).optional(),
   message: z
     .string()
     .trim()
@@ -72,6 +74,7 @@ function composeNote(input: LeadInput): string | null {
   if (input.serviceInterest)
     parts.push(`Interested in: ${input.serviceInterest}`);
   if (input.whatsappOptIn) parts.push("WhatsApp updates: yes");
+  if (input.preferredTime) parts.push(`Preferred time: ${input.preferredTime}`);
   if (input.message) parts.push(`Message: ${input.message}`);
   if (input.referrer) parts.push(`Page: ${input.referrer}`);
   const note = parts.join(" · ");

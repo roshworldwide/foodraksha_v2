@@ -23,6 +23,8 @@ export interface TrustContent {
   reviewSource: string | null;
   /** Short reassurance chips shown under the hero CTAs. */
   chips: string[];
+  /** Badges across the top of the Book Appointment page. */
+  bookBadges: string[];
   /** 1–2 chips floated over the hero photo, Cleartax-style. */
   heroFloatingChips: string[];
   /** Concrete numbers for the trust stack. */
@@ -49,6 +51,10 @@ export const TRUST: TrustContent = {
   ],
 
   heroFloatingChips: ["Filed in 24 hours", "100% confidential"],
+
+  // The current Book page also shows a live-consultation count; it's dynamic and
+  // unverifiable here, so it's omitted rather than faked.
+  bookBadges: ["120+ experts online", "100% confidential"],
 
   stats: [
     { value: "35+", label: "years of experience" },
