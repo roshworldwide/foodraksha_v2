@@ -6,17 +6,16 @@ import { Placeholder } from "./primitives";
 /** The 4-column footer + legal bar, matching the prototype. */
 
 const SERVICES = [
-  { label: "New Application", href: "/book" },
-  { label: "Modification", href: "/book" },
-  { label: "Renewal", href: "/book" },
-  { label: "Membership", href: "/membership" },
-  { label: "FSSAI Enrollment", href: "/enrollment" },
+  { label: "Find your licence", href: "/services" },
+  { label: "New Application", href: "/get-started" },
+  { label: "Book a consultation", href: "/book" },
+  { label: "Membership & pricing", href: "/membership" },
 ];
 
 const COMPANY = [
   { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
   { label: "Explore More", href: "/explore" },
-  { label: "Pricing", href: "/#pricing" },
   { label: "Login", href: "/login" },
 ];
 

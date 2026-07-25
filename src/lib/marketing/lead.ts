@@ -24,15 +24,21 @@ export const leadSchema = z.object({
     .min(2, "Enter your name")
     .max(120, "That name is too long"),
   mobile: mobileSchema,
-  /** Free-text business type / kind of business (label, not a category code). */
-  businessType: z
-    .string({ error: "Tell us your kind of business" })
+  /** Free-text business type / kind of business. Optional — the contact form
+   *  and bare callbacks don't collect it. */
+  businessType: z.string().trim().max(80).optional(),
+  /** Optional email (the contact form collects it; the qualifier doesn't). */
+  email: z
+    .string()
     .trim()
-    .min(2, "Tell us your kind of business")
-    .max(80, "That is too long"),
+    .toLowerCase()
+    .pipe(z.email("Enter a valid email address"))
+    .optional(),
   /** Qualifier turnover band; optional so a bare "call me back" still works. */
   turnover: z.enum(turnoverValues).optional(),
   serviceInterest: z.string().trim().max(80).optional(),
+  /** Contact-form subject line. */
+  subject: z.string().trim().max(120).optional(),
   city: z.string().trim().max(80).optional(),
   /** WhatsApp updates opt-in — huge in India (Vakilsearch/CliniExperts pattern). */
   whatsappOptIn: z.boolean().optional(),
@@ -73,6 +79,7 @@ function composeNote(input: LeadInput): string | null {
   }
   if (input.serviceInterest)
     parts.push(`Interested in: ${input.serviceInterest}`);
+  if (input.subject) parts.push(`Subject: ${input.subject}`);
   if (input.whatsappOptIn) parts.push("WhatsApp updates: yes");
   if (input.preferredTime) parts.push(`Preferred time: ${input.preferredTime}`);
   if (input.message) parts.push(`Message: ${input.message}`);
@@ -89,6 +96,7 @@ export async function createWebsiteLead(
     data: {
       name: input.name,
       mobile: input.mobile,
+      email: input.email,
       businessType: input.businessType,
       city: input.city,
       source: "website",

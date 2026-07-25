@@ -144,11 +144,19 @@ export const PLANS: Plan[] = [
   },
 ];
 
-/** Membership plans (from the Enrollment flow — Stage 2). */
+/** Membership plans — annual compliance cover (prices from docs/CONTACT.md). */
 export const MEMBERSHIP_PLANS = [
-  { name: "Gold", price: 3000 },
-  { name: "Platinum", price: 6000 },
-  { name: "Diamond", price: 9000 },
+  { name: "Gold", price: 3000, note: "Essential annual compliance cover" },
+  {
+    name: "Platinum",
+    price: 6000,
+    note: "Priority support and annual returns",
+  },
+  {
+    name: "Diamond",
+    price: 9000,
+    note: "Full-service, dedicated compliance manager",
+  },
 ] as const;
 
 /* ────────────────────────────────────── licence → recommendation */

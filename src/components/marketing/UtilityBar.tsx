@@ -42,7 +42,7 @@ export function UtilityBar() {
           )}
         </span>
         <div className="ml-auto flex items-center gap-3.5">
-          <Link href="/book" className="transition-colors hover:text-fr-ink">
+          <Link href="/contact" className="transition-colors hover:text-fr-ink">
             Contact
           </Link>
           {socials.map(([name, href]) => (
