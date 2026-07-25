@@ -6,7 +6,7 @@ import { siteUrl } from "@/lib/marketing/seo";
  * the API and the noindex /components page are deliberately excluded.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const paths = ["/", "/book", "/get-started"];
+  const paths = ["/", "/services", "/book", "/get-started"];
   return paths.map((path) => ({
     url: siteUrl(path),
     changeFrequency: "weekly",

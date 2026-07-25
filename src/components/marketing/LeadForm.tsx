@@ -25,32 +25,35 @@ interface FieldErrors {
  * CRM's Website Enquiries inbox. No account, no credentials — the team converts
  * these by hand.
  */
-export function LeadForm({
-  /** Tags the lead, e.g. "New FSSAI licence" or "Renewal". */
-  serviceInterest,
-  /** Show the turnover → licence qualifier readout. */
-  qualifier = true,
-  /** Compact = hero variant: drops the city and message fields. */
-  compact = false,
-  /** Show a "Preferred time" select — the Book Appointment page. */
-  preferredTime = false,
-  /** Label for the submit button. */
-  submitLabel = "Get my free callback",
-  /** Optional heading shown above the fields. */
-  title,
-  /** Submit button style — the hero uses blue, standalone pages green. */
-  submitVariant = "green",
-  className,
-}: {
+export interface LeadFormProps {
+  /** Tags the lead, e.g. "New FSSAI licence". When the qualifier runs, the
+   *  recommended licence name overrides this. */
   serviceInterest?: string;
+  /** Show the turnover → licence qualifier readout. */
   qualifier?: boolean;
+  /** Compact = hero/sidebar variant: single-column name/mobile, no message. */
   compact?: boolean;
+  /** Show a "Preferred time" select — the Book Appointment page. */
   preferredTime?: boolean;
+  /** Label for the submit button. */
   submitLabel?: string;
+  /** Optional heading shown above the fields. */
   title?: string;
+  /** Submit button style — the hero uses blue, standalone pages green. */
   submitVariant?: "blue" | "green";
   className?: string;
-}) {
+}
+
+export function LeadForm({
+  serviceInterest,
+  qualifier = true,
+  compact = false,
+  preferredTime = false,
+  submitLabel = "Get my free callback",
+  title,
+  submitVariant = "green",
+  className,
+}: LeadFormProps) {
   const params = useSearchParams();
 
   const [turnover, setTurnover] = useState<TurnoverBand | "">("");
@@ -72,7 +75,8 @@ export function LeadForm({
       mobile: String(form.get("mobile") ?? ""),
       businessType: String(form.get("businessType") ?? ""),
       turnover: turnover || undefined,
-      serviceInterest,
+      // When the qualifier ran, the recommended licence IS the interest.
+      serviceInterest: rec ? rec.licence.name : serviceInterest,
       city: String(form.get("city") ?? "") || undefined,
       whatsappOptIn: form.get("whatsapp") === "on",
       preferredTime: String(form.get("preferredTime") ?? "") || undefined,

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { LeadForm } from "@/components/marketing/LeadForm";
 import { LogoStrip, TestimonialCard } from "@/components/marketing/primitives";
+import { StickyLeadSidebar } from "@/components/marketing/StickyLeadSidebar";
 import { TRUST } from "@/content/trust";
 import { pageMeta } from "@/lib/marketing/seo";
 
@@ -105,24 +104,15 @@ export default function BookPage() {
           </p>
         </div>
 
-        {/* Sticky lead form — the centrepiece */}
-        <div className="order-first lg:order-last lg:sticky lg:top-24 lg:self-start">
-          <Suspense
-            fallback={
-              <div className="h-[560px] rounded-fr-card border-[0.5px] border-fr-sep bg-fr-panel" />
-            }
-          >
-            <LeadForm
-              qualifier={false}
-              compact
-              preferredTime
-              serviceInterest="consultation"
-              submitVariant="green"
-              submitLabel="Get a free callback"
-              title="Fast callback"
-            />
-          </Suspense>
-        </div>
+        {/* Sticky lead form — the centrepiece, via the reusable sidebar */}
+        <StickyLeadSidebar
+          qualifier={false}
+          preferredTime
+          serviceInterest="consultation"
+          submitVariant="green"
+          submitLabel="Get a free callback"
+          title="Fast callback"
+        />
       </div>
     </div>
   );
