@@ -1,4 +1,4 @@
-import type { AppStatus } from "@prisma/client";
+import type { AppStatus, LicenceType } from "@prisma/client";
 import { documentSlots, documentsByType } from "@/lib/documents";
 import { loadQuestionnaireById } from "@/lib/questionnaire/application";
 import { prisma } from "@/lib/prisma";
@@ -7,6 +7,63 @@ import {
   milestoneForStatus,
   type MilestoneKey,
 } from "@/lib/status-machine";
+
+/**
+ * The dashboard hero has three shapes, decided by status — never a raw fill
+ * percentage on an application the customer has already handed over.
+ *  - "fill"     DRAFT: the questionnaire is still theirs to complete.
+ *  - "tracking" SUBMITTED…FILED: it is with our team / FSSAI; show a tracker.
+ *  - "issued"   ISSUED/CLOSED: the licence card.
+ */
+export type DashboardPhase = "fill" | "tracking" | "issued";
+
+function phaseForStatus(status: AppStatus): DashboardPhase {
+  if (status === "DRAFT") return "fill";
+  if (status === "ISSUED" || status === "CLOSED") return "issued";
+  return "tracking";
+}
+
+/** One plain-language line under the hero — what is happening, in their terms. */
+function statusMessage(status: AppStatus): string {
+  switch (status) {
+    case "SUBMITTED":
+      return "Your application is in. Our team will review it and be in touch if anything needs clarifying.";
+    case "UNDER_REVIEW":
+      return "Our team is checking your file. We'll message you the moment we need anything.";
+    case "QUERY_RAISED":
+      return "We've asked you a question — see “Needs your attention” below to respond.";
+    case "READY_TO_FILE":
+      return "Reviewed and ready. We're preparing to file your application with FSSAI.";
+    case "FILED":
+      return "Filed with FSSAI. We're now waiting for your licence to be issued.";
+    case "FSSAI_QUERY":
+      return "FSSAI has raised a query on the filing; our team is handling it for you.";
+    case "REJECTED":
+      return "This application was not approved. Our team will be in touch about the next steps.";
+    default:
+      return "We'll keep you posted here as your application moves along.";
+  }
+}
+
+/** The 4-step tracker shown once an application is past DRAFT. */
+const TRACKER_STEPS = [
+  { key: "submitted", label: "Submitted" },
+  { key: "review", label: "Under review" },
+  { key: "filed", label: "Filed with FSSAI" },
+  { key: "issued", label: "Licence issued" },
+] as const satisfies readonly { key: MilestoneKey; label: string }[];
+
+export interface TrackerStep {
+  key: MilestoneKey;
+  label: string;
+  state: "done" | "now" | "upcoming";
+}
+
+export interface DashboardSection {
+  key: string;
+  title: string;
+  isComplete: boolean;
+}
 
 /**
  * Everything the customer dashboard shows, assembled once. Deliberately
@@ -43,6 +100,8 @@ export interface DashboardData {
     id: string;
     applicationNo: string;
     status: AppStatus;
+    /** Which hero to render. The fill percent is meaningful only in "fill". */
+    phase: DashboardPhase;
     percent: number;
     completed: number;
     total: number;
@@ -50,9 +109,19 @@ export interface DashboardData {
     resumable: boolean;
     /** Title of the next section to fill, so "Continue" names where it goes. */
     resumeSection: string | null;
+    licenceType: LicenceType;
+    categoryName: string;
+    createdAt: string;
+    submittedAt: string | null;
+    /** Plain-language line under the hero, for the tracking phase. */
+    statusMessage: string;
     licenceNo: string | null;
     licenceExpiresAt: string | null;
   };
+  /** The 4-step tracker for the tracking/issued phases. */
+  tracker: TrackerStep[];
+  /** The questionnaire sections, with completion — the "application file" list. */
+  sections: DashboardSection[];
   attention: AttentionItem[];
   timeline: TimelineStep[];
   documents: CustomerDocument[];
@@ -153,25 +222,64 @@ export async function loadDashboard(
 
   const licence = byType.get("licence_certificate");
 
+  const status = context.application.status;
+  const phase = phaseForStatus(status);
+
   // The next section that still needs work — what "Continue" actually opens.
   const resumeSection =
     context.sections.find(
       (section) => !context.application.completedSections.includes(section.key),
     )?.title ?? null;
 
+  // The 4-step tracker. Only meaningful past DRAFT; the page hides it in "fill".
+  const currentMilestone = milestoneForStatus(status);
+  const currentIndex = TRACKER_STEPS.findIndex(
+    (step) => step.key === currentMilestone,
+  );
+  const tracker: TrackerStep[] = TRACKER_STEPS.map((step, index) => ({
+    key: step.key,
+    label: step.label,
+    state:
+      index < currentIndex
+        ? "done"
+        : index === currentIndex
+          ? "now"
+          : "upcoming",
+  }));
+
+  // The application file. Once submitted, every section is complete by
+  // definition — submission is gated on completeness — so the ticks read that
+  // way regardless of how a demo row happened to be seeded.
+  const sections: DashboardSection[] = context.sections.map((section) => ({
+    key: section.key,
+    title: section.title,
+    isComplete:
+      phase === "fill"
+        ? context.application.completedSections.includes(section.key)
+        : true,
+  }));
+
   return {
     application: {
       id: context.application.id,
       applicationNo: context.application.applicationNo,
-      status: context.application.status,
+      status,
+      phase,
       percent: total > 0 ? Math.round((completed / total) * 100) : 0,
       completed,
       total,
-      resumable: RESUMABLE.includes(context.application.status),
+      resumable: RESUMABLE.includes(status),
       resumeSection,
+      licenceType: context.application.licenceType,
+      categoryName: context.application.categoryName,
+      createdAt: record.createdAt.toISOString(),
+      submittedAt: record.submittedAt?.toISOString() ?? null,
+      statusMessage: statusMessage(status),
       licenceNo: record.licenceNo,
       licenceExpiresAt: record.licenceExpiresAt?.toISOString() ?? null,
     },
+    tracker,
+    sections,
     attention,
     timeline,
     documents,

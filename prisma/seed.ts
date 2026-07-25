@@ -208,6 +208,18 @@ async function main() {
     where: { code: "MANUFACTURER" },
   });
 
+  // Every section a category actually asks for — core plus its extras. A
+  // submitted application must have all of these complete, or the customer
+  // dashboard's "application file" would show a submitted-but-incomplete file.
+  const allSections = await prisma.formSection.findMany({
+    orderBy: { sortOrder: "asc" },
+    select: { key: true, isCore: true },
+  });
+  const applicableSectionKeys = (extraSections: string[]): string[] =>
+    allSections
+      .filter((s) => s.isCore || extraSections.includes(s.key))
+      .map((s) => s.key);
+
   // ── Demo customer 1 — well advanced, staff reviewing
   const meeraPassword = password("SEED_CUSTOMER_1_PASSWORD");
   const meera = await prisma.user.upsert({
@@ -362,14 +374,8 @@ async function main() {
     password: fatimaPassword,
   });
 
-  const sheikhSections = [
-    "business_details",
-    "applicant_details",
-    "premises",
-    "licence_details",
-    "water",
-    "declaration",
-  ];
+  // UNDER_REVIEW, so it must read as fully complete.
+  const sheikhSections = applicableSectionKeys(restaurant.extraSections);
   await prisma.application.upsert({
     where: { applicationNo: "FR-2026-0301" },
     update: {
@@ -534,17 +540,16 @@ async function seedDeskFixtures(): Promise<number> {
     const neverLoggedIn = index % 4 === 0;
     const mobile = `+9176${String(10000000 + index * 37).slice(0, 8)}`;
 
-    const applicable =
-      coreKeys.length +
-      category.extraSections.filter((key) =>
-        sections.some((s) => s.key === key && !s.isCore),
-      ).length;
-    const done =
-      status === "DRAFT"
-        ? index % (applicable + 1)
-        : status === "SUBMITTED" || status === "UNDER_REVIEW"
-          ? applicable
-          : Math.max(1, applicable - (index % 3));
+    // Every section this category actually asks for — core plus its extras.
+    const extraKeys = category.extraSections.filter((key) =>
+      sections.some((s) => s.key === key && !s.isCore),
+    );
+    const applicableKeys = [...coreKeys, ...extraKeys];
+    const applicable = applicableKeys.length;
+    // A DRAFT is partway through; anything past submission is fully complete —
+    // submission is gated on completeness, so a submitted-but-partial row would
+    // be incoherent.
+    const done = status === "DRAFT" ? index % (applicable + 1) : applicable;
 
     const user = await prisma.user.upsert({
       where: { mobile },
@@ -579,7 +584,7 @@ async function seedDeskFixtures(): Promise<number> {
       update: {
         status,
         categoryId: category.id,
-        completedSections: coreKeys.slice(0, done),
+        completedSections: applicableKeys.slice(0, done),
       },
       create: {
         applicationNo,
@@ -587,7 +592,7 @@ async function seedDeskFixtures(): Promise<number> {
         categoryId: category.id,
         licenceType: (["BASIC", "STATE", "CENTRAL"] as const)[index % 3],
         status,
-        completedSections: coreKeys.slice(0, done),
+        completedSections: applicableKeys.slice(0, done),
       },
     });
   }
