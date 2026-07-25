@@ -30,7 +30,12 @@ interface StyleProps {
   className?: string;
 }
 
-function frButtonClass({
+/**
+ * The button's visual recipe, exported so controls that must not be a <button>
+ * or a <Link> — a tab in a tablist, for instance — can wear the same skin
+ * without restating the classes.
+ */
+export function buttonClass({
   variant = "blue",
   size = "base",
   fullWidth = false,
@@ -62,7 +67,7 @@ export function Button({
 }: FrButtonProps) {
   return (
     <button
-      className={frButtonClass({ variant, size, fullWidth, className })}
+      className={buttonClass({ variant, size, fullWidth, className })}
       {...props}
     />
   );
@@ -80,7 +85,7 @@ export function ButtonLink({
 }: FrButtonLinkProps) {
   return (
     <Link
-      className={frButtonClass({ variant, size, fullWidth, className })}
+      className={buttonClass({ variant, size, fullWidth, className })}
       {...props}
     />
   );
