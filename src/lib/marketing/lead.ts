@@ -36,6 +36,15 @@ export const leadSchema = z.object({
     .optional(),
   /** Qualifier turnover band; optional so a bare "call me back" still works. */
   turnover: z.enum(turnoverValues).optional(),
+  /**
+   * The FSSAI calculator's read-out, exactly as the customer saw it:
+   * "Restaurants · ₹10 crore · State License · govt fee ₹5,000 / year". Built by
+   * calculatorSummary() in @/content/fssai-fees. Sent instead of `turnover`,
+   * never alongside it — the calculator knows the real turnover figure and the
+   * full kind-of-business matrix, so the 3-band approximation would only
+   * contradict it.
+   */
+  calculatorNote: z.string().trim().max(300).optional(),
   serviceInterest: z.string().trim().max(80).optional(),
   /** Contact-form subject line. */
   subject: z.string().trim().max(120).optional(),
@@ -70,6 +79,7 @@ export type LeadInput = z.infer<typeof leadSchema>;
  */
 function composeNote(input: LeadInput): string | null {
   const parts: string[] = [];
+  if (input.calculatorNote) parts.push(`Calculator: ${input.calculatorNote}`);
   if (input.turnover) {
     const band = TURNOVER_BANDS.find((b) => b.value === input.turnover);
     if (band) {

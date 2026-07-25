@@ -11,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPaths = [
     "/",
     "/services",
+    "/fssai-calculator",
     "/membership",
     "/about",
     "/contact",

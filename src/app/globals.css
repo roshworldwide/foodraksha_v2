@@ -149,6 +149,37 @@
     0 2px 6px rgba(0, 0, 0, 0.06), 0 18px 44px rgba(0, 0, 0, 0.09);
   --shadow-fr-blue: 0 6px 20px rgba(36, 123, 199, 0.28);
   --shadow-fr-green: 0 6px 20px rgba(57, 169, 53, 0.26);
+
+  /* The calculator's result rising into place. Reduced-motion is handled
+     globally at the bottom of this file. */
+  --animate-fr-rise: fr-rise 0.35s var(--ease-ios) both;
+
+  @keyframes fr-rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* The client marquee. The track holds the list twice, so travelling exactly
+     -50% lands on the start of the second copy — seamless, and it also means
+     the reduced-motion rule at the foot of this file (which collapses the
+     duration and runs one iteration) leaves a legible static strip rather
+     than a half-scrolled one. */
+  --animate-fr-marquee: fr-marquee 46s linear infinite;
+
+  @keyframes fr-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
 
 @layer base {

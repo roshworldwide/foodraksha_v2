@@ -1,30 +1,40 @@
 /**
- * The licence qualifier and the service pricing — one source of truth, reused
- * by the hero qualifier, the pricing section, /book and every "which licence?"
- * spot. Pure and tested.
+ * Service pricing and the coarse turnover-band qualifier — the pricing section,
+ * /book, the contact forms and every "which licence?" spot. Pure and tested.
  *
  * Two separate things:
- *  1. Which FSSAI LICENCE a business needs — decided by turnover (a real
- *     government rule).
+ *  1. Which FSSAI LICENCE a business needs. The authoritative answer is
+ *     computeFssai() in @/content/fssai-fees, which uses the full official
+ *     kind-of-business matrix. What lives here is the coarse turnover-only
+ *     approximation used by the three-band <LeadForm> qualifier, and it
+ *     DELEGATES to that engine so a threshold is written down exactly once.
+ *     It is only correct for kinds of business on the STANDARD rule — a
+ *     caterer, a 5-star hotel or an importer needs the real calculator.
  *  2. Which FoodRaksha SERVICE PLAN they buy — Starter / Standard / Elite,
  *     independent of licence type. Prices are real (docs/CONTACT.md,
  *     docs/Website-Structure-Teardown.md).
  *
- * Turnover → licence thresholds:
+ * Turnover → licence thresholds (STANDARD rule):
  *   ≤ ₹1.5 crore        → Basic Registration
  *   ₹1.5 crore – ₹50 cr → State Licence
  *   > ₹50 crore         → Central Licence
  */
 
+import { CRORE, standardOutcome, STATE, CENTRAL } from "@/content/fssai-fees";
+
 export type LicenceKind = "BASIC" | "STATE" | "CENTRAL";
 
-/** The one licence function. Boundaries: exactly ₹1.5cr is Basic; ₹50cr is State. */
+/**
+ * The STANDARD ladder, in crore. Boundaries: exactly ₹1.5cr is Basic; ₹50cr is
+ * State. Thresholds are not repeated here — standardOutcome owns them.
+ */
 export function licenceForTurnoverCrore(
   annualTurnoverCrore: number,
 ): LicenceKind {
-  if (annualTurnoverCrore <= 1.5) return "BASIC";
-  if (annualTurnoverCrore <= 50) return "STATE";
-  return "CENTRAL";
+  const outcome = standardOutcome(annualTurnoverCrore * CRORE);
+  if (outcome === CENTRAL) return "CENTRAL";
+  if (outcome === STATE) return "STATE";
+  return "BASIC";
 }
 
 /** Turnover bands the qualifier form offers, each mapped to a representative value. */

@@ -183,6 +183,14 @@ export interface LeadRow {
   businessType: string | null;
   city: string | null;
   source: string | null;
+  /**
+   * The enquiry note composed by composeNote() in @/lib/marketing/lead, stored
+   * in Lead.referrer because the model has no columns for turnover, service
+   * interest or the calculator read-out. For a calculator lead it carries the
+   * licence and government fee the customer was quoted — the team needs to see
+   * that before calling back, so it is a column on the enquiries screen.
+   */
+  note: string | null;
   createdAt: Date;
   converted: boolean;
 }
@@ -205,6 +213,7 @@ export async function listLeads(options?: {
       businessType: true,
       city: true,
       source: true,
+      referrer: true,
       createdAt: true,
       convertedUserId: true,
     },
@@ -217,6 +226,7 @@ export async function listLeads(options?: {
     businessType: row.businessType,
     city: row.city,
     source: row.source,
+    note: row.referrer,
     createdAt: row.createdAt,
     converted: row.convertedUserId !== null,
   }));

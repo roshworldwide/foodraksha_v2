@@ -40,6 +40,13 @@ export default async function EnquiriesPage() {
       cell: (l) => l.businessType ?? "—",
       className: "text-label-2",
     },
+    {
+      // For a calculator enquiry this is the licence and government fee the
+      // customer was quoted on the website — call them back knowing it.
+      header: "What they told us",
+      cell: (l) => l.note ?? "—",
+      className: "text-footnote text-label-2 max-w-[320px]",
+    },
     { header: "City", cell: (l) => l.city ?? "—", className: "text-label-2" },
     {
       header: "Received",
