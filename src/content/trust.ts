@@ -9,6 +9,8 @@
  * Rating, testimonials and ISO/press badges are unconfirmed — left empty.
  */
 
+import { CLIENT_NAMES } from "./clients";
+
 export interface Testimonial {
   quote: string;
   name: string;
@@ -63,16 +65,10 @@ export const TRUST: TrustContent = {
     { value: "100%", label: "confidential" },
   ],
 
-  clientLogos: [
-    "Dr Agarwals",
-    "Karim's",
-    "Marine Lifesciences",
-    "Criticam",
-    "Vinati Organics",
-    "Smayan",
-    "Allianz Bio",
-    "Medwell Ventures",
-  ],
+  // Derived from CLIENTS in @/content/clients, which also carries each logo
+  // file — one list, so a new client cannot appear as a name without its logo
+  // or the other way round.
+  clientLogos: CLIENT_NAMES,
 
   // Shape kept for when the client supplies real ones, e.g.:
   //   { quote: "…", name: "Rakesh Kumar", title: "Owner", company: "…" }
