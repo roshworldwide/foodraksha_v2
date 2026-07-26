@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { cn } from "@/lib/cn";
 import {
   calculatorSummary,
@@ -163,36 +163,6 @@ export function FssaiCalculator({
   const [status, setStatus] = useState<"idle" | "submitting" | "done">("idle");
   const [formError, setFormError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
-
-  /**
-   * Accept a turnover handed over by the hero's quick entry
-   * (/fssai-calculator?turnover=2500000, in rupees).
-   *
-   * Read from window.location.search rather than useSearchParams: the hook would
-   * force a Suspense boundary and opt this page out of static prerendering, and
-   * a prefill is not worth either. Runs once on mount; the field stays fully
-   * editable afterwards.
-   *
-   * set-state-in-effect is disabled deliberately for this one block. The URL is
-   * a browser-only source, so it cannot be read during render without the server
-   * ("") and the client (the value) disagreeing — a hydration mismatch. Syncing
-   * once after mount is the correct pattern here, not a missed derivation.
-   */
-  /* eslint-disable react-hooks/set-state-in-effect -- see note above */
-  useEffect(() => {
-    const raw = new URLSearchParams(window.location.search).get("turnover");
-    if (!raw) return;
-    const rupees = Number(raw);
-    if (!Number.isFinite(rupees) || rupees <= 0) return;
-    if (rupees >= CRORE) {
-      setUnit("crore");
-      setAmount(String(Number((rupees / CRORE).toFixed(2))));
-    } else {
-      setUnit("lakh");
-      setAmount(String(Number((rupees / 100_000).toFixed(2))));
-    }
-  }, []);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const kob = kobId ? findKob(kobId) : undefined;
   const needs = kob ? requiredInputs(kob.rule) : null;
@@ -543,7 +513,11 @@ export function FssaiCalculator({
             </div>
           </div>
         ) : (
-          <form onSubmit={onSubmit} noValidate className="flex flex-col gap-2.5">
+          <form
+            onSubmit={onSubmit}
+            noValidate
+            className="flex flex-col gap-2.5"
+          >
             {/* Two across at every width — this card is never narrow enough to
                 need them stacked, and stacking costs a whole field of height. */}
             <div className="grid grid-cols-2 gap-2.5">

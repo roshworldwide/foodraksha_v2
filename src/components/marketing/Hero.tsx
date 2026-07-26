@@ -1,14 +1,20 @@
 import { cn } from "@/lib/cn";
 import { TRUST } from "@/content/trust";
-import { TurnoverQuickEntry } from "./TurnoverQuickEntry";
+import { FssaiCalculator } from "./FssaiCalculator";
 
 /**
  * The home page hero, following FR-001 of the reference deck: status pill, a
- * large two-tone headline with the accent word underlined, the lede, a
- * single-input turnover entry, and floating metric cards on the right over a
- * faint grid.
+ * large two-tone headline with the accent word underlined, the lede, the fee
+ * calculator, and floating metric cards on the right over a faint grid.
  *
- * A Server Component apart from the turnover input. The metric cards come from
+ * The deck puts a single turnover input here that hands off elsewhere. The whole
+ * calculator sits inline instead: sending someone to another page to get the
+ * answer the hero just promised loses most of them, and turnover alone cannot
+ * decide the licence anyway — an importer, a 5-star hotel and a caterer are
+ * decided by what they do, not what they earn. So the hero asks the two
+ * questions that actually settle it and answers on the spot.
+ *
+ * A Server Component apart from the calculator. The metric cards come from
  * TRUST.heroStats and any card with a null value drops out, so the hero holds
  * three, two or one without ever showing an invented figure — the deck's own
  * counts (25,386+ businesses, 3.62M+ metric tons, "Trusted by 10,000+") are not
@@ -97,7 +103,10 @@ export function Hero() {
             simple, fast and hassle-free.
           </p>
 
-          <TurnoverQuickEntry className="mt-7 max-w-[540px]" />
+          <FssaiCalculator
+            title="Check your licence & fee"
+            className="mt-7 max-w-[520px]"
+          />
         </div>
 
         {/* Metric cards, staggered as in the deck. */}
