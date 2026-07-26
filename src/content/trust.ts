@@ -25,6 +25,8 @@ export interface TrustContent {
   reviewSource: string | null;
   /** Short reassurance chips shown under the hero CTAs. */
   chips: string[];
+  /** The hero's floating metric cards (FR-001). A null value hides that card. */
+  heroStats: HeroStat[];
   /** Badges across the top of the Book Appointment page. */
   bookBadges: string[];
   /** 1–2 chips floated over the hero photo, Cleartax-style. */
@@ -37,6 +39,14 @@ export interface TrustContent {
   testimonials: Testimonial[];
   /** ISO / press / media badges — empty until real (block hides). */
   badges: string[];
+}
+
+export interface HeroStat {
+  label: string;
+  /** null hides the card. Never invent a count. */
+  value: string | null;
+  sublabel: string;
+  tone: "blue" | "green" | "orange";
 }
 
 export const TRUST: TrustContent = {
@@ -53,6 +63,39 @@ export const TRUST: TrustContent = {
   ],
 
   heroFloatingChips: ["Filed in 24 hours", "100% confidential"],
+
+  /**
+   * The three metric cards in the hero, per FR-001 of the reference deck.
+   *
+   * The deck mocks these up as "Businesses Licensed 25,386+", "Active Audits
+   * 1,248+" and "Food Certified 3.62M+", with +12/18/15% deltas and a "Trusted by
+   * 10,000+ Businesses" pill. None of those figures exist in any project source,
+   * so they are not used. These are the numbers we can actually stand behind.
+   *
+   * To show the deck's metrics instead: replace a row below, or set `value` and
+   * the card appears. A null value hides its card, so the hero degrades to two
+   * cards or one rather than showing a placeholder number.
+   */
+  heroStats: [
+    {
+      label: "Years in food compliance",
+      value: "35+",
+      sublabel: "Handler & manager training",
+      tone: "blue",
+    },
+    {
+      label: "Licensing experts",
+      value: "120+",
+      sublabel: "On our team",
+      tone: "green",
+    },
+    {
+      label: "Typical filing time",
+      value: "24 hrs",
+      sublabel: "From your documents",
+      tone: "orange",
+    },
+  ],
 
   // The current Book page also shows a live-consultation count; it's dynamic and
   // unverifiable here, so it's omitted rather than faked.

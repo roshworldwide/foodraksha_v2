@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ButtonLink } from "@/components/marketing/Button";
 import { ClientMarquee } from "@/components/marketing/ClientMarquee";
-import { FssaiCalculator } from "@/components/marketing/FssaiCalculator";
+import { Hero } from "@/components/marketing/Hero";
 import { LeadForm } from "@/components/marketing/LeadForm";
 import {
   Card,
@@ -10,7 +10,6 @@ import {
   LinkArrow,
   SectionHeading,
   TestimonialCard,
-  TrustBar,
   TrustRow,
 } from "@/components/marketing/primitives";
 import { ServicePanel } from "@/components/marketing/ServicePanel";
@@ -63,53 +62,8 @@ const ACTION_TONE: Record<string, string> = {
 export default function MarketingHome() {
   return (
     <>
-      {/* ── 1 · HERO */}
-      <header className="bg-[radial-gradient(120%_90%_at_75%_-10%,var(--color-fr-blue-050),transparent_55%)]">
-        <div className="mx-auto grid max-w-[1120px] items-center gap-12 px-6 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
-          <div>
-            <p className="text-[13px] font-semibold tracking-[0.02em] text-fr-blue uppercase">
-              FSSAI Licensing, Done Right
-            </p>
-            <h1 className="mt-3.5 text-[40px] leading-[1.05] font-bold tracking-[-0.03em] text-balance text-fr-ink sm:text-[54px]">
-              FSSAI licensing you can be{" "}
-              <span className="text-fr-green">sure</span> about.
-            </h1>
-            <p className="mt-5 max-w-[520px] text-[19px] leading-relaxed tracking-[-0.01em] text-fr-ink-2">
-              Tell us about your business — our experts identify the right
-              licence, prepare every document, and file it for you. Fair prices,
-              no runaround.
-            </p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <ButtonLink href="#qualifier" variant="blue" size="lg">
-                Book a free consultation
-              </ButtonLink>
-              <ButtonLink href="/get-started" variant="ghost" size="lg">
-                Start your application
-              </ButtonLink>
-            </div>
-            <TrustBar
-              rating={TRUST.rating}
-              reviewCount={TRUST.reviewCount}
-              reviewSource={TRUST.reviewSource}
-              chips={TRUST.chips}
-              className="mt-8 justify-start"
-            />
-          </div>
-
-          {/* Hero right column — the FSSAI Fee Calculator, the page's primary
-              lead source. It replaced the "client to supply" photo placeholder.
-              The widget is a client component but renders its full markup on the
-              server (no useSearchParams, no effect-gated content), so there is
-              nothing to shift on hydration.
-
-              The photo's two floating trust chips are gone with it: chips
-              overlapping a form would sit on top of its inputs and its bottom
-              link. The same claims are in the TrustBar under the headline. */}
-          <div className="mx-auto w-full max-w-[468px]">
-            <FssaiCalculator title="FSSAI Fee Calculator" />
-          </div>
-        </div>
-      </header>
+      {/* ── 1 · HERO — FR-001 of the reference deck. */}
+      <Hero />
 
       {/* ── 2 · ACTION CARDS */}
       <section className="mx-auto max-w-[1120px] px-6 py-16">
