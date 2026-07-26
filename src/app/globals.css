@@ -121,34 +121,74 @@
   --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
 
   /* ============================================================
-     MARKETING WEBSITE (phase 2) — additive, `fr-` namespaced.
-     A separate blue/green Apple palette. These NEVER touch the CRM's
-     Titanium tokens above; the CRM uses none of them, the website uses
-     only these plus the shared type scale and rounded-pill.
+     MARKETING WEBSITE — additive, `fr-` namespaced. These NEVER touch the
+     CRM's Titanium tokens above.
+
+     Palette taken from the client's reference deck in /Reference (FR-001…025),
+     sampled from the artwork rather than eyeballed: the brand blue, green,
+     orange and violet below are the dominant saturated colours measured in
+     FR-002/003/014/016. It is a cooler, more saturated system than the muted
+     blue it replaces — #1554D2 where we had #247BC7 — with deep navy and royal
+     blue as surface colours for full-width bands.
+
+     The neutrals moved from translucent greys to solid blue-cast greys. That
+     was deliberate: the old --color-fr-ink-2 measured 3.63:1 on white and
+     --color-fr-ink-3 2.14:1, both below the WCAG AA 4.5:1 floor for body text,
+     and both were used for body copy across the site.
      ============================================================ */
-  --color-fr-blue: #247bc7;
-  --color-fr-blue-deep: #1c6098;
-  --color-fr-blue-050: #eaf3fb;
-  --color-fr-blue-100: #d7e8f7;
-  --color-fr-green: #39a935;
-  --color-fr-green-deep: #2e8a2b;
-  --color-fr-green-050: #ebf6ea;
-  --color-fr-ink: #1d1d1f;
-  --color-fr-ink-2: rgba(60, 60, 67, 0.62);
-  --color-fr-ink-3: rgba(60, 60, 67, 0.4);
-  --color-fr-sep: rgba(60, 60, 67, 0.12);
+
+  /* — Brand blue: headlines, links, primary actions. */
+  --color-fr-blue: #1554d2;
+  --color-fr-blue-deep: #0e3ea8;
+  --color-fr-blue-050: #eef3fe;
+  --color-fr-blue-100: #dbe6fd;
+
+  /* — Green: confirmation, "you're covered", consultation CTAs. */
+  --color-fr-green: #157e2a;
+  --color-fr-green-deep: #0f5f1f;
+  --color-fr-green-050: #e8f5ea;
+
+  /* — Category accents. The deck gives each business category its own colour
+       (FR-002) and each stat its own (FR-003); without these the site can only
+       say blue or green.
+
+       Contrast rule: the base tone is for fills, icons and large numerals; use
+       the `-deep` tone for any body-size text. Measured on white — orange is
+       3.42:1 at base (fine for graphics, fails AA for small text) and 5.02:1
+       deep; rose is 4.57:1 base and 6.60:1 deep. */
+  --color-fr-orange: #dd6a08;
+  --color-fr-orange-deep: #b4530a;
+  --color-fr-orange-050: #fff2e6;
+  --color-fr-violet: #5415bd;
+  --color-fr-violet-deep: #430f96;
+  --color-fr-violet-050: #f3eafe;
+  --color-fr-rose: #d63a56;
+  --color-fr-rose-deep: #ac2b43;
+  --color-fr-rose-050: #fdeaee;
+
+  /* — Dark surfaces for full-width bands (the nav and hero in FR-014/016, the
+       operations ledger header in FR-003). */
+  --color-fr-navy: #02132b;
+  --color-fr-navy-soft: #0a2447;
+  --color-fr-royal: #002a7e;
+
+  /* — Neutrals. Solid, blue-cast, and AA-legible on white. */
+  --color-fr-ink: #0f172a;
+  --color-fr-ink-2: #4a5568;
+  --color-fr-ink-3: #6b7688;
+  --color-fr-sep: #e4eaf2;
   --color-fr-bg: #ffffff;
-  --color-fr-panel: #f5f5f7;
+  --color-fr-panel: #f5f8fc;
 
   --radius-fr-card: 20px;
 
   /* Soft, diffuse shadows per the prototype. */
   --shadow-fr-soft:
-    0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.05);
+    0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.05);
   --shadow-fr-lift:
-    0 2px 6px rgba(0, 0, 0, 0.06), 0 18px 44px rgba(0, 0, 0, 0.09);
-  --shadow-fr-blue: 0 6px 20px rgba(36, 123, 199, 0.28);
-  --shadow-fr-green: 0 6px 20px rgba(57, 169, 53, 0.26);
+    0 2px 6px rgba(15, 23, 42, 0.06), 0 18px 44px rgba(15, 23, 42, 0.09);
+  --shadow-fr-blue: 0 6px 20px rgba(21, 84, 210, 0.26);
+  --shadow-fr-green: 0 6px 20px rgba(21, 126, 42, 0.24);
 
   /* The calculator's result rising into place. Reduced-motion is handled
      globally at the bottom of this file. */

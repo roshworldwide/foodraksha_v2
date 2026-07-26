@@ -342,11 +342,14 @@ export function CTABand({
   tone?: "blue" | "green" | "ink";
   className?: string;
 }) {
+  /* `ink` reads as deep navy rather than near-black: the reference deck uses a
+     navy band for full-width dark sections (FR-003's operations ledger, the
+     FR-014 hero), not a neutral black. */
   const bg =
     tone === "green"
       ? "bg-fr-green"
       : tone === "ink"
-        ? "bg-fr-ink"
+        ? "bg-fr-navy"
         : "bg-fr-blue";
   return (
     <section

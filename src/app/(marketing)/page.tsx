@@ -16,6 +16,7 @@ import {
 import { ServicePanel } from "@/components/marketing/ServicePanel";
 import { TierCard } from "@/components/marketing/TierCard";
 import { CLIENTS } from "@/content/clients";
+import { cn } from "@/lib/cn";
 import { TRUST } from "@/content/trust";
 import { PLANS } from "@/lib/marketing/qualifier";
 import { pageMeta } from "@/lib/marketing/seo";
@@ -25,6 +26,8 @@ export const metadata: Metadata = pageMeta({
   path: "/",
 });
 
+/* One accent per action, as the reference deck gives each business category its
+   own colour (FR-002) rather than repeating blue. */
 const ACTIONS = [
   {
     icon: "✎",
@@ -42,12 +45,20 @@ const ACTIONS = [
   },
   {
     icon: "↻",
-    tone: "blue" as const,
+    tone: "orange" as const,
     title: "Renewal",
     body: "Licence renewal coming up? We take care of it so you stay compliant, hassle-free.",
     cta: "Renew now",
   },
 ];
+
+/* `-deep` tones for the glyphs: the base accents are fill colours and orange at
+   base measures 3.42:1, below AA. */
+const ACTION_TONE: Record<string, string> = {
+  blue: "bg-fr-blue-050 text-fr-blue",
+  green: "bg-fr-green-050 text-fr-green-deep",
+  orange: "bg-fr-orange-050 text-fr-orange-deep",
+};
 
 export default function MarketingHome() {
   return (
@@ -113,12 +124,10 @@ export default function MarketingHome() {
           {ACTIONS.map((action) => (
             <Card key={action.title} hover>
               <span
-                className={
-                  "flex size-[52px] items-center justify-center rounded-[15px] text-[24px] " +
-                  (action.tone === "green"
-                    ? "bg-fr-green-050 text-fr-green-deep"
-                    : "bg-fr-blue-050 text-fr-blue")
-                }
+                className={cn(
+                  "flex size-[52px] items-center justify-center rounded-[15px] text-[24px]",
+                  ACTION_TONE[action.tone],
+                )}
                 aria-hidden="true"
               >
                 {action.icon}
@@ -238,32 +247,36 @@ export default function MarketingHome() {
         </div>
 
         {CLIENTS.length > 0 && (
-          <ClientMarquee label="Our clients" logos={CLIENTS} className="mt-14" />
+          <ClientMarquee
+            label="Our clients"
+            logos={CLIENTS}
+            className="mt-14"
+          />
         )}
 
         <div className="mx-auto max-w-[1120px] px-6">
-        {/* Hidden until real testimonials are supplied — never fabricated. */}
-        {TRUST.testimonials.length > 0 && (
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {TRUST.testimonials.map((t) => (
-              <TestimonialCard key={t.name} {...t} />
-            ))}
-          </div>
-        )}
+          {/* Hidden until real testimonials are supplied — never fabricated. */}
+          {TRUST.testimonials.length > 0 && (
+            <div className="mt-14 grid gap-6 md:grid-cols-3">
+              {TRUST.testimonials.map((t) => (
+                <TestimonialCard key={t.name} {...t} />
+              ))}
+            </div>
+          )}
 
-        {/* Hidden until real ISO / press badges are supplied. */}
-        {TRUST.badges.length > 0 && (
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 opacity-70">
-            {TRUST.badges.map((badge) => (
-              <span
-                key={badge}
-                className="text-[15px] font-semibold text-fr-ink-2"
-              >
-                {badge}
-              </span>
-            ))}
-          </div>
-        )}
+          {/* Hidden until real ISO / press badges are supplied. */}
+          {TRUST.badges.length > 0 && (
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-8 opacity-70">
+              {TRUST.badges.map((badge) => (
+                <span
+                  key={badge}
+                  className="text-[15px] font-semibold text-fr-ink-2"
+                >
+                  {badge}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
