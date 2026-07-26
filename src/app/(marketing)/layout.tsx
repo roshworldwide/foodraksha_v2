@@ -12,7 +12,7 @@ import { JsonLd, organizationJsonLd } from "@/lib/marketing/seo";
  */
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-fr-bg font-sans text-fr-ink antialiased">
+    <div className="fr-site flex min-h-screen flex-col bg-fr-bg font-sans text-fr-ink antialiased">
       <UtilityBar />
       <Nav />
       <main className="flex-1">{children}</main>

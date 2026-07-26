@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
 /**
@@ -14,6 +14,17 @@ const inter = Inter({
   display: "swap",
 });
 
+/**
+ * Plus Jakarta Sans — the heading face in the client's own build
+ * (/Reference/FoodRaksha-NextJS/tailwind.config.ts: fontFamily.heading). Applied
+ * to marketing headings via --font-fr-heading; the CRM keeps the system stack.
+ */
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "FoodRaksha",
   description: "FSSAI licensing, handled.",
@@ -25,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${inter.variable} ${plusJakarta.variable}`}>
       <body>{children}</body>
     </html>
   );

@@ -124,29 +124,32 @@
      MARKETING WEBSITE — additive, `fr-` namespaced. These NEVER touch the
      CRM's Titanium tokens above.
 
-     Palette taken from the client's reference deck in /Reference (FR-001…025),
-     sampled from the artwork rather than eyeballed: the brand blue, green,
-     orange and violet below are the dominant saturated colours measured in
-     FR-002/003/014/016. It is a cooler, more saturated system than the muted
-     blue it replaces — #1554D2 where we had #247BC7 — with deep navy and royal
-     blue as surface colours for full-width bands.
+     Palette taken verbatim from the client's own build at
+     /Reference/FoodRaksha-NextJS/tailwind.config.ts: brandBlue #0C42B8,
+     brandGreen #00A859, brandDark #0B132A, brandMuted #5A6578, brandBg #F8FAFC
+     and the card accents. Those are authoritative and supersede the values
+     previously sampled from the FR-001…025 screenshots.
 
-     The neutrals moved from translucent greys to solid blue-cast greys. That
-     was deliberate: the old --color-fr-ink-2 measured 3.63:1 on white and
-     --color-fr-ink-3 2.14:1, both below the WCAG AA 4.5:1 floor for body text,
-     and both were used for body copy across the site.
+     The neutrals are solid rather than translucent. The originals measured
+     3.63:1 (ink-2) and 2.14:1 (ink-3) on white, both under the WCAG AA 4.5:1
+     floor for body text, and both were used for body copy across the site.
      ============================================================ */
 
   /* — Brand blue: headlines, links, primary actions. */
-  --color-fr-blue: #1554d2;
-  --color-fr-blue-deep: #0e3ea8;
-  --color-fr-blue-050: #eef3fe;
+  --color-fr-blue: #0c42b8;
+  --color-fr-blue-deep: #08328e;
+  --color-fr-blue-050: #eef3fd;
   --color-fr-blue-100: #dbe6fd;
 
-  /* — Green: confirmation, "you're covered", consultation CTAs. */
-  --color-fr-green: #157e2a;
-  --color-fr-green-deep: #0f5f1f;
-  --color-fr-green-050: #e8f5ea;
+  /* — Green: confirmation, "you're covered", consultation CTAs.
+       `green` is the client's brandGreen verbatim, for fills — buttons, icon
+       tiles, the status dot — where 3:1 is the bar. It measures 3.11:1 on white,
+       so it must never carry small text; their brandGreenHover (#008C47) is
+       still only 4.34:1. `green-deep` is darkened to #00753A (5.82:1 on white,
+       5.32:1 on the green tint) so green body text passes AA. */
+  --color-fr-green: #00a859;
+  --color-fr-green-deep: #00753a;
+  --color-fr-green-050: #e6f9f0;
 
   /* — Category accents. The deck gives each business category its own colour
        (FR-002) and each stat its own (FR-003); without these the site can only
@@ -156,29 +159,34 @@
        the `-deep` tone for any body-size text. Measured on white — orange is
        3.42:1 at base (fine for graphics, fails AA for small text) and 5.02:1
        deep; rose is 4.57:1 base and 6.60:1 deep. */
-  --color-fr-orange: #dd6a08;
-  --color-fr-orange-deep: #b4530a;
-  --color-fr-orange-050: #fff2e6;
-  --color-fr-violet: #5415bd;
-  --color-fr-violet-deep: #430f96;
-  --color-fr-violet-050: #f3eafe;
-  --color-fr-rose: #d63a56;
-  --color-fr-rose-deep: #ac2b43;
-  --color-fr-rose-050: #fdeaee;
+  --color-fr-orange: #ea580c;
+  --color-fr-orange-deep: #b8460a;
+  --color-fr-orange-050: #fff4ec;
+  --color-fr-violet: #7c3aed;
+  --color-fr-violet-deep: #5b21b6;
+  --color-fr-violet-050: #f3e8ff;
+  --color-fr-rose: #e11d48;
+  --color-fr-rose-deep: #a5122f;
+  --color-fr-rose-050: #ffebf0;
 
   /* — Dark surfaces for full-width bands (the nav and hero in FR-014/016, the
        operations ledger header in FR-003). */
-  --color-fr-navy: #02132b;
+  --color-fr-navy: #0b132a;
   --color-fr-navy-soft: #0a2447;
-  --color-fr-royal: #002a7e;
+  --color-fr-royal: #082878;
 
   /* — Neutrals. Solid, blue-cast, and AA-legible on white. */
-  --color-fr-ink: #0f172a;
-  --color-fr-ink-2: #4a5568;
+  --color-fr-ink: #0b132a;
+  --color-fr-ink-2: #5a6578;
   --color-fr-ink-3: #6b7688;
   --color-fr-sep: #e4eaf2;
   --color-fr-bg: #ffffff;
-  --color-fr-panel: #f5f8fc;
+  --color-fr-panel: #f8fafc;
+
+  /* Heading face for the marketing site, matching the client's build. The CRM
+     is untouched and keeps the system stack. */
+  --font-fr-heading:
+    var(--font-plus-jakarta), var(--font-inter), "Inter", system-ui, sans-serif;
 
   --radius-fr-card: 20px;
 
@@ -187,8 +195,8 @@
     0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.05);
   --shadow-fr-lift:
     0 2px 6px rgba(15, 23, 42, 0.06), 0 18px 44px rgba(15, 23, 42, 0.09);
-  --shadow-fr-blue: 0 6px 20px rgba(21, 84, 210, 0.26);
-  --shadow-fr-green: 0 6px 20px rgba(21, 126, 42, 0.24);
+  --shadow-fr-blue: 0 6px 20px rgba(12, 66, 184, 0.26);
+  --shadow-fr-green: 0 6px 20px rgba(0, 168, 89, 0.24);
 
   /* The calculator's result rising into place. Reduced-motion is handled
      globally at the bottom of this file. */
@@ -223,6 +231,14 @@
 }
 
 @layer base {
+  /* The marketing site's headings use the client's heading face. Scoped to the
+     (marketing) tree via .fr-site on its layout wrapper, so the CRM keeps the
+     system stack. */
+  .fr-site :is(h1, h2, h3) {
+    font-family: var(--font-fr-heading);
+    letter-spacing: -0.022em;
+  }
+
   html {
     height: 100%;
   }
