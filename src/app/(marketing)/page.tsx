@@ -3,6 +3,13 @@ import { Suspense } from "react";
 import { ButtonLink } from "@/components/marketing/Button";
 import { ClientMarquee } from "@/components/marketing/ClientMarquee";
 import { Hero } from "@/components/marketing/Hero";
+import {
+  GovAlignment,
+  ProcessSection,
+  SectorHub,
+  ServicesSection,
+} from "@/components/marketing/HomeSections";
+import { LiveLedger } from "@/components/marketing/LiveLedger";
 import { LeadForm } from "@/components/marketing/LeadForm";
 import {
   Card,
@@ -97,6 +104,18 @@ export default function MarketingHome() {
           ))}
         </div>
       </section>
+
+      {/* ── The client's home-page sequence (their app/page.tsx order):
+             Services → Process → Calculator → Enterprise clients → Live ledger
+             → Sector hub → Gov alignment. Their VideoCaseStudies section is
+             omitted at your instruction. The calculator sits in the hero and the
+             enterprise clients are the logo marquee further down, so those two
+             slots are already filled. */}
+      <ServicesSection />
+      <ProcessSection />
+      <LiveLedger />
+      <SectorHub />
+      <GovAlignment />
 
       {/* ── 3 · FOOD LICENCE SERVICE PANEL
              Section 5 of docs/Website-Structure-Teardown.md — the offer, its
