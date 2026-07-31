@@ -65,13 +65,34 @@ export function SiteNav() {
     <header
       className={cn(
         "sticky top-0 z-50 w-full border-b border-fr-sep bg-fr-bg/90 backdrop-blur-xl",
-        "transition-shadow duration-300",
+        "transition-shadow duration-300 ease-ios",
         scrolled ? "shadow-fr-soft" : "shadow-none",
       )}
     >
-      <div className="mx-auto flex h-20 max-w-[1200px] items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
-        <Link href="/" aria-label="Food Raksha home" className="shrink-0">
-          <Logo variant="lockup" height={30} />
+      <div
+        className={cn(
+          "mx-auto flex max-w-[1200px] items-center justify-between gap-6 px-4 sm:px-6 lg:px-8",
+          "transition-[height] duration-300 ease-ios",
+          scrolled ? "h-16" : "h-20",
+        )}
+      >
+        {/* Lockup: logo + tagline. The tagline is part of the expanded state and
+            collapses away on scroll, per FR-017. */}
+        <Link
+          href="/"
+          aria-label="Food Raksha home"
+          className="flex shrink-0 flex-col justify-center"
+        >
+          <Logo variant="lockup" height={scrolled ? 26 : 30} />
+          <span
+            className={cn(
+              "block overflow-hidden text-[9.5px] font-semibold tracking-[0.14em] text-fr-ink-2 uppercase",
+              "transition-all duration-300 ease-ios",
+              scrolled ? "mt-0 max-h-0 opacity-0" : "mt-1 max-h-4 opacity-100",
+            )}
+          >
+            Compliance. Simplified.
+          </span>
         </Link>
 
         {/* Desktop navigation */}

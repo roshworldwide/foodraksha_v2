@@ -85,12 +85,18 @@ export const SERVICES_MEGA: MegaColumn[] = [
   },
 ];
 
-/** Top-level items. Their scroll-spy anchors become real pages. */
+/**
+ * Top-level items, per FR-016/FR-017: Services · License Types · Industries ·
+ * Resources · About Us. Services opens the mega menu; the rest are direct links.
+ *
+ * Their scroll-spy anchors become real destinations — "Industries" points at the
+ * Industry Hub section that exists on the home page rather than a page we have
+ * not built.
+ */
 export const NAV_LINKS: NavLink[] = [
-  { label: "Home", href: "/" },
-  { label: "Calculator", href: "/fssai-calculator" },
-  { label: "Membership", href: "/membership" },
-  { label: "Explore", href: "/explore" },
+  { label: "License Types", href: "/services" },
+  { label: "Industries", href: "/#sectors" },
+  { label: "Resources", href: "/explore" },
   { label: "About Us", href: "/about" },
 ];
 
