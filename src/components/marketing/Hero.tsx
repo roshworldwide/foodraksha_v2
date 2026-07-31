@@ -1,11 +1,12 @@
 import {
   BadgeCheck,
   ClipboardCheck,
-  Clock,
+  Lock,
   ShieldCheck,
   Store,
   TrendingUp,
   Wheat,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import {
@@ -17,10 +18,11 @@ import {
 import { EligibilityChecker } from "./EligibilityChecker";
 
 /**
- * The home-page hero, ported from docs/client-design/components/HeroSection.tsx
- * to match mockup FR-001: badge, two-tone headline, subhead and the compact
- * Eligibility Checker on the left; stat cards on the right; an "Aligned with"
- * trust strip beneath.
+ * The home-page hero, matched to docs/client-design/index.html (the source of
+ * truth — their components/* diverge from it): badge, headline with
+ * `.gradient-text` on "Safe Food." and `.underline-swoosh` on "Trusted", subhead
+ * and the compact Eligibility Checker on the left; stat cards on the right; an
+ * "Aligned with" trust strip beneath.
  *
  * A Server Component apart from the checker.
  *
@@ -102,27 +104,9 @@ export function Hero() {
           {/* Left — copy + checker */}
           <div className="space-y-6 lg:col-span-6">
             <h1 className="text-[34px] leading-[1.08] font-extrabold tracking-[-0.03em] text-balance text-fr-ink sm:text-[42px] lg:text-[52px]">
-              Powering <span className="text-fr-blue">Safe Food.</span>
+              Powering <span className="gradient-text">Safe Food.</span>
               <br />
-              Building{" "}
-              <span className="relative whitespace-nowrap text-fr-green-deep">
-                Trusted
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 200 12"
-                  preserveAspectRatio="none"
-                  className="absolute -bottom-1 left-0 h-[9px] w-full text-fr-green/40"
-                >
-                  <path
-                    d="M2 8c40-5 100-6 196-3"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </span>{" "}
-              Businesses.
+              Building <span className="underline-swoosh">Trusted</span> Brands.
             </h1>
 
             <p className="max-w-xl text-[16px] leading-relaxed font-medium text-fr-ink-2 sm:text-[18px]">
@@ -142,13 +126,13 @@ export function Hero() {
                   tone: "text-fr-green-deep",
                 },
                 {
-                  icon: Clock,
-                  label: "24-hour processing",
-                  tone: "text-fr-orange-deep",
+                  icon: Zap,
+                  label: "24-Hour Processing",
+                  tone: "text-fr-amber",
                 },
                 {
-                  icon: ShieldCheck,
-                  label: "100% confidential",
+                  icon: Lock,
+                  label: "100% Secure",
                   tone: "text-fr-blue",
                 },
               ].map((chip) => (

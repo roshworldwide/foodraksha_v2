@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local visual-diff harness (docs/PROMPT-match-index-html.md) — not shared
+/scratchpad/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
