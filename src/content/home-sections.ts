@@ -49,6 +49,44 @@ export const SERVICE_CARDS: ServiceCard[] = [
   },
 ];
 
+export interface HomeProcessStep {
+  title: string;
+  body: string;
+  tone: "blue" | "green" | "amber" | "violet";
+}
+
+/**
+ * The short "Get Licensed in 4 Simple Steps" band, copy verbatim from
+ * index.html. Deliberately separate from PROCESS_STEPS in content/services —
+ * that one is this codebase's own four steps and is shown on /services and in
+ * the service panel, where it should stay. The home page follows the HTML.
+ *
+ * The detailed six-step version ("Your FSSAI License in Simple Steps") is a
+ * different section again and lands in batch 3.
+ */
+export const HOME_PROCESS_STEPS: HomeProcessStep[] = [
+  {
+    title: "Check Eligibility",
+    body: "Enter turnover & business type.",
+    tone: "blue",
+  },
+  {
+    title: "Submit Documents",
+    body: "Upload PAN, Aadhaar & proof.",
+    tone: "green",
+  },
+  {
+    title: "Application Filing",
+    body: "We file & track end-to-end.",
+    tone: "amber",
+  },
+  {
+    title: "License Issued",
+    body: "Receive digitally & physically.",
+    tone: "violet",
+  },
+];
+
 export interface Authority {
   name: string;
   fullName: string;

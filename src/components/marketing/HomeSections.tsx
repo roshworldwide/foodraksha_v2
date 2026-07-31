@@ -3,7 +3,9 @@ import { FileBadge, GraduationCap, ScanSearch } from "lucide-react";
 import { cn } from "@/lib/cn";
 import {
   AUTHORITIES,
+  HOME_PROCESS_STEPS,
   SERVICE_CARDS,
+  type HomeProcessStep,
   type ServiceCard,
 } from "@/content/home-sections";
 import {
@@ -11,7 +13,6 @@ import {
   KOB_GROUPS,
   kobsInGroup,
 } from "@/content/fssai-fees";
-import { PROCESS_STEPS } from "@/content/services";
 
 /**
  * The home-page sections from the client's build, rebuilt on this codebase's
@@ -71,25 +72,42 @@ const ACCENT_TONE: Record<"blue" | "green" | "gradient", string> = {
   gradient: "gradient-text",
 };
 
+/** The eyebrow pill. Blue by default; the process band uses the green one. */
+const EYEBROW_TONE: Record<"blue" | "green", string> = {
+  blue: "bg-fr-blue-050 text-fr-blue",
+  green: "bg-fr-green-050 text-fr-green-deep",
+};
+
 /** The client's pill eyebrow + extrabold two-tone heading. */
 export function SectionIntro({
   eyebrow,
+  eyebrowTone = "blue",
   title,
   accent,
   accentTone = "blue",
   lede,
   align = "center",
+  className,
 }: {
   eyebrow: string;
+  eyebrowTone?: "blue" | "green";
   title: string;
   accent?: string;
   accentTone?: "blue" | "green" | "gradient";
   lede?: string;
   align?: "center" | "left";
+  className?: string;
 }) {
   return (
-    <div className={cn("mb-12", align === "center" && "text-center")}>
-      <span className="inline-block rounded-pill bg-fr-blue-050 px-4 py-1.5 text-[12px] font-bold tracking-[0.14em] text-fr-blue uppercase">
+    <div
+      className={cn("mb-12", align === "center" && "text-center", className)}
+    >
+      <span
+        className={cn(
+          "inline-block rounded-pill px-4 py-1.5 text-[12px] font-bold tracking-[0.14em] uppercase",
+          EYEBROW_TONE[eyebrowTone],
+        )}
+      >
         {eyebrow}
       </span>
       <h2 className="mt-4 text-[30px] leading-[1.12] font-extrabold tracking-[-0.028em] text-balance text-fr-ink lg:text-[38px]">
@@ -199,31 +217,43 @@ export function ServicesSection() {
 
 /* ─────────────────────────────────────────── 2 · Process */
 
+/** Step 4 is purple-600 in the HTML; fr-violet is the token nearest it. */
+const STEP_TONE: Record<HomeProcessStep["tone"], string> = {
+  blue: "bg-fr-blue",
+  green: "bg-fr-green",
+  amber: "bg-fr-amber",
+  violet: "bg-fr-violet",
+};
+
 export function ProcessSection() {
   return (
-    <Shell tinted>
+    <Shell id="how-it-works" tinted>
       <SectionIntro
-        eyebrow="How It Works"
-        title="Four steps from your first question to a"
-        accent="licence in hand"
+        eyebrow="Process"
+        eyebrowTone="green"
+        title="Get Licensed in"
+        accent="4 Simple Steps"
         accentTone="green"
+        className="mb-10"
       />
-      <ol className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {PROCESS_STEPS.map((step, index) => (
-          <li
-            key={step.title}
-            className="rounded-[18px] border-[0.5px] border-fr-sep bg-fr-bg p-6 shadow-fr-soft"
-          >
+      {/* No cards here — the HTML floats a numbered circle over the tinted
+          band, centred, with the label beneath it. */}
+      <ol className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {HOME_PROCESS_STEPS.map((step, index) => (
+          <li key={step.title} className="text-center">
             <span
               aria-hidden="true"
-              className="flex size-11 items-center justify-center rounded-[14px] bg-fr-blue text-[17px] font-bold text-white"
+              className={cn(
+                "mx-auto flex size-16 items-center justify-center rounded-full text-[20px] font-extrabold text-white shadow-fr-lift",
+                STEP_TONE[step.tone],
+              )}
             >
               {index + 1}
             </span>
-            <h3 className="mt-4 text-[16.5px] font-bold text-fr-ink">
+            <h3 className="mt-4 text-[16px] font-bold text-fr-ink">
               {step.title}
             </h3>
-            <p className="mt-2 text-[14px] leading-relaxed text-fr-ink-2">
+            <p className="mt-1.5 text-[14px] leading-relaxed text-fr-ink-2">
               {step.body}
             </p>
           </li>
