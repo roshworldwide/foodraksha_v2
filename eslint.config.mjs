@@ -32,6 +32,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored client design source — reference only, never built or linted.
+    "docs/client-design/**",
   ]),
 ]);
 
