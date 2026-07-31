@@ -1,8 +1,8 @@
 /**
- * Content for the home-page sections in the client's build
- * (/Reference/FoodRaksha-NextJS/components/*). Copy follows theirs wherever it
- * describes something real; anything they mocked up is either replaced with a
- * verified value or marked.
+ * Content for the home-page sections, matched to docs/client-design/index.html —
+ * the source of truth. Copy is theirs verbatim; anything they mocked up as data
+ * (stat values, client logos, the ledger feed) is either a verified value or
+ * marked, since the layout may be theirs but the facts have to be ours.
  */
 
 export interface ServiceCard {
@@ -11,34 +11,41 @@ export interface ServiceCard {
   cta: string;
   href: string;
   tone: "blue" | "green" | "orange";
-  glyph: string;
+  /** Keyed into SERVICE_ICON in HomeSections — lucide standing in for the HTML's FontAwesome. */
+  icon: "registration" | "audit" | "training";
 }
 
-/** Their ServicesSection, three cards, copy as written. */
+/**
+ * Their Services section: three cards, copy verbatim from index.html.
+ *
+ * Two claims here are the client's own and are not ours to verify: "as fast as
+ * 24 hours" and "FSSAI-empaneled experts" (empanelment is a specific
+ * accreditation). Both are flagged for confirmation before launch.
+ */
 export const SERVICE_CARDS: ServiceCard[] = [
   {
     title: "FSSAI Registration",
-    body: "Registration, State and Central licences. We identify the right one and file it — most within 24 hours of your documents.",
-    cta: "Check your licence",
+    body: "Basic, State & Central licenses. Get your FSSAI number in as fast as 24 hours.",
+    cta: "Learn More",
     href: "/fssai-calculator",
     tone: "blue",
-    glyph: "▤",
+    icon: "registration",
   },
   {
     title: "Compliance Audits",
-    body: "Hygiene and food-safety audits, annual returns and the paperwork that keeps your licence in good standing.",
-    cta: "See what's covered",
-    href: "/membership",
+    body: "Thorough hygiene & safety audits by FSSAI-empaneled experts.",
+    cta: "Schedule Audit",
+    href: "/book",
     tone: "green",
-    glyph: "✓",
+    icon: "audit",
   },
   {
     title: "FoSTaC Training",
-    body: "Food handler and food manager training and certification — the ground we have been on for 35+ years.",
-    cta: "Talk to us",
+    body: "Mandatory food safety training & certification programs.",
+    cta: "View Courses",
     href: "/book",
     tone: "orange",
-    glyph: "◎",
+    icon: "training",
   },
 ];
 

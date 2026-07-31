@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FileBadge, GraduationCap, ScanSearch } from "lucide-react";
 import { cn } from "@/lib/cn";
 import {
   AUTHORITIES,
@@ -16,11 +17,12 @@ import { PROCESS_STEPS } from "@/content/services";
  * The home-page sections from the client's build, rebuilt on this codebase's
  * server-rendered foundation.
  *
- * Format follows /Reference/FoodRaksha-NextJS/components: a pill eyebrow in
- * brandBlue on brandBlueLight, an extrabold heading in the heading face with a
- * coloured second clause, then a card grid — rounded-2xl, hairline border, soft
- * shadow, a tinted icon tile that inverts on hover, and an accent-coloured link
- * with an arrow.
+ * Format follows docs/client-design/index.html — the source of truth, not their
+ * components/*, which diverge from it: a pill eyebrow in brandBlue on
+ * brandBlueLight, an extrabold heading in the heading face with a `.gradient-text`
+ * second clause, then a card grid — rounded-2xl, hairline border, soft shadow, a
+ * tinted icon tile that inverts on hover, and an accent-coloured link with an
+ * arrow.
  *
  * These are Server Components: their originals were "use client" only to carry
  * AOS scroll animations, which are not worth the JS or the layout shift.
@@ -58,6 +60,17 @@ const TONE: Record<
   },
 };
 
+/**
+ * Heading accents. `gradient` is index.html's `.gradient-text` (blue→green),
+ * which is the house treatment for the second clause of a section heading —
+ * Services, the ledger and the government band all use it.
+ */
+const ACCENT_TONE: Record<"blue" | "green" | "gradient", string> = {
+  blue: "text-fr-blue",
+  green: "text-fr-green-deep",
+  gradient: "gradient-text",
+};
+
 /** The client's pill eyebrow + extrabold two-tone heading. */
 export function SectionIntro({
   eyebrow,
@@ -70,7 +83,7 @@ export function SectionIntro({
   eyebrow: string;
   title: string;
   accent?: string;
-  accentTone?: "blue" | "green";
+  accentTone?: "blue" | "green" | "gradient";
   lede?: string;
   align?: "center" | "left";
 }) {
@@ -81,15 +94,7 @@ export function SectionIntro({
       </span>
       <h2 className="mt-4 text-[30px] leading-[1.12] font-extrabold tracking-[-0.028em] text-balance text-fr-ink lg:text-[38px]">
         {title}{" "}
-        {accent && (
-          <span
-            className={
-              accentTone === "green" ? "text-fr-green-deep" : "text-fr-blue"
-            }
-          >
-            {accent}
-          </span>
-        )}
+        {accent && <span className={ACCENT_TONE[accentTone]}>{accent}</span>}
       </h2>
       {lede && (
         <p
@@ -126,8 +131,16 @@ function Shell({
 
 /* ─────────────────────────────────────────── 1 · Services */
 
+/** lucide equivalents for the HTML's FontAwesome glyphs, per the spec. */
+const SERVICE_ICON: Record<ServiceCard["icon"], typeof FileBadge> = {
+  registration: FileBadge, // fa-file-certificate
+  audit: ScanSearch, // fa-magnifying-glass-chart
+  training: GraduationCap, // fa-graduation-cap
+};
+
 function ServiceTile({ card }: { card: ServiceCard }) {
   const tone = TONE[card.tone];
+  const Icon = SERVICE_ICON[card.icon];
   return (
     <Link
       href={card.href}
@@ -146,7 +159,7 @@ function ServiceTile({ card }: { card: ServiceCard }) {
           tone.hover,
         )}
       >
-        {card.glyph}
+        <Icon className="size-6" />
       </span>
       <h3 className="mt-5 text-[18px] font-bold text-fr-ink">{card.title}</h3>
       <p className="mt-2 text-[14.5px] leading-relaxed text-fr-ink-2">
@@ -171,8 +184,9 @@ export function ServicesSection() {
     <Shell id="services">
       <SectionIntro
         eyebrow="Our Services"
-        title="Everything you need for"
-        accent="FSSAI compliance"
+        title="Everything You Need for"
+        accent="FSSAI Compliance"
+        accentTone="gradient"
       />
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {SERVICE_CARDS.map((card) => (
