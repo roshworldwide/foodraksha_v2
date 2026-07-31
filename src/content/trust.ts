@@ -47,7 +47,47 @@ export interface HeroStat {
   value: string | null;
   sublabel: string;
   tone: "blue" | "green" | "orange";
+  /** Growth pill, e.g. "+12%". null hides it — the mockup's are invented. */
+  delta?: string | null;
 }
+
+/**
+ * The "Trusted by N Businesses" badge over the hero stat cards (FR-001).
+ * The mockup says 10,000+; that figure is in no project source, so the badge
+ * stays hidden until a real count is supplied.
+ */
+export const HERO_TRUST_BADGE: string | null = null;
+
+/**
+ * The three cards FR-001 actually names. Every value is null: "Businesses
+ * Licensed 25,386+", "Active Audits 1,248+" and "Food Certified 3.62M+" — with
+ * +12/18/15% growth pills — appear nowhere but the mockup, so none of them ship.
+ * Set a value here and that card appears in the hero, in this order, ahead of
+ * the verified stats below.
+ */
+export const CLIENT_HERO_STATS: HeroStat[] = [
+  {
+    label: "Businesses Licensed",
+    value: null,
+    sublabel: "Across India",
+    tone: "blue",
+    delta: null,
+  },
+  {
+    label: "Active Audits",
+    value: null,
+    sublabel: "Live & ongoing",
+    tone: "green",
+    delta: null,
+  },
+  {
+    label: "Food Certified",
+    value: null,
+    sublabel: "Metric tons",
+    tone: "orange",
+    delta: null,
+  },
+];
 
 export const TRUST: TrustContent = {
   // No verified Google/Trustpilot rating yet → the star rating is hidden.
