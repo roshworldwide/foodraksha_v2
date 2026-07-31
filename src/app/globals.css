@@ -188,6 +188,57 @@
   --font-fr-heading:
     var(--font-plus-jakarta), var(--font-inter), "Inter", system-ui, sans-serif;
 
+  /* — The remaining tokens from index.html's tailwind.config, so a ported
+       section never needs a raw hex. Namespaced `fr-`; the CRM is untouched. */
+  --color-fr-badge-green-bg: #e6f7ed;
+  --color-fr-card-bg-tint: #f4f8ff;
+  --color-fr-link-green: #16a34a;
+  --color-fr-red: #dc2626;
+  --color-fr-amber: #ea580c;
+  --color-fr-box-blue: #eff6ff;
+  --color-fr-box-green: #e6f7ed;
+  --color-fr-box-orange: #fff7ed;
+  --color-fr-banner-bg: #f0f5ff;
+  --color-fr-sidebar-bg: #eff6ff;
+  --color-fr-highlight-yellow: #eab308;
+
+  /* Category cards — each with its own fill and border, per the HTML. */
+  --color-fr-card-pink: #e11d48;
+  --color-fr-card-pink-bg: #ffebf0;
+  --color-fr-card-pink-border: #fecdd3;
+  --color-fr-card-green: #00a859;
+  --color-fr-card-green-bg: #e6f7ed;
+  --color-fr-card-green-border: #a7f3d0;
+  --color-fr-card-purple: #7c3aed;
+  --color-fr-card-purple-bg: #f3e8ff;
+  --color-fr-card-purple-border: #ddd6fe;
+  --color-fr-card-orange: #ea580c;
+  --color-fr-card-orange-bg: #fff4ec;
+  --color-fr-card-orange-border: #ffedd5;
+
+  /* Operations ledger. */
+  --color-fr-ledger-navy: #082878;
+  --color-fr-live-pill: #1d4ed8;
+  --color-fr-live-dot: #22c55e;
+
+  /* Hero stat cards. */
+  --color-fr-blue-stat: #0c42b8;
+  --color-fr-blue-stat-bg: #eff6ff;
+  --color-fr-green-stat: #16a34a;
+  --color-fr-green-stat-bg: #e6f7ed;
+  --color-fr-orange-stat: #ea580c;
+  --color-fr-orange-stat-bg: #fff4ec;
+
+  /* The four named shadows from the HTML config, values verbatim. */
+  --shadow-fr-card-hover:
+    0 24px 48px rgba(12, 66, 184, 0.12), 0 8px 20px rgba(0, 0, 0, 0.06);
+  --shadow-fr-stat-card:
+    0 16px 40px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-fr-step-card:
+    0 16px 40px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-fr-authority-card:
+    0 12px 32px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.03);
+
   --radius-fr-card: 20px;
 
   /* Soft, diffuse shadows per the prototype. */
@@ -277,4 +328,121 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ============================================================
+   index.html custom classes, transcribed verbatim and scoped to .fr-site so
+   none of it can reach the CRM. Source: docs/client-design/index.html <style>.
+   Reduced-motion is handled by the global rule above, which neutralises these
+   animations along with everything else.
+   ============================================================ */
+
+.fr-site .underline-swoosh {
+  position: relative;
+  display: inline-block;
+  color: #0c42b8;
+}
+.fr-site .underline-swoosh::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M0 15 Q 50 0, 100 12' stroke='%230C42B8' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+}
+
+.fr-site .gradient-text {
+  background: linear-gradient(135deg, #0c42b8 0%, #00a859 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.fr-site .dot-pattern {
+  background-image: radial-gradient(circle, #0c42b8 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.03;
+}
+
+.fr-site .card-hover-lift {
+  transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+}
+.fr-site .card-hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    0 24px 48px rgba(12, 66, 184, 0.1),
+    0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.fr-site .carousel-container {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.fr-site .carousel-container::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes pulseLive {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+}
+.fr-site .pulse-live-dot {
+  animation: pulseLive 2s ease-in-out infinite;
+}
+
+@keyframes frFloat {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+.fr-site .animate-float {
+  animation: frFloat 6s ease-in-out infinite;
+}
+.fr-site .animate-float-delayed {
+  animation: frFloat 6s ease-in-out 2s infinite;
+}
+
+.fr-site .nav-link.active {
+  color: #0c42b8 !important;
+  font-weight: 700;
+  border-bottom: 2px solid #0c42b8;
+}
+
+.fr-site .enterprise-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 16px 40px rgba(12, 66, 184, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #0c42b8;
+}
+
+.fr-site .active-tab-arrow::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #0c42b8;
+}
+
+.fr-site .sector-tab {
+  transition: all 0.2s ease;
 }

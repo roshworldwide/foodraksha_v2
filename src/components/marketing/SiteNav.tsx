@@ -143,11 +143,11 @@ export function SiteNav() {
                   exit={reduceMotion ? undefined : { opacity: 0, y: -6 }}
                   transition={{ duration: 0.18, ease: [0.32, 0.72, 0, 1] }}
                   className={cn(
-                    "absolute top-full left-1/2 z-50 w-[min(94vw,1060px)] -translate-x-1/2",
+                    "absolute top-full left-1/2 z-50 w-[min(94vw,720px)] -translate-x-1/2",
                     "rounded-b-[22px] border border-fr-sep bg-fr-bg p-8 shadow-fr-lift",
                   )}
                 >
-                  <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
                     {SERVICES_MEGA.map((column) => (
                       <div key={column.heading}>
                         <h3

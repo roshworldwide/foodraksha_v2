@@ -18,69 +18,44 @@ export interface MegaColumn {
   links: NavLink[];
 }
 
-/** The Services mega-menu, four columns as in their Navbar. */
+/**
+ * The Services mega-menu, transcribed from docs/client-design/index.html — two
+ * columns, License Services and Documentation Services. (Their components/*
+ * Navbar has four columns; the HTML is the source of truth and it has two.)
+ *
+ * Every link in the HTML was `href="#"`; each is pointed at a real route here.
+ */
 export const SERVICES_MEGA: MegaColumn[] = [
   {
     heading: "License Services",
     tone: "blue",
     links: [
       {
-        label: "Licence classification & application",
+        label: "License classification, documentation & application",
         href: "/fssai-calculator",
       },
+      { label: "License modification application", href: "/book" },
       {
-        label: "Documentation prepared and filed",
-        href: "/services#documents",
+        label: "Fortified / Organic / Vegan Endorsement",
+        href: "/book",
       },
-      {
-        label: "Follow-up & query response till conclusion",
-        href: "/services",
-      },
-      { label: "Licence modification", href: "/book" },
-      { label: "Fortified / Organic / Vegan endorsement", href: "/book" },
-      { label: "Annual return filing guidance", href: "/membership" },
-      { label: "Licence renewal", href: "/book" },
+      { label: "Annual Return Filing Guidance", href: "/membership" },
+      { label: "License Renewal", href: "/book" },
     ],
   },
   {
-    heading: "Documentation",
+    heading: "Documentation Services",
     tone: "green",
     links: [
-      { label: "FSMS documentation checklist", href: "/services#documents" },
+      { label: "FSMS Documentation Checklist", href: "/services#documents" },
       {
-        label: "Preparation & verification by our team",
+        label: "FSMS preparation & verification",
         href: "/services#documents",
       },
-      { label: "On-field FSMS implementation", href: "/book" },
-      { label: "FSSAI post-licence checklist", href: "/services#documents" },
-      { label: "Import clearance query responses", href: "/book" },
-      { label: "Annual medical exam assistance", href: "/membership" },
-    ],
-  },
-  {
-    heading: "Facility & Product",
-    tone: "violet",
-    links: [
-      { label: "Internal audit field visits", href: "/book" },
-      { label: "Facility layout audits", href: "/book" },
-      { label: "Third-party FSSAI audits", href: "/book" },
-      { label: "Labelling guidance & validation", href: "/book" },
-      { label: "Advertising & claim verification", href: "/book" },
-      { label: "Nutritional value testing", href: "/book" },
-    ],
-  },
-  {
-    heading: "Training & Legal",
-    tone: "cyan",
-    links: [
-      {
-        label: "Food handler & managerial training",
-        href: "/fsm-registration",
-      },
-      { label: "Mandatory water & product testing", href: "/book" },
-      { label: "Regulatory notice responses", href: "/book" },
-      { label: "Adjudication & prosecution support", href: "/book" },
-      { label: "Product recall & seizure support", href: "/book" },
+      { label: "Post-License documentation", href: "/services#documents" },
+      { label: "Import Clearance query responses", href: "/book" },
+      { label: "Annual Medical Exam assistance", href: "/membership" },
+      { label: "Internal Audit checklist", href: "/book" },
     ],
   },
 ];
