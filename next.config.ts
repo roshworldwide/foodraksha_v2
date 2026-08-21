@@ -16,8 +16,9 @@ const csp = [
   "frame-ancestors 'none'",
   "object-src 'none'",
   "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "style-src 'self' 'unsafe-inline'",
+  // Google Fonts (Inter / Inter Tight) used by the static marketing site.
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   // Next.js injects a small inline bootstrap; in dev it also needs eval.
   process.env.NODE_ENV === "development"
     ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
@@ -61,6 +62,17 @@ const nextConfig: NextConfig = {
 
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
+  },
+
+  // Serve the static marketing site (public/site/index.html) at the root.
+  // `beforeFiles` runs before the App Router so it takes over "/". The CRM,
+  // /api/* and every other route are unaffected.
+  async rewrites() {
+    return {
+      beforeFiles: [{ source: "/", destination: "/site/index.html" }],
+      afterFiles: [],
+      fallback: [],
+    };
   },
 };
 
