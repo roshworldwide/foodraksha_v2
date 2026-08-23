@@ -69,11 +69,23 @@ function visibleStats(): (HeroStat & { value: string })[] {
   ].slice(0, 3);
 }
 
-/** FR-001's under-hero strip. All four are real alignments or plain fact. */
-const ALIGNED = [
-  { label: "FSSAI", note: "Food Safety & Standards Authority of India" },
-  { label: "FoSTaC", note: "Food Safety Training & Certification" },
-  { label: "NABL", note: "Accredited testing laboratories" },
+/** FR-001's under-hero strip. Real regulatory marks where we have the logo. */
+const ALIGNED: { label: string; note: string; logo: string | null }[] = [
+  {
+    label: "FSSAI",
+    note: "Food Safety & Standards Authority of India",
+    logo: "/media/logo-fssai.png",
+  },
+  {
+    label: "FoSTaC",
+    note: "Food Safety Training & Certification",
+    logo: null,
+  },
+  {
+    label: "NABL",
+    note: "Accredited testing laboratories",
+    logo: "/media/logo-nabl.png",
+  },
 ];
 
 export function Hero() {
@@ -84,6 +96,28 @@ export function Hero() {
       className="relative overflow-hidden bg-gradient-to-b from-fr-panel via-fr-blue-050/40 to-fr-panel pt-10 pb-16 lg:pt-16"
       id="home"
     >
+      {/* Background company video — muted, looping, ambient. Until a real clip
+          is provided the poster image shows; drop the file at
+          public/media/hero-loop.mp4 (H.264 MP4, ideally a WebM too) and it
+          plays automatically. */}
+      <div aria-hidden="true" className="absolute inset-0 z-0 overflow-hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/media/hero-poster.jpg"
+          className="h-full w-full object-cover"
+        >
+          <source src="/media/hero-loop.mp4" type="video/mp4" />
+        </video>
+        {/* Legibility scrims — strongest under the copy, clearing to the right,
+            and a soft top/bottom fade so the footage blends into the page. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-fr-panel/95 via-fr-panel/85 to-fr-panel/55" />
+        <div className="absolute inset-0 bg-gradient-to-b from-fr-panel/70 via-transparent to-fr-panel/90" />
+      </div>
+
       <div className="relative z-10 mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
         {/* Badge */}
         <div className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-fr-sep bg-fr-bg/80 px-4 py-2 text-[12.5px] font-semibold text-fr-ink shadow-fr-soft backdrop-blur-sm">
@@ -230,16 +264,27 @@ export function Hero() {
           <span className="text-[11.5px] font-bold tracking-[0.14em] text-fr-ink-2 uppercase">
             Aligned with
           </span>
-          {ALIGNED.map((body) => (
-            <span key={body.label} className="text-center">
-              <span className="block text-[15px] font-extrabold text-fr-ink">
-                {body.label}
+          {ALIGNED.map((body) =>
+            body.logo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={body.label}
+                src={body.logo}
+                alt={`${body.label} — ${body.note}`}
+                title={`${body.label} — ${body.note}`}
+                className="h-9 w-auto object-contain opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 sm:h-10"
+              />
+            ) : (
+              <span key={body.label} className="text-center" title={body.note}>
+                <span className="block text-[16px] font-extrabold tracking-tight text-fr-ink">
+                  {body.label}
+                </span>
+                <span className="block text-[10px] text-fr-ink-2">
+                  {body.note}
+                </span>
               </span>
-              <span className="block text-[11px] text-fr-ink-2">
-                {body.note}
-              </span>
-            </span>
-          ))}
+            ),
+          )}
           <span className="flex items-center gap-2 text-[13px] font-semibold text-fr-ink">
             <ShieldCheck aria-hidden="true" className="size-4 text-fr-blue" />
             100% Legal &amp; Compliant

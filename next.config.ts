@@ -63,17 +63,6 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
-
-  // Serve the static marketing site (public/site/index.html) at the root.
-  // `beforeFiles` runs before the App Router so it takes over "/". The CRM,
-  // /api/* and every other route are unaffected.
-  async rewrites() {
-    return {
-      beforeFiles: [{ source: "/", destination: "/site/index.html" }],
-      afterFiles: [],
-      fallback: [],
-    };
-  },
 };
 
 export default nextConfig;

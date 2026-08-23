@@ -163,29 +163,40 @@ function ServiceTile({ card }: { card: ServiceCard }) {
     <Link
       href={card.href}
       className={cn(
-        "group flex flex-col rounded-[18px] border-[0.5px] border-fr-sep bg-fr-bg p-6 shadow-fr-soft",
+        "group relative flex flex-col overflow-hidden rounded-[20px] border-[0.5px] border-fr-sep bg-fr-bg p-6 shadow-fr-soft",
         "transition-[transform,box-shadow] duration-300 ease-ios",
-        "hover:-translate-y-1 hover:shadow-fr-lift",
+        "hover:-translate-y-1.5 hover:shadow-fr-lift",
       )}
     >
+      {/* hover light-sweep + corner colour wash */}
+      <span aria-hidden="true" className="fr-shine" />
       <span
         aria-hidden="true"
         className={cn(
-          "flex size-14 items-center justify-center rounded-[16px] text-[22px]",
-          "transition-colors duration-300",
+          "pointer-events-none absolute -top-12 -right-12 size-32 rounded-full opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100",
+          tone.tile,
+        )}
+      />
+      <span
+        aria-hidden="true"
+        className={cn(
+          "relative flex size-14 items-center justify-center rounded-[16px] text-[22px] shadow-fr-soft",
+          "transition-[transform,background-color,color] duration-300 group-hover:scale-105",
           tone.tile,
           tone.hover,
         )}
       >
         <Icon className="size-6" />
       </span>
-      <h3 className="mt-5 text-[18px] font-bold text-fr-ink">{card.title}</h3>
-      <p className="mt-2 text-[14.5px] leading-relaxed text-fr-ink-2">
+      <h3 className="relative mt-5 text-[18px] font-bold text-fr-ink">
+        {card.title}
+      </h3>
+      <p className="relative mt-2 text-[14.5px] leading-relaxed text-fr-ink-2">
         {card.body}
       </p>
       <span
         className={cn(
-          "mt-4 flex items-center gap-1.5 text-[14px] font-semibold",
+          "relative mt-4 flex items-center gap-1.5 text-[14px] font-semibold",
           "transition-[gap] duration-300 group-hover:gap-2.5",
           tone.text,
         )}
@@ -236,29 +247,38 @@ export function ProcessSection() {
         accentTone="green"
         className="mb-10"
       />
-      {/* No cards here — the HTML floats a numbered circle over the tinted
-          band, centred, with the label beneath it. */}
-      <ol className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {HOME_PROCESS_STEPS.map((step, index) => (
-          <li key={step.title} className="text-center">
-            <span
-              aria-hidden="true"
-              className={cn(
-                "mx-auto flex size-16 items-center justify-center rounded-full text-[20px] font-extrabold text-white shadow-fr-lift",
-                STEP_TONE[step.tone],
-              )}
+      <div className="relative">
+        {/* connector timeline shows through the gaps between the cards */}
+        <div
+          aria-hidden="true"
+          className="absolute top-[52px] right-[12%] left-[12%] hidden border-t-2 border-dashed border-fr-sep lg:block"
+        />
+        <ol className="relative grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {HOME_PROCESS_STEPS.map((step, index) => (
+            <li
+              key={step.title}
+              className="group relative flex flex-col items-center overflow-hidden rounded-[18px] border-[0.5px] border-fr-sep bg-fr-bg p-6 text-center shadow-fr-soft transition-[transform,box-shadow] duration-300 ease-ios hover:-translate-y-1.5 hover:shadow-fr-lift"
             >
-              {index + 1}
-            </span>
-            <h3 className="mt-4 text-[16px] font-bold text-fr-ink">
-              {step.title}
-            </h3>
-            <p className="mt-1.5 text-[14px] leading-relaxed text-fr-ink-2">
-              {step.body}
-            </p>
-          </li>
-        ))}
-      </ol>
+              <span aria-hidden="true" className="fr-shine" />
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "relative flex size-14 items-center justify-center rounded-2xl text-[19px] font-extrabold text-white shadow-fr-lift transition-transform duration-300 group-hover:scale-105",
+                  STEP_TONE[step.tone],
+                )}
+              >
+                {index + 1}
+              </span>
+              <h3 className="relative mt-5 text-[16px] font-bold text-fr-ink">
+                {step.title}
+              </h3>
+              <p className="relative mt-1.5 text-[14px] leading-relaxed text-fr-ink-2">
+                {step.body}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </div>
     </Shell>
   );
 }

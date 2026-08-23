@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { ArrowRight, FilePlus2, RefreshCw, Replace } from "lucide-react";
 import { ButtonLink } from "@/components/marketing/Button";
 import { ClientMarquee } from "@/components/marketing/ClientMarquee";
 import { Hero } from "@/components/marketing/Hero";
@@ -12,9 +13,7 @@ import {
 import { LiveLedger } from "@/components/marketing/LiveLedger";
 import { LeadForm } from "@/components/marketing/LeadForm";
 import {
-  Card,
   CTABand,
-  LinkArrow,
   SectionHeading,
   TestimonialCard,
   TrustRow,
@@ -36,21 +35,21 @@ export const metadata: Metadata = pageMeta({
    own colour (FR-002) rather than repeating blue. */
 const ACTIONS = [
   {
-    icon: "✎",
+    Icon: FilePlus2,
     tone: "blue" as const,
     title: "New Application",
     body: "Get your FSSAI licence done. We handle the paperwork and get it processed — fair prices, no runaround.",
     cta: "Get started",
   },
   {
-    icon: "⟳",
+    Icon: Replace,
     tone: "green" as const,
     title: "Modification",
     body: "Need to change something on your licence? We handle modifications and get it sorted quickly.",
     cta: "Modify licence",
   },
   {
-    icon: "↻",
+    Icon: RefreshCw,
     tone: "orange" as const,
     title: "Renewal",
     body: "Licence renewal coming up? We take care of it so you stay compliant, hassle-free.",
@@ -83,24 +82,39 @@ export default function MarketingHome() {
         />
         <div className="grid gap-5 md:grid-cols-3">
           {ACTIONS.map((action) => (
-            <Card key={action.title} hover>
+            <a
+              key={action.title}
+              href="#qualifier"
+              className="group relative flex flex-col overflow-hidden rounded-[20px] border-[0.5px] border-fr-sep bg-fr-bg p-6 shadow-fr-soft transition-[transform,box-shadow] duration-300 ease-ios hover:-translate-y-1.5 hover:shadow-fr-lift"
+            >
+              <span aria-hidden="true" className="fr-shine" />
               <span
+                aria-hidden="true"
                 className={cn(
-                  "flex size-[52px] items-center justify-center rounded-[15px] text-[24px]",
+                  "pointer-events-none absolute -top-12 -right-12 size-32 rounded-full opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100",
                   ACTION_TONE[action.tone],
                 )}
+              />
+              <span
                 aria-hidden="true"
+                className={cn(
+                  "relative flex size-[54px] items-center justify-center rounded-[16px] shadow-fr-soft transition-transform duration-300 group-hover:scale-105",
+                  ACTION_TONE[action.tone],
+                )}
               >
-                {action.icon}
+                <action.Icon className="size-6" />
               </span>
-              <h3 className="mt-4 text-title-3 text-fr-ink">{action.title}</h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-fr-ink-2">
+              <h3 className="relative mt-5 text-title-3 text-fr-ink">
+                {action.title}
+              </h3>
+              <p className="relative mt-2 text-[15px] leading-relaxed text-fr-ink-2">
                 {action.body}
               </p>
-              <div className="mt-4">
-                <LinkArrow href="#qualifier">{action.cta}</LinkArrow>
-              </div>
-            </Card>
+              <span className="relative mt-4 flex items-center gap-1.5 text-[14px] font-semibold text-fr-blue transition-[gap] duration-300 group-hover:gap-2.5">
+                {action.cta}
+                <ArrowRight aria-hidden="true" className="size-4" />
+              </span>
+            </a>
           ))}
         </div>
       </section>
