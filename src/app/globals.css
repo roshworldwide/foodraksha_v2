@@ -175,6 +175,14 @@
   --color-fr-navy-soft: #0a2447;
   --color-fr-royal: #082878;
 
+  /* — StoryBrand-inspired theme (R2): near-black dark bands, warm cream
+       alternating sections, and a mint secondary accent. Blue stays primary. */
+  --color-fr-night: #0a0923;
+  --color-fr-cream: #f4f1ea;
+  --color-fr-cream-deep: #ece7db;
+  --color-fr-mint: #1acb97;
+  --color-fr-mint-deep: #0f9d76;
+
   /* — Neutrals. Solid, blue-cast, and AA-legible on white. */
   --color-fr-ink: #0b132a;
   --color-fr-ink-2: #5a6578;
@@ -186,7 +194,12 @@
   /* Heading face for the marketing site, matching the client's build. The CRM
      is untouched and keeps the system stack. */
   --font-fr-heading:
-    var(--font-plus-jakarta), var(--font-inter), "Inter", system-ui, sans-serif;
+    var(--font-montserrat), var(--font-plus-jakarta), var(--font-inter),
+    "Inter", system-ui, sans-serif;
+
+  /* Condensed uppercase display face (Oswald) for big StoryBrand headlines. */
+  --font-fr-display:
+    var(--font-oswald), "Oswald", "Arial Narrow", "Helvetica Neue", sans-serif;
 
   /* — The remaining tokens from index.html's tailwind.config, so a ported
        section never needs a raw hex. Namespaced `fr-`; the CRM is untouched. */
@@ -360,6 +373,48 @@
   -webkit-text-fill-color: transparent;
 }
 
+/* Marketing body face → Montserrat (StoryBrand pairing). Unlayered so it wins
+   over the `font-sans` utility on the .fr-site layout wrapper. Scoped to
+   .fr-site, so the CRM keeps its own system stack. */
+.fr-site {
+  font-family:
+    var(--font-montserrat), -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ── StoryBrand-inspired display type & bits ── */
+
+/* Tall condensed uppercase headline face (Oswald). */
+.fr-site .fr-display {
+  font-family: var(--font-fr-display);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  line-height: 0.96;
+}
+.fr-site .fr-display-tight {
+  line-height: 0.88;
+}
+
+/* Uppercase, letter-spaced eyebrow label (Montserrat). */
+.fr-site .fr-eyebrow {
+  font-family: var(--font-montserrat), sans-serif;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+/* Circular check bullet — black circle, white tick (StoryBrand checklist). */
+.fr-site .fr-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: var(--color-fr-night);
+  color: #fff;
+}
+
 .fr-site .dot-pattern {
   background-image: radial-gradient(circle, #0c42b8 1px, transparent 1px);
   background-size: 24px 24px;
@@ -502,6 +557,12 @@
   background-size: 22px 22px;
 }
 
+/* Light dotted texture for dark banners. */
+.fr-site .fr-dotgrid-light {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
 /* Light sweep across a card on group-hover. Put on an overflow-hidden element
    inside a `.group`. */
 @keyframes fr-sweep {
@@ -564,4 +625,177 @@
 .fr-site .fr-gradient-move {
   background-size: 200% auto;
   animation: fr-gradient-move 5s linear infinite;
+}
+
+/* ── Premium surfaces & depth ── */
+
+/* Light glass (for chips/cards on a dark background). */
+.fr-site .fr-glass {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+/* Gradient hairline border on a white card (padding-box / border-box trick). */
+.fr-site .fr-grad-border {
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, rgba(12, 66, 184, 0.55), rgba(0, 168, 89, 0.55))
+      border-box;
+}
+
+/* Soft radial section glow — drop as an aria-hidden absolute layer behind a
+   relative section. */
+.fr-site .fr-section-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.fr-site .fr-section-glow::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -16rem;
+  width: 44rem;
+  height: 44rem;
+  transform: translateX(-50%);
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    rgba(12, 66, 184, 0.1),
+    transparent 60%
+  );
+}
+.fr-site .fr-section-glow.fr-glow-green::after {
+  content: "";
+  position: absolute;
+  right: -8rem;
+  bottom: -12rem;
+  width: 34rem;
+  height: 34rem;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    rgba(0, 168, 89, 0.1),
+    transparent 60%
+  );
+}
+
+/* Blue → green gradient text, larger sweep than .gradient-text. */
+.fr-site .fr-grad-text {
+  background: linear-gradient(120deg, #0c42b8 0%, #2c6ab0 45%, #00a859 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Deep, premium elevation for feature cards. */
+.fr-site .fr-elevate {
+  box-shadow:
+    0 1px 2px rgba(11, 19, 42, 0.04),
+    0 18px 40px -12px rgba(11, 19, 42, 0.18);
+}
+
+/* ============================================================
+   SITE-WIDE DECORATIVE SYSTEM
+   Reusable, static (reduced-motion-safe) visual layers so every
+   page and section can carry depth and colour without new photos.
+   ============================================================ */
+
+/* Dark navy mesh — page-hero banners and dark bands. */
+.fr-site .fr-mesh {
+  background-color: #0a0923;
+  background-image:
+    radial-gradient(42rem 42rem at 12% -14%, rgba(12, 66, 184, 0.34), transparent 60%),
+    radial-gradient(30rem 30rem at 96% 8%, rgba(26, 203, 151, 0.14), transparent 62%),
+    radial-gradient(30rem 30rem at 74% 120%, rgba(8, 40, 120, 0.4), transparent 60%);
+}
+
+/* Light mesh — a white section that isn't a flat white wall. */
+.fr-site .fr-mesh-light {
+  background-color: #ffffff;
+  background-image:
+    radial-gradient(38rem 30rem at 6% -22%, rgba(12, 66, 184, 0.09), transparent 60%),
+    radial-gradient(32rem 28rem at 102% 0%, rgba(0, 168, 89, 0.08), transparent 60%);
+}
+
+/* Panel-tinted mesh — for tinted sections that want a hint of colour. */
+.fr-site .fr-mesh-panel {
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(36rem 30rem at 100% -10%, rgba(12, 66, 184, 0.08), transparent 60%),
+    radial-gradient(30rem 26rem at -6% 110%, rgba(0, 168, 89, 0.07), transparent 60%);
+}
+
+/* Soft blurred colour washes — drop as aria-hidden absolute children behind a
+   relative, overflow-hidden section. Size/position with utilities. */
+.fr-site .fr-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+.fr-site .fr-blob-blue {
+  background: radial-gradient(circle, rgba(12, 66, 184, 0.55), transparent 70%);
+}
+.fr-site .fr-blob-green {
+  background: radial-gradient(circle, rgba(0, 168, 89, 0.5), transparent 70%);
+}
+.fr-site .fr-blob-violet {
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.45), transparent 70%);
+}
+.fr-site .fr-blob-orange {
+  background: radial-gradient(circle, rgba(234, 88, 12, 0.4), transparent 70%);
+}
+
+/* Gradient hairline divider between sections. */
+.fr-site .fr-rule-grad {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(12, 66, 184, 0.35),
+    rgba(0, 168, 89, 0.35),
+    transparent
+  );
+}
+
+/* Framed image: rounded, deep shadow, hairline inner ring. */
+.fr-site .fr-photo {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow:
+    0 1px 2px rgba(11, 19, 42, 0.04),
+    0 24px 60px -18px rgba(11, 19, 42, 0.28);
+}
+.fr-site .fr-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  pointer-events: none;
+}
+
+/* Navy gradient scrim over a photo, for legible text on top. */
+.fr-site .fr-photo-tint::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(11, 19, 42, 0.7),
+    rgba(11, 19, 42, 0.08) 55%,
+    transparent
+  );
 }

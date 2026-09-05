@@ -105,14 +105,18 @@ export function SectionHeading({
   title: string;
   /** A word or phrase within the title to colour. Matched once. */
   accent?: string;
-  accentColor?: "blue" | "green";
+  accentColor?: "blue" | "green" | "gradient";
   lede?: string;
   align?: "left" | "center";
   level?: 1 | 2;
   className?: string;
 }) {
   const accentClass =
-    accentColor === "green" ? "text-fr-green" : "text-fr-blue";
+    accentColor === "green"
+      ? "text-fr-green"
+      : accentColor === "gradient"
+        ? "fr-grad-text"
+        : "text-fr-blue";
 
   let titleNode: ReactNode = title;
   if (accent && title.includes(accent)) {
@@ -138,11 +142,17 @@ export function SectionHeading({
       )}
     >
       {eyebrow && (
-        <p className="mb-2.5 text-[13px] font-semibold tracking-[0.06em] text-fr-ink-3 uppercase">
+        <span
+          className={cn(
+            "fr-eyebrow mb-4 inline-flex items-center gap-3 text-[13px] text-fr-blue",
+            align === "center" && "justify-center",
+          )}
+        >
+          <span aria-hidden="true" className="h-px w-7 bg-fr-blue" />
           {eyebrow}
-        </p>
+        </span>
       )}
-      <Title className="text-title-1 text-balance text-fr-ink sm:text-large-title">
+      <Title className="fr-display text-[32px] text-balance text-fr-ink sm:text-[44px] lg:text-[52px]">
         {titleNode}
       </Title>
       {lede && (
@@ -282,7 +292,7 @@ export function TrustRow({
     <dl className={cn("grid gap-x-6 gap-y-6", cols, className)}>
       {items.map((item) => (
         <div key={item.label}>
-          <dt className="text-title-1 font-bold tracking-[-0.02em] text-fr-ink tabular-nums">
+          <dt className="fr-display text-[40px] text-fr-ink tabular-nums sm:text-[48px]">
             {item.value}
           </dt>
           <dd className="mt-1 text-[14px] text-fr-ink-2">{item.label}</dd>
@@ -344,34 +354,49 @@ export function CTABand({
 }) {
   /* `ink` reads as deep navy rather than near-black: the reference deck uses a
      navy band for full-width dark sections (FR-003's operations ledger, the
-     FR-014 hero), not a neutral black. */
+     FR-014 hero), not a neutral black. Each tone is now a gradient with a
+     dot-grid and a soft corner glow, so the CTA carries depth on every page. */
   const bg =
     tone === "green"
-      ? "bg-fr-green"
+      ? "bg-gradient-to-br from-fr-green to-fr-green-deep"
       : tone === "ink"
-        ? "bg-fr-navy"
-        : "bg-fr-blue";
+        ? "fr-mesh"
+        : "bg-gradient-to-br from-fr-blue to-fr-blue-deep";
+  const blob = tone === "green" ? "fr-blob-blue" : "fr-blob-green";
   return (
     <section
       className={cn(
-        "rounded-fr-card px-6 py-12 text-center text-white sm:px-12 sm:py-16",
+        "relative overflow-hidden rounded-fr-card px-6 py-14 text-center text-white sm:px-12 sm:py-16",
         bg,
         className,
       )}
     >
-      <h2 className="mx-auto max-w-[640px] text-title-1 text-balance sm:text-large-title">
-        {title}
-      </h2>
-      {lede && (
-        <p className="mx-auto mt-3.5 max-w-[560px] text-[18px] leading-relaxed text-white/85">
-          {lede}
-        </p>
-      )}
-      {children && (
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          {children}
-        </div>
-      )}
+      <span
+        aria-hidden="true"
+        className="fr-dotgrid-light absolute inset-0 opacity-60"
+      />
+      <span
+        aria-hidden="true"
+        className={cn(
+          "fr-blob absolute -top-24 -right-16 size-[22rem] opacity-40",
+          blob,
+        )}
+      />
+      <div className="relative z-10">
+        <h2 className="fr-display mx-auto max-w-[720px] text-[34px] text-balance sm:text-[52px]">
+          {title}
+        </h2>
+        {lede && (
+          <p className="mx-auto mt-3.5 max-w-[560px] text-[18px] leading-relaxed text-white/85">
+            {lede}
+          </p>
+        )}
+        {children && (
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+            {children}
+          </div>
+        )}
+      </div>
     </section>
   );
 }

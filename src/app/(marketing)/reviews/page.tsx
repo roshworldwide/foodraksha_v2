@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { ButtonLink } from "@/components/marketing/Button";
-import {
-  CTABand,
-  SectionHeading,
-  TestimonialCard,
-} from "@/components/marketing/primitives";
+import { PageHero } from "@/components/marketing/PageHero";
+import { CTABand, TestimonialCard } from "@/components/marketing/primitives";
 import { TRUST } from "@/content/trust";
 import { pageMeta } from "@/lib/marketing/seo";
 
@@ -19,16 +16,14 @@ export default function ReviewsPage() {
   const hasReviews = TRUST.testimonials.length > 0;
 
   return (
-    <div className="mx-auto max-w-[1120px] px-6 py-14">
-      <SectionHeading
-        level={1}
+    <>
+      <PageHero
         eyebrow="Reviews"
         title="What our clients say"
         accent="clients"
-        accentColor="green"
         align="center"
-        className="mb-12"
       />
+      <div className="mx-auto max-w-[1120px] px-6 pt-14 pb-16">
 
       {hasReviews ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -62,6 +57,7 @@ export default function ReviewsPage() {
           </CTABand>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

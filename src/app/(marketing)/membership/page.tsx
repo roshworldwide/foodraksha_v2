@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ButtonLink } from "@/components/marketing/Button";
+import { PageHero } from "@/components/marketing/PageHero";
 import {
   Card,
   CTABand,
@@ -57,25 +58,21 @@ function faqJsonLd() {
 
 export default function MembershipPage() {
   return (
-    <div className="mx-auto max-w-[1120px] px-6 py-14">
+    <>
       <JsonLd data={faqJsonLd()} />
 
       {/* ── Hero */}
-      <div className="mx-auto max-w-[720px] text-center">
-        <p className="text-[13px] font-semibold tracking-[0.02em] text-fr-blue uppercase">
-          Membership & Pricing
-        </p>
-        <h1 className="mt-3.5 text-[36px] leading-[1.08] font-bold tracking-[-0.026em] text-balance text-fr-ink sm:text-[46px]">
-          Plans that cover your compliance needs.
-        </h1>
-        <p className="mx-auto mt-4 max-w-[540px] text-[18px] leading-relaxed text-fr-ink-2">
-          Pick what fits your business. Transparent pricing, government fee
-          shown separately, EMI available.
-        </p>
-      </div>
+      <PageHero
+        eyebrow="Membership & Pricing"
+        title="Plans that cover your compliance needs."
+        accent="compliance needs."
+        lede="Pick what fits your business. Transparent pricing, government fee shown separately, EMI available."
+        align="center"
+      />
 
+      <div className="mx-auto max-w-[1120px] px-6 pt-14 pb-16">
       {/* ── Service tiers */}
-      <section className="mt-12">
+      <section>
         <div className="grid items-start gap-6 md:grid-cols-3">
           {PLANS.map((plan) => (
             <TierCard
@@ -219,6 +216,7 @@ export default function MembershipPage() {
           </ButtonLink>
         </CTABand>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PageHero } from "@/components/marketing/PageHero";
 import { Card, LogoStrip } from "@/components/marketing/primitives";
 import { StickyLeadSidebar } from "@/components/marketing/StickyLeadSidebar";
 import { TRUST } from "@/content/trust";
@@ -20,23 +21,16 @@ const WHATS_INCLUDED = [
 
 export default function FsmRegistrationPage() {
   return (
-    <div className="mx-auto max-w-[1120px] px-6 py-14">
+    <>
       {/* Hero */}
-      <div className="max-w-[720px]">
-        <p className="text-[13px] font-semibold tracking-[0.02em] text-fr-blue uppercase">
-          FSM Registration
-        </p>
-        <h1 className="mt-3 text-[34px] leading-[1.08] font-bold tracking-[-0.026em] text-balance text-fr-ink sm:text-[44px]">
-          Food Safety Management, <span className="text-fr-green">sorted</span>.
-        </h1>
-        <p className="mt-4 max-w-[560px] text-[18px] leading-relaxed text-fr-ink-2">
-          Every FSSAI-licensed business needs trained Food Safety Supervisors.
-          We assess how many you need, enrol them in the right FoSTaC course,
-          and handle the certification end to end.
-        </p>
-      </div>
-
-      <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_400px] lg:items-start">
+      <PageHero
+        eyebrow="FSM Registration"
+        title="Food Safety Management, sorted."
+        accent="sorted."
+        lede="Every FSSAI-licensed business needs trained Food Safety Supervisors. We assess how many you need, enrol them in the right FoSTaC course, and handle the certification end to end."
+      />
+      <div className="mx-auto max-w-[1120px] px-6 pt-14 pb-16">
+      <div className="grid gap-10 lg:grid-cols-[1fr_400px] lg:items-start">
         <div className="order-last lg:order-first">
           <section>
             <h2 className="text-title-2 tracking-[-0.02em] text-fr-ink">
@@ -92,6 +86,7 @@ export default function FsmRegistrationPage() {
           title="Get started with FSM"
         />
       </div>
-    </div>
+      </div>
+    </>
   );
 }

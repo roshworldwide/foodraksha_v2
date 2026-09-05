@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PageHero } from "@/components/marketing/PageHero";
 import { LogoStrip, TestimonialCard } from "@/components/marketing/primitives";
 import { StickyLeadSidebar } from "@/components/marketing/StickyLeadSidebar";
 import { TRUST } from "@/content/trust";
@@ -20,15 +21,21 @@ const WHAT_YOU_GET = [
 
 export default function BookPage() {
   return (
-    <div className="mx-auto max-w-[1120px] px-6 py-14">
+    <>
       {/* ── 1 · Hero */}
-      <div className="mx-auto max-w-[720px] text-center">
+      <PageHero
+        eyebrow="Free consultation"
+        title="Book a free expert consultation for your food licence."
+        accent="free"
+        lede="Talk to a compliance specialist for clear guidance on your licence category, documents and timeline — free."
+        align="center"
+      >
         {TRUST.bookBadges.length > 0 && (
           <div className="flex flex-wrap items-center justify-center gap-2.5">
             {TRUST.bookBadges.map((badge) => (
               <span
                 key={badge}
-                className="inline-flex items-center gap-2 rounded-pill bg-fr-green-050 px-3.5 py-1.5 text-[13px] font-semibold text-fr-green-deep"
+                className="fr-glass inline-flex items-center gap-2 rounded-pill px-3.5 py-1.5 text-[13px] font-semibold text-white"
               >
                 <span
                   aria-hidden="true"
@@ -39,18 +46,11 @@ export default function BookPage() {
             ))}
           </div>
         )}
-        <h1 className="mt-5 text-[34px] leading-[1.08] font-bold tracking-[-0.026em] text-balance text-fr-ink sm:text-[44px]">
-          Book a <span className="text-fr-green">free</span> expert consultation
-          for your food licence.
-        </h1>
-        <p className="mx-auto mt-4 max-w-[560px] text-[18px] leading-relaxed text-fr-ink-2">
-          Talk to a compliance specialist for clear guidance on your licence
-          category, documents and timeline — free.
-        </p>
-      </div>
+      </PageHero>
 
+      <div className="mx-auto max-w-[1120px] px-6 pt-14 pb-16">
       {/* ── 2–5 · Content + sticky form */}
-      <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_400px] lg:items-start">
+      <div className="grid gap-10 lg:grid-cols-[1fr_400px] lg:items-start">
         {/* Supporting content (scrolls) */}
         <div className="order-last lg:order-first">
           {/* WHAT YOU GET */}
@@ -114,6 +114,7 @@ export default function BookPage() {
           title="Fast callback"
         />
       </div>
-    </div>
+      </div>
+    </>
   );
 }

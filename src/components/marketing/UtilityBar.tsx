@@ -13,7 +13,7 @@ export function UtilityBar() {
   const phoneIsPh = isPlaceholder(CONTACT.phoneDisplay);
 
   return (
-    <div className="hidden border-b-[0.5px] border-fr-sep bg-fr-panel text-fr-ink-2 md:block">
+    <div className="hidden border-b border-white/10 bg-fr-night text-white/55 md:block">
       <div className="mx-auto flex h-[38px] max-w-[1120px] items-center gap-[18px] px-6 text-[13px]">
         <span className="flex items-center gap-1.5">
           <span aria-hidden="true">✉</span>
@@ -22,7 +22,7 @@ export function UtilityBar() {
           ) : (
             <a
               href={`mailto:${CONTACT.email}`}
-              className="transition-colors hover:text-fr-ink"
+              className="transition-colors hover:text-white"
             >
               {CONTACT.email}
             </a>
@@ -35,21 +35,21 @@ export function UtilityBar() {
           ) : (
             <a
               href={`tel:${CONTACT.phoneHref}`}
-              className="transition-colors hover:text-fr-ink"
+              className="transition-colors hover:text-white"
             >
               {CONTACT.phoneDisplay}
             </a>
           )}
         </span>
         <div className="ml-auto flex items-center gap-3.5">
-          <Link href="/contact" className="transition-colors hover:text-fr-ink">
+          <Link href="/contact" className="transition-colors hover:text-white">
             Contact
           </Link>
           {socials.map(([name, href]) => (
             <a
               key={name}
               href={href}
-              className="capitalize transition-colors hover:text-fr-ink"
+              className="capitalize transition-colors hover:text-white"
               rel="noreferrer"
               target="_blank"
             >

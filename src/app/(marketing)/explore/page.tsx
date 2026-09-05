@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ButtonLink } from "@/components/marketing/Button";
-import { CTABand, SectionHeading } from "@/components/marketing/primitives";
+import { PageHero } from "@/components/marketing/PageHero";
+import { CTABand } from "@/components/marketing/primitives";
 import { pageMeta } from "@/lib/marketing/seo";
 
 export const metadata: Metadata = pageMeta({
@@ -65,39 +66,38 @@ const LINKS = [
 
 export default function ExplorePage() {
   return (
-    <div className="mx-auto max-w-[1120px] px-6 py-14">
-      <SectionHeading
-        level={1}
+    <>
+      <PageHero
         eyebrow="Explore"
         title="Everything else, in one place"
         accent="one place"
         lede="Guides, updates, answers and proof — dig into the detail or jump straight to a consultation."
         align="center"
-        className="mb-12"
       />
-
+      <div className="mx-auto max-w-[1120px] px-6 pt-14 pb-16">
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {LINKS.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className="group flex flex-col rounded-fr-card border-[0.5px] border-fr-sep bg-fr-bg p-6 shadow-fr-soft transition-[transform,box-shadow] duration-300 ease-ios hover:-translate-y-1 hover:shadow-fr-lift"
+            className="group relative flex flex-col overflow-hidden rounded-fr-card border-[0.5px] border-fr-sep bg-fr-bg p-6 shadow-fr-soft transition-[transform,box-shadow] duration-300 ease-ios hover:-translate-y-1.5 hover:shadow-fr-lift"
           >
+            <span aria-hidden="true" className="fr-shine" />
             <span
               aria-hidden="true"
               className={
-                "flex size-11 items-center justify-center rounded-[13px] text-[20px] " +
+                "relative flex size-12 items-center justify-center rounded-[14px] text-[20px] text-white shadow-fr-soft " +
                 (link.tone === "green"
-                  ? "bg-fr-green-050 text-fr-green-deep"
-                  : "bg-fr-blue-050 text-fr-blue")
+                  ? "bg-gradient-to-br from-fr-green to-fr-green-deep"
+                  : "bg-gradient-to-br from-fr-blue to-fr-blue-deep")
               }
             >
               {link.icon}
             </span>
-            <h2 className="mt-4 text-title-3 text-fr-ink group-hover:text-fr-blue-deep">
+            <h2 className="relative mt-4 text-title-3 text-fr-ink group-hover:text-fr-blue-deep">
               {link.title}
             </h2>
-            <p className="mt-2 text-[15px] leading-relaxed text-fr-ink-2">
+            <p className="relative mt-2 text-[15px] leading-relaxed text-fr-ink-2">
               {link.body}
             </p>
           </Link>
@@ -115,6 +115,7 @@ export default function ExplorePage() {
           </ButtonLink>
         </CTABand>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

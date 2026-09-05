@@ -1,6 +1,31 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import {
+  Inter,
+  Montserrat,
+  Oswald,
+  Plus_Jakarta_Sans,
+} from "next/font/google";
 import "./globals.css";
+
+/**
+ * The StoryBrand-inspired marketing type pairing (R2): Oswald — a tall,
+ * condensed grotesque — for uppercase display headlines, and Montserrat for
+ * body and UI. Both are scoped to `.fr-site` in globals.css; the CRM keeps its
+ * own system stack.
+ */
+const oswald = Oswald({
+  variable: "--font-oswald",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
 
 /**
  * Inter is the non-Apple fallback only. On Apple hardware the system stack in
@@ -36,7 +61,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${plusJakarta.variable}`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${plusJakarta.variable} ${oswald.variable} ${montserrat.variable}`}
+    >
       <body>{children}</body>
     </html>
   );

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ButtonLink } from "@/components/marketing/Button";
-import { CTABand, SectionHeading } from "@/components/marketing/primitives";
+import { PageHero } from "@/components/marketing/PageHero";
+import { CTABand } from "@/components/marketing/primitives";
 import { FAQ } from "@/content/faq";
 import { JsonLd, pageMeta } from "@/lib/marketing/seo";
 
@@ -25,20 +26,19 @@ function faqJsonLd() {
 
 export default function FaqPage() {
   return (
-    <div className="mx-auto max-w-[820px] px-6 py-14">
+    <>
       <JsonLd data={faqJsonLd()} />
 
-      <SectionHeading
-        level={1}
+      <PageHero
         eyebrow="FAQ"
         title="FSSAI questions, answered"
         accent="answered"
         lede="The things food businesses ask us most — straight answers, kept accurate after the 2026 reforms."
         align="center"
-        className="mb-10"
       />
 
-      <div className="rounded-fr-card border-[0.5px] border-fr-sep bg-fr-bg shadow-fr-soft">
+      <div className="mx-auto max-w-[820px] px-6 pt-14 pb-16">
+        <div className="fr-elevate overflow-hidden rounded-fr-card border-[0.5px] border-fr-sep bg-fr-bg">
         {FAQ.map((item) => (
           <details
             key={item.q}
@@ -72,5 +72,6 @@ export default function FaqPage() {
         </CTABand>
       </div>
     </div>
+    </>
   );
 }

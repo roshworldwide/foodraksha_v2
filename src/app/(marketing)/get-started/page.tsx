@@ -35,7 +35,7 @@ export default async function GetStartedPage() {
   return (
     <div className="mx-auto max-w-[1120px] px-6 py-14">
       {/* Lead capture stays the dominant path — this is the express lane. */}
-      <div className="mb-10 flex flex-wrap items-center justify-between gap-4 rounded-fr-card border-[0.5px] border-fr-sep bg-fr-panel px-6 py-4">
+      <div className="fr-mesh-panel mb-10 flex flex-wrap items-center justify-between gap-4 rounded-fr-card border-[0.5px] border-fr-sep px-6 py-4">
         <p className="text-[15px] text-fr-ink-2">
           <span className="font-semibold text-fr-ink">Not sure yet?</span> Talk
           to an expert first — it&rsquo;s free.
@@ -56,7 +56,7 @@ export default async function GetStartedPage() {
           <ol className="mt-9 flex flex-col gap-6">
             {STEPS.map(([title, body], index) => (
               <li key={title} className="flex gap-4">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-fr-blue-050 text-[15px] font-bold text-fr-blue">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-fr-blue to-fr-blue-deep text-[15px] font-bold text-white shadow-fr-soft">
                   {index + 1}
                 </span>
                 <div>

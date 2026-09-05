@@ -36,26 +36,26 @@ const TONE: Record<
   { tile: string; hover: string; text: string; ring: string }
 > = {
   blue: {
-    tile: "bg-fr-blue-050 text-fr-blue",
-    hover: "group-hover:bg-fr-blue group-hover:text-white",
+    tile: "bg-gradient-to-br from-fr-blue to-fr-blue-deep text-white",
+    hover: "",
     text: "text-fr-blue",
     ring: "ring-fr-blue/25",
   },
   green: {
-    tile: "bg-fr-green-050 text-fr-green-deep",
-    hover: "group-hover:bg-fr-green group-hover:text-white",
+    tile: "bg-gradient-to-br from-fr-green to-fr-green-deep text-white",
+    hover: "",
     text: "text-fr-green-deep",
     ring: "ring-fr-green/25",
   },
   orange: {
-    tile: "bg-fr-orange-050 text-fr-orange-deep",
-    hover: "group-hover:bg-fr-orange group-hover:text-white",
+    tile: "bg-gradient-to-br from-fr-orange to-fr-orange-deep text-white",
+    hover: "",
     text: "text-fr-orange-deep",
     ring: "ring-fr-orange/25",
   },
   violet: {
-    tile: "bg-fr-violet-050 text-fr-violet-deep",
-    hover: "group-hover:bg-fr-violet group-hover:text-white",
+    tile: "bg-gradient-to-br from-fr-violet to-fr-violet-deep text-white",
+    hover: "",
     text: "text-fr-violet-deep",
     ring: "ring-fr-violet/25",
   },
@@ -72,10 +72,14 @@ const ACCENT_TONE: Record<"blue" | "green" | "gradient", string> = {
   gradient: "gradient-text",
 };
 
-/** The eyebrow pill. Blue by default; the process band uses the green one. */
-const EYEBROW_TONE: Record<"blue" | "green", string> = {
-  blue: "bg-fr-blue-050 text-fr-blue",
-  green: "bg-fr-green-050 text-fr-green-deep",
+/** The eyebrow accent colour. Blue by default; the process band uses green. */
+const EYEBROW_INK: Record<"blue" | "green", string> = {
+  blue: "text-fr-blue",
+  green: "text-fr-green-deep",
+};
+const EYEBROW_RULE: Record<"blue" | "green", string> = {
+  blue: "bg-fr-blue",
+  green: "bg-fr-green-deep",
 };
 
 /** The client's pill eyebrow + extrabold two-tone heading. */
@@ -104,13 +108,18 @@ export function SectionIntro({
     >
       <span
         className={cn(
-          "inline-block rounded-pill px-4 py-1.5 text-[12px] font-bold tracking-[0.14em] uppercase",
-          EYEBROW_TONE[eyebrowTone],
+          "fr-eyebrow inline-flex items-center gap-3 text-[13px]",
+          align === "center" && "justify-center",
+          EYEBROW_INK[eyebrowTone],
         )}
       >
+        <span
+          aria-hidden="true"
+          className={cn("h-px w-7", EYEBROW_RULE[eyebrowTone])}
+        />
         {eyebrow}
       </span>
-      <h2 className="mt-4 text-[30px] leading-[1.12] font-extrabold tracking-[-0.028em] text-balance text-fr-ink lg:text-[38px]">
+      <h2 className="fr-display mt-4 text-[34px] text-balance text-fr-ink lg:text-[50px]">
         {title}{" "}
         {accent && <span className={ACCENT_TONE[accentTone]}>{accent}</span>}
       </h2>
@@ -140,7 +149,7 @@ function Shell({
   return (
     <section
       id={id}
-      className={cn("scroll-mt-20 py-16 lg:py-20", tinted && "bg-fr-panel")}
+      className={cn("scroll-mt-20 py-16 lg:py-20", tinted && "bg-fr-cream")}
     >
       <div className="mx-auto max-w-[1120px] px-6">{children}</div>
     </section>
@@ -156,54 +165,68 @@ const SERVICE_ICON: Record<ServiceCard["icon"], typeof FileBadge> = {
   training: GraduationCap, // fa-graduation-cap
 };
 
+/** Real work photos give the service grid life instead of a wall of icons. */
+const SERVICE_PHOTO: Record<ServiceCard["icon"], string> = {
+  registration: "/media/img-registration.jpg",
+  audit: "/media/img-audit.jpg",
+  training: "/media/img-training.jpg",
+};
+
 function ServiceTile({ card }: { card: ServiceCard }) {
   const tone = TONE[card.tone];
   const Icon = SERVICE_ICON[card.icon];
+  const photo = SERVICE_PHOTO[card.icon];
   return (
     <Link
       href={card.href}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-[20px] border-[0.5px] border-fr-sep bg-fr-bg p-6 shadow-fr-soft",
+        "group relative flex flex-col overflow-hidden rounded-[20px] border-[0.5px] border-fr-sep bg-fr-bg shadow-fr-soft",
         "transition-[transform,box-shadow] duration-300 ease-ios",
         "hover:-translate-y-1.5 hover:shadow-fr-lift",
       )}
     >
-      {/* hover light-sweep + corner colour wash */}
-      <span aria-hidden="true" className="fr-shine" />
-      <span
-        aria-hidden="true"
-        className={cn(
-          "pointer-events-none absolute -top-12 -right-12 size-32 rounded-full opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100",
-          tone.tile,
-        )}
-      />
-      <span
-        aria-hidden="true"
-        className={cn(
-          "relative flex size-14 items-center justify-center rounded-[16px] text-[22px] shadow-fr-soft",
-          "transition-[transform,background-color,color] duration-300 group-hover:scale-105",
-          tone.tile,
-          tone.hover,
-        )}
-      >
-        <Icon className="size-6" />
-      </span>
-      <h3 className="relative mt-5 text-[18px] font-bold text-fr-ink">
-        {card.title}
-      </h3>
-      <p className="relative mt-2 text-[14.5px] leading-relaxed text-fr-ink-2">
-        {card.body}
-      </p>
-      <span
-        className={cn(
-          "relative mt-4 flex items-center gap-1.5 text-[14px] font-semibold",
-          "transition-[gap] duration-300 group-hover:gap-2.5",
-          tone.text,
-        )}
-      >
-        {card.cta}
-        <span aria-hidden="true">→</span>
-      </span>
+      {/* real work photo — quiet at rest, gently zooms on hover */}
+      <div className="relative h-44 overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={photo}
+          alt=""
+          aria-hidden="true"
+          className="h-full w-full object-cover transition-transform duration-[600ms] ease-ios group-hover:scale-[1.07]"
+        />
+        <span
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-t from-fr-navy/55 via-fr-navy/10 to-transparent"
+        />
+      </div>
+
+      <div className="relative flex flex-1 flex-col p-6">
+        {/* gradient icon tile lifts over the photo edge with a white ring */}
+        <span
+          aria-hidden="true"
+          className={cn(
+            "absolute -top-8 left-6 flex size-14 items-center justify-center rounded-[16px] shadow-fr-lift ring-4 ring-fr-bg",
+            "transition-transform duration-300 group-hover:scale-105",
+            tone.tile,
+          )}
+        >
+          <Icon className="size-6" />
+        </span>
+        <h3 className="mt-9 text-[18px] font-bold text-fr-ink">{card.title}</h3>
+        <p className="mt-2 text-[14.5px] leading-relaxed text-fr-ink-2">
+          {card.body}
+        </p>
+        <span
+          className={cn(
+            "mt-4 flex items-center gap-1.5 text-[14px] font-semibold",
+            "transition-[gap] duration-300 group-hover:gap-2.5",
+            tone.text,
+          )}
+        >
+          {card.cta}
+          <span aria-hidden="true">→</span>
+        </span>
+      </div>
     </Link>
   );
 }
@@ -377,7 +400,7 @@ export function GovAlignment() {
               <div className="flex items-center gap-3">
                 <span
                   aria-hidden="true"
-                  className="flex size-11 shrink-0 items-center justify-center rounded-[13px] bg-fr-blue-050 text-[15px] font-extrabold text-fr-blue"
+                  className="flex size-11 shrink-0 items-center justify-center rounded-[13px] bg-gradient-to-br from-fr-blue to-fr-blue-deep text-[15px] font-extrabold text-white shadow-fr-soft"
                 >
                   {authority.name.slice(0, 2)}
                 </span>

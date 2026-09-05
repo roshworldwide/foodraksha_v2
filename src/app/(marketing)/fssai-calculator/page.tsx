@@ -53,45 +53,70 @@ function appJsonLd() {
 
 export default function FssaiCalculatorPage() {
   return (
-    <div className="mx-auto max-w-[1120px] px-6 py-14">
+    <>
       <JsonLd data={appJsonLd()} />
       <JsonLd data={faqJsonLd()} />
 
-      {/* ── 1 · Hero + the widget */}
-      <div className="grid gap-10 lg:grid-cols-[1fr_440px] lg:items-start">
-        <div>
-          <p className="text-[13px] font-semibold tracking-[0.02em] text-fr-blue uppercase">
-            Free tool · {FEES_UPDATED_LABEL}
-          </p>
-          <h1 className="mt-3.5 text-[36px] leading-[1.06] font-bold tracking-[-0.03em] text-balance text-fr-ink sm:text-[48px]">
-            FSSAI Licence Fee{" "}
-            <span className="text-fr-blue">Calculator</span>
-          </h1>
-          <p className="mt-4 max-w-[560px] text-[18px] leading-relaxed text-fr-ink-2">
-            Pick your kind of business and we&rsquo;ll tell you which FSSAI
-            licence you need and the exact government fee per year — using the
-            official fee schedule, not a rule of thumb.
-          </p>
-          <p className="mt-3 max-w-[560px] text-[15px] leading-relaxed text-fr-ink-2">
-            {PROFESSIONAL_FEE_NOTE}
-          </p>
-          <div className="mt-7 flex flex-wrap items-center gap-3">
-            <ButtonLink href="/get-started" variant="blue" size="lg">
-              Start your application
-            </ButtonLink>
-            <ButtonLink href="/services" variant="ghost" size="lg">
-              See what&rsquo;s included
-            </ButtonLink>
+      {/* ── 1 · Hero + the widget, on a dark mesh band */}
+      <section className="fr-mesh relative overflow-hidden">
+        <span
+          aria-hidden="true"
+          className="fr-dotgrid-light absolute inset-0 opacity-70"
+        />
+        <span
+          aria-hidden="true"
+          className="fr-blob fr-blob-blue absolute -top-28 -left-24 size-[30rem]"
+        />
+        <span
+          aria-hidden="true"
+          className="fr-blob fr-blob-green absolute -right-24 -bottom-28 size-[26rem]"
+        />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-fr-bg to-transparent"
+        />
+        <div className="relative z-10 mx-auto grid max-w-[1120px] gap-10 px-6 py-16 lg:grid-cols-[1fr_440px] lg:items-start lg:py-20">
+          <div>
+            <span className="fr-glass mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[12px] font-bold tracking-[0.14em] text-white uppercase">
+              <span
+                aria-hidden="true"
+                className="size-1.5 rounded-full bg-fr-green"
+              />
+              Free tool · {FEES_UPDATED_LABEL}
+            </span>
+            <h1 className="text-[34px] leading-[1.06] font-extrabold tracking-[-0.03em] text-balance text-white sm:text-[46px]">
+              FSSAI Licence Fee{" "}
+              <span className="bg-gradient-to-r from-[#5b9bff] to-[#3ddc84] bg-clip-text text-transparent">
+                Calculator
+              </span>
+            </h1>
+            <p className="mt-4 max-w-[560px] text-[18px] leading-relaxed text-white/75">
+              Pick your kind of business and we&rsquo;ll tell you which FSSAI
+              licence you need and the exact government fee per year — using the
+              official fee schedule, not a rule of thumb.
+            </p>
+            <p className="mt-3 max-w-[560px] text-[15px] leading-relaxed text-white/65">
+              {PROFESSIONAL_FEE_NOTE}
+            </p>
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <ButtonLink href="/get-started" variant="green" size="lg">
+                Start your application
+              </ButtonLink>
+              <ButtonLink href="/services" variant="soft" size="lg">
+                See what&rsquo;s included
+              </ButtonLink>
+            </div>
+          </div>
+
+          <div className="lg:sticky lg:top-24">
+            <FssaiCalculator title="FSSAI Fee Calculator" headingLevel="h2" />
           </div>
         </div>
+      </section>
 
-        <div className="lg:sticky lg:top-24">
-          <FssaiCalculator title="FSSAI Fee Calculator" headingLevel="h2" />
-        </div>
-      </div>
-
+      <div className="mx-auto max-w-[1120px] px-6 pt-16 pb-16">
       {/* ── 2 · The fee matrix, as indexable content */}
-      <section className="mt-16">
+      <section>
         <h2 className="text-title-1 tracking-[-0.02em] text-fr-ink">
           FSSAI government fees by kind of business
         </h2>
@@ -176,6 +201,7 @@ export default function FssaiCalculatorPage() {
           ))}
         </dl>
       </section>
-    </div>
+      </div>
+    </>
   );
 }

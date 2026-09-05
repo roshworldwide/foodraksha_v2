@@ -73,10 +73,10 @@ export function PostPage({
       <div className="mt-8 grid gap-12 lg:grid-cols-[1fr_360px] lg:items-start">
         {/* Article */}
         <article className="order-last min-w-0 lg:order-first">
-          <p className="text-[13px] font-semibold tracking-[0.02em] text-fr-blue uppercase">
+          <span className="inline-flex rounded-pill bg-fr-blue-050 px-3 py-1 text-[12px] font-bold tracking-[0.04em] text-fr-blue uppercase">
             {meta.category}
-          </p>
-          <h1 className="mt-2 text-[34px] leading-[1.1] font-bold tracking-[-0.026em] text-balance text-fr-ink sm:text-[40px]">
+          </span>
+          <h1 className="mt-3 text-[34px] leading-[1.1] font-bold tracking-[-0.026em] text-balance text-fr-ink sm:text-[40px]">
             {meta.title}
           </h1>
 

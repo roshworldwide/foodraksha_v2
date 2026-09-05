@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { ButtonLink } from "@/components/marketing/Button";
-import {
-  Card,
-  CTABand,
-  SectionHeading,
-} from "@/components/marketing/primitives";
+import { PageHero } from "@/components/marketing/PageHero";
+import { Card, CTABand } from "@/components/marketing/primitives";
 import { pageMeta } from "@/lib/marketing/seo";
 
 export const metadata: Metadata = pageMeta({
@@ -43,26 +40,25 @@ const BENEFITS = [
 
 export default function BenefitsPage() {
   return (
-    <div className="mx-auto max-w-[1120px] px-6 py-14">
-      <SectionHeading
-        level={1}
+    <>
+      <PageHero
         eyebrow="Benefits"
         title="Why food businesses choose us"
         accent="choose us"
         lede="Compliance shouldn't be painful. Here's what makes Food Raksha different."
         align="center"
-        className="mb-12"
       />
+      <div className="mx-auto max-w-[1120px] px-6 pt-14 pb-16">
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {BENEFITS.map(([title, body], index) => (
           <Card key={title} hover>
             <span
               aria-hidden="true"
               className={
-                "flex size-11 items-center justify-center rounded-[13px] text-[18px] font-bold " +
+                "flex size-12 items-center justify-center rounded-[14px] text-[18px] font-bold text-white shadow-fr-soft " +
                 (index % 2 === 0
-                  ? "bg-fr-blue-050 text-fr-blue"
-                  : "bg-fr-green-050 text-fr-green-deep")
+                  ? "bg-gradient-to-br from-fr-blue to-fr-blue-deep"
+                  : "bg-gradient-to-br from-fr-green to-fr-green-deep")
               }
             >
               {index + 1}
@@ -85,6 +81,7 @@ export default function BenefitsPage() {
           </ButtonLink>
         </CTABand>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

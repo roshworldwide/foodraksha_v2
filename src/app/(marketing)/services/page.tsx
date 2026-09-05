@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { ClientMarquee } from "@/components/marketing/ClientMarquee";
+import { PageHero } from "@/components/marketing/PageHero";
 import { ServiceTools } from "@/components/marketing/ServiceTools";
 import {
   Card,
@@ -64,33 +65,26 @@ function faqJsonLd() {
 
 export default function ServicesPage() {
   return (
-    <div className="mx-auto max-w-[1120px] px-6 py-14">
+    <>
       <JsonLd data={serviceJsonLd()} />
       <JsonLd data={faqJsonLd()} />
 
       {/* ── 1 · Hero */}
-      <div className="mx-auto max-w-[760px] text-center">
-        <p className="text-[13px] font-semibold tracking-[0.02em] text-fr-blue uppercase">
-          FSSAI Licence Services
-        </p>
-        <h1 className="mt-3.5 text-[36px] leading-[1.06] font-bold tracking-[-0.03em] text-balance text-fr-ink sm:text-[48px]">
-          Find the right FSSAI licence for your{" "}
-          <span className="text-fr-blue">business</span>.
-        </h1>
-        <p className="mx-auto mt-4 max-w-[600px] text-[18px] leading-relaxed text-fr-ink-2">
-          Two questions tell you which licence you need and what it costs. Then
-          see exactly which documents it takes — and how many of them we prepare
-          for you.
-        </p>
-      </div>
+      <PageHero
+        eyebrow="FSSAI Licence Services"
+        title="Find the right FSSAI licence for your business."
+        accent="business"
+        lede="Two questions tell you which licence you need and what it costs. Then see exactly which documents it takes — and how many of them we prepare for you."
+      />
 
-      {/* ── 2 · The two tools, immediately below the hero.
+      <div className="mx-auto max-w-[1120px] px-6 pt-14 pb-16">
+        {/* ── 2 · The two tools, immediately below the hero.
              The hero deliberately has NO buttons of its own: the two pill
              buttons at the top of this section are the real control, so there is
              only one place the "which tool is open" state can live. Duplicating
              them in the hero and syncing through the URL hash is what made them
              stop working. The ids remain for deep links from elsewhere. */}
-      <section className="mt-9">
+      <section>
         <span id="find" aria-hidden="true" className="block scroll-mt-24" />
         <span
           id="documents"
@@ -115,7 +109,7 @@ export default function ServicesPage() {
           {LICENCES.map((licence) => {
             const rec = recommend(licence.kind);
             return (
-              <Card key={licence.kind} id={licence.kind.toLowerCase()}>
+              <Card key={licence.kind} id={licence.kind.toLowerCase()} hover>
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                   <h3 className="text-title-3 text-fr-ink">{licence.name}</h3>
                   <span className="text-[14px] font-medium text-fr-ink-2">
@@ -165,7 +159,7 @@ export default function ServicesPage() {
         <ol className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {PROCESS_STEPS.map((step, index) => (
             <li key={step.title}>
-              <span className="flex size-9 items-center justify-center rounded-full bg-fr-blue-050 text-[16px] font-bold text-fr-blue">
+              <span className="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-fr-blue to-fr-blue-deep text-[16px] font-bold text-white shadow-fr-soft">
                 {index + 1}
               </span>
               <h3 className="mt-3.5 text-[17px] font-semibold text-fr-ink">
@@ -219,7 +213,8 @@ export default function ServicesPage() {
           <ClientMarquee label="Trusted by" logos={CLIENTS} />
         </section>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

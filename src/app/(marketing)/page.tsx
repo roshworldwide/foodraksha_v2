@@ -60,9 +60,9 @@ const ACTIONS = [
 /* `-deep` tones for the glyphs: the base accents are fill colours and orange at
    base measures 3.42:1, below AA. */
 const ACTION_TONE: Record<string, string> = {
-  blue: "bg-fr-blue-050 text-fr-blue",
-  green: "bg-fr-green-050 text-fr-green-deep",
-  orange: "bg-fr-orange-050 text-fr-orange-deep",
+  blue: "bg-gradient-to-br from-fr-blue to-fr-blue-deep text-white",
+  green: "bg-gradient-to-br from-fr-green to-fr-green-deep text-white",
+  orange: "bg-gradient-to-br from-fr-orange to-fr-orange-deep text-white",
 };
 
 export default function MarketingHome() {
@@ -134,7 +134,7 @@ export default function MarketingHome() {
       {/* ── 3 · FOOD LICENCE SERVICE PANEL
              Section 5 of docs/Website-Structure-Teardown.md — the offer, its
              price, and the Overview / Process & Documents tabs. */}
-      <section className="bg-fr-panel py-18">
+      <section className="bg-fr-cream py-18">
         <div className="mx-auto max-w-[1120px] px-6">
           <ServicePanel />
         </div>
@@ -156,7 +156,7 @@ export default function MarketingHome() {
             <p className="text-[13px] font-semibold tracking-[0.02em] text-white/80 uppercase">
               Talk to a specialist
             </p>
-            <h2 className="mt-3 text-title-1 tracking-[-0.02em] sm:text-large-title">
+            <h2 className="fr-display mt-3 text-[38px] sm:text-[54px]">
               Get a free callback.
             </h2>
             <p className="mt-3 max-w-[440px] text-[17px] leading-relaxed text-white/85">
@@ -189,7 +189,7 @@ export default function MarketingHome() {
       </section>
 
       {/* ── 4 · PRICING */}
-      <section id="pricing" className="scroll-mt-20 bg-fr-panel py-20">
+      <section id="pricing" className="scroll-mt-20 bg-fr-cream py-20">
         <div className="mx-auto max-w-[1120px] px-6">
           <SectionHeading
             title="The right plan for your food licence"

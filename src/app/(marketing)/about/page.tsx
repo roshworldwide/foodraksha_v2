@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { ButtonLink } from "@/components/marketing/Button";
 import { ClientMarquee } from "@/components/marketing/ClientMarquee";
+import { PageHero } from "@/components/marketing/PageHero";
 import {
   Card,
   CTABand,
@@ -73,20 +74,13 @@ export default function AboutPage() {
       <JsonLd data={breadcrumbJsonLd()} />
 
       {/* ── 1 · HERO */}
-      <header className="bg-[radial-gradient(120%_90%_at_50%_-20%,var(--color-fr-blue-050),transparent_60%)]">
-        <div className="mx-auto max-w-[1120px] px-6 py-16 sm:py-20">
-          <SectionHeading
-            level={1}
-            eyebrow={ABOUT_HERO.eyebrow}
-            title={ABOUT_HERO.title}
-            accent={ABOUT_HERO.accent}
-            accentColor={ABOUT_HERO.accentColor}
-            lede={ABOUT_HERO.lede}
-            align="center"
-            className="mx-auto max-w-[720px]"
-          />
-        </div>
-      </header>
+      <PageHero
+        eyebrow={ABOUT_HERO.eyebrow}
+        title={ABOUT_HERO.title}
+        accent={ABOUT_HERO.accent}
+        lede={ABOUT_HERO.lede}
+        align="center"
+      />
 
       {/* ── 2 · OUR STORY */}
       <section className="mx-auto max-w-[1120px] px-6 pb-18">
@@ -164,10 +158,10 @@ export default function AboutPage() {
               <span
                 aria-hidden="true"
                 className={
-                  "flex size-11 items-center justify-center rounded-[13px] text-[19px] " +
+                  "flex size-12 items-center justify-center rounded-[14px] text-[19px] text-white shadow-fr-soft " +
                   (value.tone === "green"
-                    ? "bg-fr-green-050 text-fr-green-deep"
-                    : "bg-fr-blue-050 text-fr-blue")
+                    ? "bg-gradient-to-br from-fr-green to-fr-green-deep"
+                    : "bg-gradient-to-br from-fr-blue to-fr-blue-deep")
                 }
               >
                 {value.glyph}
@@ -212,7 +206,7 @@ export default function AboutPage() {
                          would not be. */
                       <span
                         aria-hidden="true"
-                        className="mx-auto flex size-[104px] items-center justify-center rounded-full bg-fr-blue-050 text-[30px] font-bold tracking-[-0.02em] text-fr-blue"
+                        className="mx-auto flex size-[104px] items-center justify-center rounded-full bg-gradient-to-br from-fr-blue to-fr-blue-deep text-[30px] font-bold tracking-[-0.02em] text-white shadow-fr-soft"
                       >
                         {initials(member.name)}
                       </span>

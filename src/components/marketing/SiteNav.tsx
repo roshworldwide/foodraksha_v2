@@ -64,9 +64,9 @@ export function SiteNav() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full border-b border-fr-sep bg-fr-bg/90 backdrop-blur-xl",
+        "sticky top-0 z-50 w-full border-b border-white/10 bg-fr-night/95 backdrop-blur-xl",
         "transition-shadow duration-300 ease-ios",
-        scrolled ? "shadow-fr-soft" : "shadow-none",
+        scrolled ? "shadow-fr-lift" : "shadow-none",
       )}
     >
       <div
@@ -83,10 +83,14 @@ export function SiteNav() {
           aria-label="Food Raksha home"
           className="flex shrink-0 flex-col justify-center"
         >
-          <Logo variant="lockup" height={scrolled ? 26 : 30} />
+          <Logo
+            variant="lockup"
+            height={scrolled ? 26 : 30}
+            className="brightness-0 invert"
+          />
           <span
             className={cn(
-              "block overflow-hidden text-[9.5px] font-semibold tracking-[0.14em] text-fr-ink-2 uppercase",
+              "block overflow-hidden text-[9.5px] font-semibold tracking-[0.14em] text-white/55 uppercase",
               "transition-all duration-300 ease-ios",
               scrolled ? "mt-0 max-h-0 opacity-0" : "mt-1 max-h-4 opacity-100",
             )}
@@ -98,11 +102,11 @@ export function SiteNav() {
         {/* Desktop navigation */}
         <nav
           aria-label="Primary"
-          className="hidden items-center gap-1 text-[14.5px] font-semibold text-fr-ink-2 lg:flex"
+          className="hidden items-center gap-1 text-[13px] font-semibold tracking-[0.05em] text-white/80 uppercase lg:flex"
         >
           <Link
             href="/"
-            className="rounded-lg px-3 py-2 transition-colors hover:bg-fr-panel hover:text-fr-blue"
+            className="rounded-lg px-3 py-2 transition-colors hover:bg-white/10 hover:text-white"
           >
             Home
           </Link>
@@ -120,9 +124,9 @@ export function SiteNav() {
               onClick={() => setMegaOpen((open) => !open)}
               className={cn(
                 "flex items-center gap-1.5 rounded-lg px-3 py-2 transition-colors",
-                "hover:bg-fr-panel hover:text-fr-blue",
+                "hover:bg-white/10 hover:text-white",
                 "focus-visible:ring-[3px] focus-visible:ring-fr-blue/35 focus-visible:outline-none",
-                megaOpen && "text-fr-blue",
+                megaOpen && "text-white",
               )}
             >
               Services
@@ -183,7 +187,7 @@ export function SiteNav() {
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-lg px-3 py-2 transition-colors hover:bg-fr-panel hover:text-fr-blue"
+              className="rounded-lg px-3 py-2 transition-colors hover:bg-white/10 hover:text-white"
             >
               {item.label}
             </Link>
@@ -199,18 +203,18 @@ export function SiteNav() {
           ) : (
             <a
               href={`tel:${CONTACT.phoneHref}`}
-              className="flex items-center gap-1.5 text-[14px] font-medium text-fr-ink-2 transition-colors hover:text-fr-blue"
+              className="flex items-center gap-1.5 text-[14px] font-medium text-white/70 transition-colors hover:text-white"
             >
-              <Phone aria-hidden="true" className="size-4 text-fr-green" />
+              <Phone aria-hidden="true" className="size-4 text-fr-mint" />
               {CONTACT.phoneDisplay}
             </a>
           )}
           <Link
             href="/get-started"
             className={cn(
-              "flex items-center gap-2 rounded-xl bg-fr-blue px-5 py-2.5",
+              "flex items-center gap-2 rounded-xl bg-gradient-to-r from-fr-blue to-fr-blue-deep px-5 py-2.5",
               "text-[14px] font-semibold text-white shadow-fr-blue",
-              "transition-colors duration-300 hover:bg-fr-blue-deep",
+              "transition-[filter,box-shadow] duration-300 hover:brightness-110 hover:shadow-fr-lift",
               "focus-visible:ring-[3px] focus-visible:ring-fr-blue/35 focus-visible:outline-none",
             )}
           >
@@ -225,7 +229,7 @@ export function SiteNav() {
           onClick={() => setMobileOpen((open) => !open)}
           aria-expanded={mobileOpen}
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          className="p-2 text-fr-ink transition-colors hover:text-fr-blue lg:hidden"
+          className="p-2 text-white transition-colors hover:text-white/70 lg:hidden"
         >
           {mobileOpen ? (
             <X aria-hidden="true" className="size-6" />

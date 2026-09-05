@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { PostMeta } from "@/lib/content/posts";
 import { cn } from "@/lib/cn";
 import { ArticleCard } from "./ArticleCard";
+import { PageHero } from "./PageHero";
 
 /**
  * The shared index template for the blog and FSSAI-updates engines. The
@@ -27,27 +28,16 @@ export function PostIndex({
   base: string;
   activeCategory?: string;
 }) {
-  const [before, after] = title.split(accent);
   const filtered = activeCategory
     ? posts.filter((p) => p.category === activeCategory)
     : posts;
 
   return (
-    <div className="mx-auto max-w-[1120px] px-6 py-14">
-      <div className="max-w-[720px]">
-        <p className="text-[13px] font-semibold tracking-[0.02em] text-fr-blue uppercase">
-          {eyebrow}
-        </p>
-        <h1 className="mt-3 text-[36px] leading-[1.08] font-bold tracking-[-0.026em] text-balance text-fr-ink sm:text-[44px]">
-          {before}
-          <span className="text-fr-blue">{accent}</span>
-          {after}
-        </h1>
-        <p className="mt-4 text-[18px] leading-relaxed text-fr-ink-2">{lede}</p>
-      </div>
-
+    <>
+      <PageHero eyebrow={eyebrow} title={title} accent={accent} lede={lede} />
+      <div className="mx-auto max-w-[1120px] px-6 pt-12 pb-16">
       {categories.length > 1 && (
-        <div className="mt-8 flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2">
           <FilterChip href={base} active={!activeCategory}>
             All
           </FilterChip>
@@ -72,7 +62,8 @@ export function PostIndex({
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 
