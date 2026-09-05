@@ -332,7 +332,7 @@ function Overview({
           </ListGroup>
         )}
 
-        <ListGroup className="mb-0">
+        <ListGroup>
           <ListGroupHeader>Contact</ListGroupHeader>
           <List>
             <ListRow compact subtitle="Mobile" title={detail.customer.mobile} />
@@ -360,6 +360,11 @@ function Overview({
               }
             />
           </List>
+        </ListGroup>
+
+        <ListGroup className="mb-0">
+          <ListGroupHeader>Account</ListGroupHeader>
+          <ResetPassword applicationId={detail.application.id} />
         </ListGroup>
       </div>
     </div>
@@ -1185,5 +1190,125 @@ function QueryRow({
         </Button>
       </div>
     </li>
+  );
+}
+
+/* ─────────────────────────────────────────────── reset password */
+
+/**
+ * Staff-assisted password reset for a locked-out customer. Generates a fresh
+ * password, signs them out of every session, delivers it by SMS/email, and
+ * shows it here for staff to relay. Behind a confirm step, since it revokes
+ * the customer's current sessions.
+ */
+function ResetPassword({ applicationId }: { applicationId: string }) {
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{
+    username: string;
+    password: string;
+    delivery: { sms: { status: string }; email: { status: string } };
+  } | null>(null);
+
+  async function run() {
+    setBusy(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `/api/staff/applications/${applicationId}/reset-password`,
+        { method: "POST" },
+      );
+      const body = (await response.json().catch(() => ({}))) as {
+        username?: string;
+        password?: string;
+        delivery?: { sms: { status: string }; email: { status: string } };
+        error?: string;
+      };
+      if (!response.ok || !body.username || !body.password || !body.delivery) {
+        setError(body.error ?? "That could not be reset.");
+        return;
+      }
+      setResult({
+        username: body.username,
+        password: body.password,
+        delivery: body.delivery,
+      });
+      setConfirming(false);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (result) {
+    const label = (status: string) =>
+      status === "sent"
+        ? "sent"
+        : status === "skipped"
+          ? "not configured"
+          : "failed";
+    return (
+      <Card>
+        <p className="text-subhead font-semibold text-label">
+          New password set.
+        </p>
+        <p className="mt-1 text-footnote text-label-2">
+          Every existing session was signed out. Share these with the customer:
+        </p>
+        <dl className="mt-3 space-y-1.5 text-[15px]">
+          <div className="flex items-center justify-between gap-3">
+            <dt className="text-label-2">Username</dt>
+            <dd className="font-mono">{result.username}</dd>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <dt className="text-label-2">Password</dt>
+            <dd className="font-mono">{result.password}</dd>
+          </div>
+        </dl>
+        <p className="mt-3 text-footnote text-label-2">
+          SMS {label(result.delivery.sms.status)} · Email{" "}
+          {label(result.delivery.email.status)}
+        </p>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <p className="text-footnote text-label-2">
+        Generate a new password if the customer is locked out. This signs them
+        out of every device.
+      </p>
+      {error && (
+        <p role="alert" className="mt-2 text-footnote font-medium text-stop">
+          {error}
+        </p>
+      )}
+      <div className="mt-3 flex gap-2">
+        {confirming ? (
+          <>
+            <Button
+              size="sm"
+              variant="quiet"
+              disabled={busy}
+              onClick={() => setConfirming(false)}
+            >
+              Cancel
+            </Button>
+            <Button size="sm" disabled={busy} onClick={() => void run()}>
+              {busy ? "Resetting…" : "Confirm reset"}
+            </Button>
+          </>
+        ) : (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => setConfirming(true)}
+          >
+            Reset password
+          </Button>
+        )}
+      </div>
+    </Card>
   );
 }

@@ -10,7 +10,10 @@ import { generatePassword } from "@/lib/password-generator";
 import { prisma } from "@/lib/prisma";
 import type { SignupInput } from "@/lib/validation";
 
-export type SignupErrorCode = "DUPLICATE_MOBILE" | "UNKNOWN_CATEGORY";
+export type SignupErrorCode =
+  | "DUPLICATE_MOBILE"
+  | "UNKNOWN_CATEGORY"
+  | "NOT_FOUND";
 
 export class SignupError extends Error {
   constructor(
@@ -413,4 +416,92 @@ export async function deliverCredentials(
   ]);
 
   return { email: emailResult, sms: smsResult };
+}
+
+/* ────────────────────────────────────────── staff-assisted reset */
+
+/**
+ * Generate a fresh password for a customer who is locked out, staff-initiated
+ * from the client file. Sets the new hash, signs out every existing session for
+ * that user, and returns the credentials so they can be delivered (SMS/email)
+ * and shown on screen for staff to relay. Audited against the customer's User.
+ *
+ * The plaintext password exists only in the returned value — never persisted
+ * or logged, exactly like the signup path.
+ */
+export async function resetCustomerPassword(
+  applicationId: string,
+  staffUserId: string,
+  meta: { ipAddress: string | null },
+): Promise<SignupAccount> {
+  const { writeAudit } = await import("@/lib/audit");
+  const { invalidateAllSessions } = await import("@/lib/auth/session");
+
+  const password = generatePassword();
+  const passwordHash = await hashPassword(password);
+
+  const account = await prisma.$transaction(async (tx) => {
+    const application = await tx.application.findUnique({
+      where: { id: applicationId },
+      select: {
+        applicationNo: true,
+        customer: {
+          select: {
+            user: {
+              select: {
+                id: true,
+                role: true,
+                name: true,
+                mobile: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!application) {
+      throw new SignupError(
+        "NOT_FOUND",
+        "That client file could not be found.",
+      );
+    }
+
+    const user = application.customer.user;
+    if (user.role !== "CUSTOMER") {
+      throw new SignupError(
+        "NOT_FOUND",
+        "Only a customer login can be reset here.",
+      );
+    }
+
+    await tx.user.update({
+      where: { id: user.id },
+      data: { passwordHash },
+    });
+
+    await writeAudit(tx, {
+      userId: staffUserId,
+      entity: "User",
+      entityId: user.id,
+      action: "credential_reset",
+      ipAddress: meta.ipAddress,
+    });
+
+    return {
+      username: user.mobile,
+      password,
+      applicationNo: application.applicationNo,
+      userId: user.id,
+      name: user.name,
+      email: user.email ?? "",
+    } satisfies SignupAccount;
+  });
+
+  // Outside the transaction: revoke every session the customer (or a thief)
+  // may still hold, so the old password is dead everywhere immediately.
+  await invalidateAllSessions(account.userId);
+
+  return account;
 }

@@ -13,11 +13,12 @@ export type AuditAction =
   | "document_review"
   | "status_change"
   | "query_raised"
-  | "annexure_generated";
+  | "annexure_generated"
+  | "credential_reset";
 
 export interface AuditEntry {
   userId: string;
-  entity: "Application" | "Document" | "Query";
+  entity: "Application" | "Document" | "Query" | "User";
   entityId: string;
   action: AuditAction;
   before?: Prisma.InputJsonValue;
