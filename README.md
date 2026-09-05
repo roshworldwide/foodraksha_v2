@@ -7,6 +7,10 @@ Read [CLAUDE.md](./CLAUDE.md) before changing anything. The design system is in
 [docs/DESIGN-SYSTEM.md](./docs/DESIGN-SYSTEM.md), the schema of record in
 [docs/DATA-MODEL.md](./docs/DATA-MODEL.md).
 
+**Going live?** Follow the production handover & go-live runbook:
+[docs/HANDOVER.md](./docs/HANDOVER.md) — provisioning, env vars, deploy,
+smoke test, and the pre-launch checklist.
+
 ## Setup
 
 Requires Node 20+ and PostgreSQL 14+.
