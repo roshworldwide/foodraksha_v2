@@ -43,7 +43,8 @@ through the checklist below in order.
 **Verification**
 - [ ] `npm run typecheck` and `npm test` green (run locally / in CI)
 - [ ] `npm run build` succeeds
-- [ ] End-to-end smoke test passed (Section 7)
+- [ ] Automated end-to-end suite passed: `npm run test:e2e` (see `e2e/README.md`) — run against a dev/staging DB
+- [ ] Manual end-to-end smoke test passed (Section 7)
 
 **Recommended before launch**
 - [ ] Staff-assisted password reset smoke-tested on staging (now implemented — Section 8)

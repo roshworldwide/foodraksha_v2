@@ -23,12 +23,12 @@ const CONFIG: Record<Role, RoleConfig> = {
     subtitle: "Track your FSSAI licence application",
     identifier: {
       name: "identifier",
-      label: "Email",
-      hint: "The email you registered with.",
-      type: "email",
-      inputMode: "email",
+      label: "Mobile number",
+      hint: "The mobile number you signed up with — your email works too.",
+      type: "text",
+      inputMode: "text",
       autoComplete: "username",
-      placeholder: "you@example.com",
+      placeholder: "Your 10-digit number",
     },
     action: loginCustomer,
     footer: (
