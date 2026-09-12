@@ -77,6 +77,17 @@ const nextConfig: NextConfig = {
   // it ships to a serverless deploy.
   outputFileTracingIncludes: {
     "/**": ["./content/**/*.mdx"],
+    // sharp is externalised (Next's default), so at runtime the finalize
+    // route resolves the top-level sharp, whose native binding dlopens
+    // libvips from a sibling @img package. The file tracer only follows
+    // require(), never dlopen, so without this the .so is left out of the
+    // function and every image upload fails with ERR_DLOPEN_FAILED. The
+    // globs match nothing on macOS (optional deps are per-platform) and
+    // resolve on Vercel's linux-x64 build machine — which is the point.
+    "/api/customer/documents/finalize": [
+      "./node_modules/@img/sharp-linux-x64/**",
+      "./node_modules/@img/sharp-libvips-linux-x64/**",
+    ],
   },
 
   // Do not leak the framework version.
