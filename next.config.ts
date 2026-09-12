@@ -1,13 +1,35 @@
 import type { NextConfig } from "next";
 
 /**
+ * Object storage lives on its own origin, and the browser talks to it directly
+ * in two places: document uploads PUT straight to a presigned URL
+ * (connect-src), and image thumbnails are <img> tags whose /api/…/file src
+ * redirects to a signed URL — CSP is checked against the redirect target too
+ * (img-src). Derived from S3_ENDPOINT at build time so it follows whatever
+ * provider each environment uses; when storage is not configured (uploads
+ * switched off) nothing extra is allowed.
+ */
+const storageOrigin = (() => {
+  const endpoint = process.env.S3_ENDPOINT;
+  if (!endpoint) return null;
+  try {
+    return new URL(endpoint).origin;
+  } catch {
+    return null;
+  }
+})();
+const withStorage = (sources: string) =>
+  storageOrigin ? `${sources} ${storageOrigin}` : sources;
+
+/**
  * Content Security Policy.
  *
- * Deliberately strict: no third-party origins. All styling and scripts are
- * first-party (Next.js + Tailwind), images may be data: URIs (PDF previews)
- * and same-origin, and connections are same-origin only. `'unsafe-inline'` on
- * styles is required by Tailwind's runtime style injection; scripts do not get
- * it in production.
+ * Deliberately strict: no third-party origins beyond the storage origin above.
+ * All styling and scripts are first-party (Next.js + Tailwind), images may be
+ * data: URIs (PDF previews), same-origin, or signed storage URLs, and
+ * connections are same-origin plus the storage origin for uploads.
+ * `'unsafe-inline'` on styles is required by Tailwind's runtime style
+ * injection; scripts do not get it in production.
  */
 const csp = [
   "default-src 'self'",
@@ -15,7 +37,7 @@ const csp = [
   "form-action 'self'",
   "frame-ancestors 'none'",
   "object-src 'none'",
-  "img-src 'self' data: blob:",
+  withStorage("img-src 'self' data: blob:"),
   // Google Fonts (Inter / Inter Tight) used by the static marketing site.
   "font-src 'self' data: https://fonts.gstatic.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
@@ -23,7 +45,7 @@ const csp = [
   process.env.NODE_ENV === "development"
     ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
     : "script-src 'self' 'unsafe-inline'",
-  "connect-src 'self'",
+  withStorage("connect-src 'self'"),
   "upgrade-insecure-requests",
 ].join("; ");
 
