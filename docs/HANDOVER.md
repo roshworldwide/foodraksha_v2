@@ -156,7 +156,8 @@ Required vs optional:
 | `S3_SIGNED_URL_TTL_SECONDS` | No | ≤900 (enforced) |
 | `RESEND_API_KEY` / `EMAIL_FROM` / `EMAIL_REPLY_TO` | For email | |
 | `MSG91_AUTH_KEY` / `MSG91_SENDER_ID` / `MSG91_TEMPLATE_ID_*` | For SMS | DLT-registered |
-| `SEED_ADMIN_PASSWORD` | No | Sets the admin's first password (else random, printed once) |
+| `SEED_ADMIN_PASSWORD` | No | Sets the admin's password (else random, printed once). Re-running the seed resets **only** the password — never the admin's name or email |
+| `SEED_ADMIN_NAME` / `SEED_ADMIN_EMAIL` | No | Admin's name and work email on **first** creation only |
 | `SEED_DEMO` | **Leave unset in prod** | `true` creates fake data |
 | `SENTRY_DSN` | Optional | See Section 8 |
 

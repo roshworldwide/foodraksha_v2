@@ -127,22 +127,26 @@ async function main() {
   const credentials: { who: string; mobile: string; password: string }[] = [];
 
   // ── Admin staff user
+  //
+  // Keyed on the mobile. On an EXISTING admin only the password (and active
+  // flag) is reset — never the name or email, which the client may have
+  // changed in production; a re-seed must not silently revert them. On first
+  // creation, SEED_ADMIN_NAME / SEED_ADMIN_EMAIL override the placeholders.
   const adminPassword = password("SEED_ADMIN_PASSWORD");
+  const adminHash = await hashPassword(adminPassword);
   const admin = await prisma.user.upsert({
     where: { mobile: "+919000000001" },
     update: {
       role: "ADMIN",
-      name: "Priya Nair",
-      email: "priya@foodraksha.in",
-      passwordHash: await hashPassword(adminPassword),
+      passwordHash: adminHash,
       isActive: true,
     },
     create: {
       role: "ADMIN",
-      name: "Priya Nair",
+      name: process.env.SEED_ADMIN_NAME || "Priya Nair",
       mobile: "+919000000001",
-      email: "priya@foodraksha.in",
-      passwordHash: await hashPassword(adminPassword),
+      email: process.env.SEED_ADMIN_EMAIL || "priya@foodraksha.in",
+      passwordHash: adminHash,
     },
   });
   credentials.push({
