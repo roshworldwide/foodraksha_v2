@@ -9,6 +9,8 @@ import {
 
 export const STAFF_ROLES: Role[] = ["STAFF", "ADMIN"];
 export const CUSTOMER_ROLES: Role[] = ["CUSTOMER"];
+/** Team management — creating and deactivating staff — is admin-only. */
+export const ADMIN_ROLES: Role[] = ["ADMIN"];
 
 /** Where a signed-in user belongs. */
 export function portalHomeFor(role: Role): string {
@@ -53,4 +55,13 @@ export function requireCustomer(): Promise<SessionContext> {
 
 export function requireStaff(): Promise<SessionContext> {
   return requireRole(STAFF_ROLES);
+}
+
+/**
+ * Admin-only pages. A STAFF user who lands here is sent back to the staff
+ * dashboard rather than shown an error — the sidebar never offers them the
+ * link in the first place.
+ */
+export function requireAdmin(): Promise<SessionContext> {
+  return requireRole(ADMIN_ROLES);
 }

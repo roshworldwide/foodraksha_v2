@@ -17,6 +17,8 @@ interface NavItem {
   icon: keyof typeof ICONS;
   /** Exact-match only — for filtered list views that share a pathname. */
   exact?: boolean;
+  /** Rendered only for ADMIN sessions; the route itself is guarded too. */
+  adminOnly?: boolean;
 }
 
 interface NavGroup {
@@ -112,6 +114,12 @@ const NAV: Record<Role, NavGroup[]> = {
         { label: "Form IX", href: "/staff/form-ix", icon: "award" },
       ],
     },
+    {
+      heading: "Admin",
+      items: [
+        { label: "Team", href: "/staff/team", icon: "user", adminOnly: true },
+      ],
+    },
   ],
 };
 
@@ -133,6 +141,7 @@ const TITLES: [string, string][] = [
   ["/staff/product-specs", "Product specification"],
   ["/staff/noc", "NOC / address ownership"],
   ["/staff/form-ix", "Form IX"],
+  ["/staff/team", "Team"],
   ["/staff", "Dashboard"],
   ["/application/review", "Review & submit"],
   ["/application/documents", "Documents"],
@@ -156,6 +165,8 @@ export interface AppShellProps {
   role: Role;
   userName: string;
   userSubtitle: string;
+  /** Shows admin-only navigation (Team). Defaults to hidden. */
+  isAdmin?: boolean;
   accountHref?: string;
   children: React.ReactNode;
 }
@@ -164,6 +175,7 @@ export function AppShell({
   role,
   userName,
   userSubtitle,
+  isAdmin = false,
   accountHref,
   children,
 }: AppShellProps) {
@@ -186,7 +198,14 @@ export function AppShell({
     });
   }
 
-  const groups = NAV[role];
+  // Admin-only items are dropped for STAFF sessions; a group left empty by
+  // that (Admin) disappears with them.
+  const groups = NAV[role]
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => isAdmin || !item.adminOnly),
+    }))
+    .filter((group) => group.items.length > 0);
   const currentFilter = params.get("filter");
 
   function isActive(item: NavItem): boolean {

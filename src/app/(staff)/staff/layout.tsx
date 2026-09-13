@@ -15,6 +15,7 @@ export default async function StaffLayout({
       role="STAFF"
       userName={session.user.name}
       userSubtitle={session.user.role === "ADMIN" ? "Administrator" : "Staff"}
+      isAdmin={session.user.role === "ADMIN"}
     >
       {children}
     </AppShell>

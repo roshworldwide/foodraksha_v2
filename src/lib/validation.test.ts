@@ -7,6 +7,7 @@ import {
   mobileSchema,
   panSchema,
   pincodeSchema,
+  staffSchema,
 } from "./validation";
 
 describe("shared field validation", () => {
@@ -122,5 +123,38 @@ describe("questionnaire validateField", () => {
     const field = required("text", { validation: { pattern: "[" } });
     // A broken regex is ignored, so the value passes rather than throwing.
     assert.equal(validateField(field, "anything"), null);
+  });
+});
+
+describe("staffSchema (Team page)", () => {
+  const valid = {
+    name: "Asha Verma",
+    email: "Asha@FoodRaksha.in",
+    mobile: "98450 21764",
+    role: "STAFF",
+  };
+
+  it("normalises email to lower case and mobile to E.164", () => {
+    const parsed = staffSchema.parse(valid);
+    assert.equal(parsed.email, "asha@foodraksha.in");
+    assert.equal(parsed.mobile, "+919845021764");
+    assert.equal(parsed.role, "STAFF");
+  });
+
+  it("requires a work email — staff sign in with it", () => {
+    const result = staffSchema.safeParse({ ...valid, email: "" });
+    assert.equal(result.success, false);
+    assert.ok(
+      result.error?.issues.some((issue) => issue.path[0] === "email"),
+    );
+  });
+
+  it("only allows the two staff roles", () => {
+    assert.equal(staffSchema.safeParse({ ...valid, role: "ADMIN" }).success, true);
+    // A customer can never be created from the Team page.
+    assert.equal(
+      staffSchema.safeParse({ ...valid, role: "CUSTOMER" }).success,
+      false,
+    );
   });
 });

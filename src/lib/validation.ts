@@ -111,3 +111,28 @@ export const signupSchema = z.object({
 });
 
 export type SignupInput = z.infer<typeof signupSchema>;
+
+/**
+ * A new staff login, created by an admin on the Team page. Work email is
+ * required — it is how staff sign in day to day (mobile works as a fallback,
+ * exactly as for customers).
+ */
+export const staffSchema = z.object({
+  name: z
+    .string({ error: "Enter their full name" })
+    .trim()
+    .min(2, "Enter their full name")
+    .max(120, "That name is too long"),
+  email: z
+    .string({ error: "Enter their work email" })
+    .trim()
+    .toLowerCase()
+    .pipe(z.email("Enter a valid work email"))
+    .pipe(z.string().max(160)),
+  mobile: mobileSchema,
+  role: z.enum(["STAFF", "ADMIN"], {
+    error: "Choose Staff or Administrator",
+  }),
+});
+
+export type StaffInput = z.infer<typeof staffSchema>;

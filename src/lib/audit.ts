@@ -14,7 +14,10 @@ export type AuditAction =
   | "status_change"
   | "query_raised"
   | "annexure_generated"
-  | "credential_reset";
+  | "credential_reset"
+  | "staff_created"
+  | "staff_deactivated"
+  | "staff_reactivated";
 
 export interface AuditEntry {
   userId: string;

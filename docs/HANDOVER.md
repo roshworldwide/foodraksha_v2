@@ -184,8 +184,10 @@ Required vs optional:
 
 Do this on the live URL before handover. Each step exercises a subsystem.
 
-1. **Staff:** sign in at `/staff/login` as the admin → change the password →
-   create the client's real staff users.
+1. **Staff:** sign in at `/login` → "I'm staff" as the admin → open
+   **Admin → Team** in the sidebar → create the client's real staff users.
+   Each login's password is shown once for hand-over; use **Reset password**
+   on the row if it is lost.
 2. **Marketing → lead:** submit the "Book a free consultation" / get-started form
    on the marketing site → confirm the lead appears on the staff desk.
 3. **Convert:** staff converts the lead into a customer account → confirm
@@ -240,7 +242,14 @@ If every step passes, the platform is functionally live.
 - **Rollback:** Vercel → Deployments → promote a previous build for an instant UI
   rollback. Remember migrations are forward-only — a UI rollback does **not** undo
   a schema change.
-- **Adding staff:** an existing admin creates them in the staff portal.
+- **Adding staff:** an administrator opens **Admin → Team** (`/staff/team`),
+  enters name, work email, mobile and role (Staff or Administrator), and hands
+  over the one-time password. Staff sign in with their work email (mobile also
+  works). Nobody is deleted — **deactivate** instead, which signs them out
+  everywhere at once and keeps their history on every file they touched. The
+  page refuses to deactivate the last active administrator or yourself.
+  `STAFF` and `ADMIN` are otherwise identical inside the CRM today; only Team
+  management is admin-only.
 
 ---
 
